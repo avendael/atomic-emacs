@@ -1,0 +1,22 @@
+{
+  "name": "atomic-emacs",
+  "main": "./lib/atomic-emacs",
+  "version": "0.0.0",
+  "description": "An atomic implementation of emacs keybindings INCOMPLETE",
+  "activationEvents": [
+    "atomic-emacs:beginning-of-buffer",
+    "atomic-emacs:end-of-buffer",
+    "atomic-emacs:back-to-indentation",
+    "atomic-emacs:upcase-region",
+    "atomic-emacs:downcase-region",
+    "atomic-emacs:open-line",
+    "atomic-emacs:transpose-lines"
+  ],
+  "repository": "https://github.com/avendael/atomic-emacs",
+  "license": "MIT",
+  "engines": {
+    "atom": ">0.50.0"
+  },
+  "dependencies": {
+  }
+}
