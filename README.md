@@ -16,6 +16,7 @@ platforms. Once that time comes, I will gladly include those keybindings in this
 
 It's super incomplete, very alpha stage. Basically, just these:
 
+* 'ctrl-g': 'core:cancel'
 * 'ctrl-y': 'core:paste'
 * 'ctrl-w': 'core:cut'
 * 'ctrl-v': 'core:page-down'
@@ -27,12 +28,21 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
 * 'ctrl-x ctrl-l': 'atomic-emacs:downcase-region'
 * 'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
+* 'ctrl-x o': 'window:focus-next-pane'
+* 'ctrl-x b': 'fuzzy-finder:toggle-buffer-finder'
+* 'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
+* 'ctrl-x 3': 'pane:split-right'
+* 'ctrl-x 2': 'pane:split-down'
+* 'ctrl-x 0': 'pane:close'
+* 'ctrl-x 1': 'pane:close-other-items'
+* 'ctrl-x k': 'core:close'
 * 'alt-x': 'command-palette:toggle'
 * 'alt-v': 'core:page-up'
 * 'alt-<': 'atomic-emacs:beginning-of-buffer'
 * 'alt->': 'atomic-emacs:end-of-buffer'
 * 'alt-a': 'atomic-emacs:back-to-indentation'
 * 'alt-m': 'atomic-emacs:back-to-indentation'
+* 'alt-/': 'autocomplete:attach'
 
 Some things might not work like how you would expect it to work. For instance, an undo after a
 transpose-lines is really weird because the transpose-lines code involves a lot of editing steps.
