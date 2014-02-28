@@ -1,4 +1,8 @@
+'body':
+  'ctrl-g': 'core:cancel'
+
 '.editor':
+  'ctrl-g': 'core:cancel'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'core:cut'
   'ctrl-v': 'core:page-down'
@@ -18,10 +22,33 @@
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x k': 'core:close'
-  'alt-g g': 'go-to-line:toggle'
   'alt-x': 'command-palette:toggle'
   'alt-v': 'core:page-up'
   'alt-<': 'atomic-emacs:beginning-of-buffer'
   'alt->': 'atomic-emacs:end-of-buffer'
   'alt-a': 'atomic-emacs:back-to-indentation'
   'alt-m': 'atomic-emacs:back-to-indentation'
+  'alt-/': 'autocomplete:attach'
+
+'.go-to-line .mini.editor input':
+  'ctrl-g': 'core:cancel'
+
+'.tree-view-dialog .mini.editor':
+  'ctrl-g': 'core:cancel'
+
+'.tool-panel.panel-left, .tool-panel.panel-right':
+  'ctrl-g': 'tool-panel:unfocus'
+
+'.platform-win32':
+  'alt-g g': 'go-to-line:toggle'
+  'ctrl-g': 'core:cancel'
+
+'.platform-win32 .go-to-line .mini.editor input':
+  'ctrl-g': 'core:cancel'
+
+'.platform-darwin':
+  'alt-g g': 'go-to-line:toggle'
+  'ctrl-g': 'core:cancel'
+
+'.platform-darwin .go-to-line .mini.editor input':
+  'ctrl-g': 'core:cancel'
