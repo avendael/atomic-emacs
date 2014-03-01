@@ -10,7 +10,13 @@
     "atomic-emacs:upcase-region",
     "atomic-emacs:downcase-region",
     "atomic-emacs:open-line",
-    "atomic-emacs:transpose-lines"
+    "atomic-emacs:transpose-chars",
+    "atomic-emacs:transpose-lines",
+    "atomic-emacs:set-mark",
+    "atomic-emacs:remove-mark",
+    "atomic-emacs:mark-whole-buffer",
+    "atomic-emacs:exchange-point-and-mark",
+    "atomic-emacs:copy"
   ],
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",

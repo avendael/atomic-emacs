@@ -2,7 +2,6 @@
   'ctrl-g': 'core:cancel'
 
 '.editor':
-  'ctrl-g': 'core:cancel'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'core:cut'
   'ctrl-v': 'core:page-down'
@@ -10,6 +9,8 @@
   'ctrl-j': 'editor:newline'
   'ctrl-/': 'core:undo'
   'ctrl-o': 'atomic-emacs:open-line'
+  'ctrl-t': 'atomic-emacs:transpose-chars'
+  'ctrl-space': 'atomic-emacs:set-mark'
   'ctrl-x ctrl-s': 'core:save'
   'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
   'ctrl-x ctrl-l': 'atomic-emacs:downcase-region'
@@ -22,7 +23,11 @@
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x k': 'core:close'
+  'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
+  'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
   'alt-x': 'command-palette:toggle'
+  'alt-w': 'atomic-emacs:copy'
+  'alt-;': 'editor:toggle-line-comments'
   'alt-v': 'core:page-up'
   'alt-<': 'atomic-emacs:beginning-of-buffer'
   'alt->': 'atomic-emacs:end-of-buffer'
