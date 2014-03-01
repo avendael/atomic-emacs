@@ -16,7 +16,6 @@ platforms. Once that time comes, I will gladly include those keybindings in this
 
 It's super incomplete, very alpha stage. Basically, just these:
 
-* 'ctrl-g': 'core:cancel'
 * 'ctrl-y': 'core:paste'
 * 'ctrl-w': 'core:cut'
 * 'ctrl-v': 'core:page-down'
@@ -24,6 +23,9 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-j': 'editor:newline'
 * 'ctrl-/': 'core:undo'
 * 'ctrl-o': 'atomic-emacs:open-line'
+* 'ctrl-t': 'atomic-emacs:transpose-chars'
+* 'ctrl-space': 'atomic-emacs:set-mark'
+* 'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 * 'ctrl-x ctrl-s': 'core:save'
 * 'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
 * 'ctrl-x ctrl-l': 'atomic-emacs:downcase-region'
@@ -36,7 +38,10 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-x 0': 'pane:close'
 * 'ctrl-x 1': 'pane:close-other-items'
 * 'ctrl-x k': 'core:close'
+* 'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
 * 'alt-x': 'command-palette:toggle'
+* 'alt-w': 'atomic-emacs:copy'
+* 'alt-;': 'editor:toggle-line-comments'
 * 'alt-v': 'core:page-up'
 * 'alt-<': 'atomic-emacs:beginning-of-buffer'
 * 'alt->': 'atomic-emacs:end-of-buffer'
@@ -44,8 +49,14 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'alt-m': 'atomic-emacs:back-to-indentation'
 * 'alt-/': 'autocomplete:attach'
 
-Some things might not work like how you would expect it to work. For instance, an undo after a
-transpose-lines is really weird because the transpose-lines code involves a lot of editing steps.
+#### Some things that might not work as expected
+
+There is a set-marks command. However, the ctrl-space mapping is being used by atom-core, and this package cannot override the core mappings. To use this command, the user must include the following lines in the user's keymap.cson (accessed through menu Atom -> Open Your Keymap):
+
+```
+'.editor':
+  'ctrl-space': 'atomic-emacs:set-mark'
+```
 
 ### Future Work
 
@@ -53,6 +64,5 @@ There is no exact plan on what feature to include next. Basically, my fingers pr
 muscle memory gets annoyed, and then I just go ahead and fix that. But right at the top of my head,
 I'm currently thinking of:
 
-* Set mark
 * Kill ring
 * Macros
