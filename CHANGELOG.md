@@ -1,3 +1,9 @@
+## 0.2.1
+
+* Fixed a bug where the selection can only move in the y-axis.
+* Improved set-mark. It will now retain the selection on most of the current motion commands. Still have to figure out how to make this work with ctrl-v and alt-v.
+* ctrl-g will now cancel the selection.
+
 ## 0.2.0
 
 * Added marks to select an arbitrary group of text. This should be mapped by the user because the core ctrl-space mapping can't be overriden by this package.

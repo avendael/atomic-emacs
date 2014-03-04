@@ -17,6 +17,7 @@ platforms. Once that time comes, I will gladly include those keybindings in this
 It's super incomplete, very alpha stage. Basically, just these:
 
 * 'ctrl-y': 'core:paste'
+* 'ctrl-g': 'atomic-emacs:remove-mark' or 'core:cancel' in other contexts
 * 'ctrl-w': 'core:cut'
 * 'ctrl-v': 'core:page-down'
 * 'ctrl-s': 'find-and-replace:show'
@@ -49,6 +50,7 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'alt-m': 'atomic-emacs:back-to-indentation'
 * 'alt-/': 'autocomplete:attach'
 
+
 #### Some things that might not work as expected
 
 There is a set-marks command. However, the ctrl-space mapping is being used by atom-core, and this package cannot override the core mappings. To use this command, the user must include the following lines in the user's keymap.cson (accessed through menu Atom -> Open Your Keymap):
@@ -60,9 +62,8 @@ There is a set-marks command. However, the ctrl-space mapping is being used by a
 
 ### Future Work
 
-There is no exact plan on what feature to include next. Basically, my fingers press something, my
-muscle memory gets annoyed, and then I just go ahead and fix that. But right at the top of my head,
-I'm currently thinking of:
+Version 1.0.0 should be somewhat close to what [sublemacspro](https://github.com/grundprinzip/sublemacspro) currently has as of time of writing (03/04/14), and then improve further based on that. Next up are:
 
 * Kill ring
 * Macros
+* Motion commands for other platforms (OSX has the basic emacs motion commands by default)

@@ -2,8 +2,15 @@
   'ctrl-g': 'core:cancel'
 
 '.editor':
+  'ctrl-f': 'atomic-emacs:forward-char'
+  'ctrl-b': 'atomic-emacs:backward-char'
+  'ctrl-n': 'atomic-emacs:next-line'
+  'ctrl-p': 'atomic-emacs:previous-line'
+  'ctrl-a': 'atomic-emacs:move-beginning-of-line'
+  'ctrl-e': 'atomic-emacs:move-end-of-line'
+  'ctrl-g': 'atomic-emacs:remove-mark'
   'ctrl-y': 'core:paste'
-  'ctrl-w': 'core:cut'
+  'ctrl-w': 'atomic-emacs:kill-region'
   'ctrl-v': 'core:page-down'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-j': 'editor:newline'
@@ -31,7 +38,6 @@
   'alt-v': 'core:page-up'
   'alt-<': 'atomic-emacs:beginning-of-buffer'
   'alt->': 'atomic-emacs:end-of-buffer'
-  'alt-a': 'atomic-emacs:back-to-indentation'
   'alt-m': 'atomic-emacs:back-to-indentation'
   'alt-/': 'autocomplete:attach'
 

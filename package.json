@@ -16,7 +16,14 @@
     "atomic-emacs:remove-mark",
     "atomic-emacs:mark-whole-buffer",
     "atomic-emacs:exchange-point-and-mark",
-    "atomic-emacs:copy"
+    "atomic-emacs:copy",
+    "atomic-emacs:kill-region",
+    "atomic-emacs:forward-char",
+    "atomic-emacs:backward-char",
+    "atomic-emacs:next-line",
+    "atomic-emacs:previous-line",
+    "atomic-emacs:move-beginning-of-line",
+    "atomic-emacs:move-end-of-line"
   ],
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
