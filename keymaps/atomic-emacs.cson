@@ -17,6 +17,7 @@
   'ctrl-/': 'core:undo'
   'ctrl-o': 'atomic-emacs:open-line'
   'ctrl-t': 'atomic-emacs:transpose-chars'
+  'ctrl-_': 'core:undo'
   'ctrl-space': 'atomic-emacs:set-mark'
   'ctrl-x ctrl-s': 'core:save'
   'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
