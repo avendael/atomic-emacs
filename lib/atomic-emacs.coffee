@@ -20,18 +20,20 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:beginning-of-buffer", (event) => @beginningOfBuffer(event)
     atom.workspaceView.command "atomic-emacs:end-of-buffer", (event) => @endOfBuffer(event)
     atom.workspaceView.command "atomic-emacs:back-to-indentation", (event) => @backToIndentation(event)
+    atom.workspaceView.command "atomic-emacs:scroll-up", (event) => @scrollUp(event)
+    atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
 
   getActiveEditor: ->
     atom.workspace.getActiveEditor()
 
-  doMotion: (event, selectMotion, defaultMotion) ->
-    editor = @getActiveEditor()
-    cursorMarker = if editor then editor.getMarkers()[0] else false
+  getCursorMarker: (editor) ->
+    if editor then editor.getMarkers()[0] else false
 
+  doMotion: (event, cursorMarker, selectMotion, defaultMotion) ->
     if cursorMarker and cursorMarker.retainSelection
-      editor[selectMotion]()
+      if selectMotion then do selectMotion else event.abortKeyBinding()
     else
-      if defaultMotion then editor[defaultMotion]() else event.abortKeyBinding()
+      if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
   upcaseRegion: ->
     @getActiveEditor().upperCase()
@@ -67,8 +69,7 @@ module.exports =
       editor.moveCursorToBeginningOfLine()
       editor.indent()
       editor.moveCursorDown()
-      editor.deleteLine()
-    )
+      editor.deleteLine())
 
   markWholeBuffer: ->
     @getActiveEditor().selectAll()
@@ -118,28 +119,83 @@ module.exports =
       event.abortKeyBinding()
 
   forwardChar: (event) ->
-    @doMotion(event, 'selectRight')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectRight())
 
   backwardChar: (event) ->
-    @doMotion(event, 'selectLeft')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectLeft())
 
   nextLine: (event) ->
-    @doMotion(event, 'selectDown')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectDown())
 
   previousLine: (event) ->
-    @doMotion(event, 'selectUp')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectUp())
 
   moveBeginningOfLine: (event) ->
-    @doMotion(event, 'selectToBeginningOfLine')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectToBeginningOfLine())
 
   moveEndOfLine: (event) ->
-    @doMotion(event, 'selectToEndOfLine')
+    editor = @getActiveEditor()
+
+    @doMotion(event, @getCursorMarker(editor), -> editor.selectToEndOfLine())
 
   beginningOfBuffer: (event) ->
-    @doMotion(event, 'selectToTop', 'moveCursorToTop')
+    editor = @getActiveEditor()
+
+    @doMotion(event,
+      @getCursorMarker(editor),
+      (-> editor.selectToTop()),
+      (-> editor.moveCursorToTop()))
 
   endOfBuffer: (event) ->
-    @doMotion(event, 'selectToBottom', 'moveCursorToBottom')
+    editor = @getActiveEditor()
+
+    @doMotion(event,
+      @getCursorMarker(editor),
+      (-> editor.selectToBottom()),
+      (-> editor.moveCursorToBottom()))
 
   backToIndentation: (event) ->
-    @doMotion(event, 'selectToFirstCharacterOfLine', 'moveCursorToFirstCharacterOfLine')
+    editor = @getActiveEditor()
+
+    @doMotion(event,
+      @getCursorMarker(editor),
+      (-> editor.selectToFirstCharacterOfLine()),
+      (-> editor.moveCursorToFirstCharacterOfLine()))
+
+  scrollUp: (event) ->
+    editor = @getActiveEditor()
+    editorView = atom.workspaceView.find('.editor.is-focused').view()
+    firstRow = editorView.getFirstVisibleScreenRow()
+    lastRow = editorView.getLastVisibleScreenRow()
+    currentRow = editor.cursors[0].getBufferRow()
+    rowCount = (lastRow - firstRow) - (currentRow - firstRow)
+
+    editorView.scrollToBufferPosition([lastRow * 2, 0])
+    @doMotion(event,
+      @getCursorMarker(editor),
+      (-> editor.selectDown(rowCount)),
+      (-> editor.moveCursorDown(rowCount)))
+
+  scrollDown: (event) ->
+    editor = @getActiveEditor()
+    editorView = atom.workspaceView.find('.editor.is-focused').view()
+    firstRow = editorView.getFirstVisibleScreenRow()
+    lastRow = editorView.getLastVisibleScreenRow()
+    currentRow = editor.cursors[0].getBufferRow()
+    rowCount = (lastRow - firstRow) - (lastRow - currentRow)
+
+    editorView.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
+    @doMotion(event,
+      @getCursorMarker(editor),
+      (-> editor.selectUp(rowCount)),
+      (-> editor.moveCursorUp(rowCount)))

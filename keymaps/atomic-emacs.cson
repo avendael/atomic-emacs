@@ -20,8 +20,9 @@
   'ctrl-g': 'atomic-emacs:remove-mark'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'atomic-emacs:kill-region'
-  'ctrl-v': 'core:page-down'
+  'ctrl-v': 'atomic-emacs:scroll-up'
   'ctrl-s': 'find-and-replace:show'
+  'ctrl-r': 'find-and-replace:show'
   'ctrl-j': 'editor:newline'
   'ctrl-/': 'core:undo'
   'ctrl-o': 'atomic-emacs:open-line'
@@ -36,11 +37,15 @@
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
   'alt-w': 'atomic-emacs:copy'
   'alt-;': 'editor:toggle-line-comments'
-  'alt-v': 'core:page-up'
+  'alt-v': 'atomic-emacs:scroll-down'
   'alt-<': 'atomic-emacs:beginning-of-buffer'
   'alt->': 'atomic-emacs:end-of-buffer'
   'alt-m': 'atomic-emacs:back-to-indentation'
-  'alt-/': 'autocomplete:attach'
+  'alt-/': 'autocomplete:toggle'
+
+'.find-and-replace':
+  'ctrl-s': 'find-and-replace:find-next'
+  'ctrl-r': 'find-and-replace:find-previous'
 
 '.go-to-line .mini.editor input':
   'ctrl-g': 'core:cancel'

@@ -1,3 +1,8 @@
+## 0.2.3
+* ctrl-v and alt-v will now retain the mark if active
+* changed binding of alt-/ from `autocomplete:attach` to `autocomplete:toggle`
+* Bind ctrl-s and ctrl-r to find next/prev when in `.find-and-replace`
+
 ## 0.2.2
 * Fixed a bug where the next and previous line commands cause a crash when used in the file finder without an editor opened.
 * Moved some keybindings to `.body` so that they can be used in other views, ie. settings view

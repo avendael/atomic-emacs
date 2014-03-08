@@ -23,7 +23,9 @@
     "atomic-emacs:next-line",
     "atomic-emacs:previous-line",
     "atomic-emacs:move-beginning-of-line",
-    "atomic-emacs:move-end-of-line"
+    "atomic-emacs:move-end-of-line",
+    "atomic-emacs:scroll-up",
+    "atomic-emacs:scroll-down"
   ],
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
