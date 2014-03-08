@@ -1,3 +1,6 @@
+getActiveEditor = (event) ->
+  event.targetView().editor
+
 module.exports =
   activate: ->
     atom.workspaceView.command "atomic-emacs:upcase-region", (event) => @upcaseRegion(event)
@@ -23,9 +26,6 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:scroll-up", (event) => @scrollUp(event)
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
 
-  getActiveEditor: (event) ->
-    event.targetView().editor
-
   getCursorMarker: (editor) ->
     if editor then editor.getMarkers()[0] else false
 
@@ -36,25 +36,25 @@ module.exports =
       if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
   upcaseRegion: (event) ->
-    @getActiveEditor(event).upperCase()
+    getActiveEditor(event).upperCase()
 
   downcaseRegion: (event) ->
-    @getActiveEditor(event).lowerCase()
+    getActiveEditor(event).lowerCase()
 
   openLine: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     editor.insertNewline()
     editor.moveCursorUp()
 
   transposeChars: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     editor.transpose()
     editor.moveCursorRight()
 
   transposeLines: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     editor.transact(->
       editor.moveCursorToBeginningOfLine()
@@ -72,10 +72,10 @@ module.exports =
       editor.deleteLine())
 
   markWholeBuffer: (event) ->
-    @getActiveEditor(event).selectAll()
+    getActiveEditor(event).selectAll()
 
   setMark: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
     cursorMarker = editor.getMarkers()[0]
 
     if cursorMarker.retainSelection
@@ -84,7 +84,7 @@ module.exports =
       cursorMarker.retainSelection = true
 
   removeMark: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
     cursorMarker = if editor then editor.getMarkers()[0] else false
 
     if cursorMarker and cursorMarker.retainSelection
@@ -94,7 +94,7 @@ module.exports =
       event.abortKeyBinding()
 
   exchangePointAndMark: (event) ->
-    marker = @getActiveEditor(event).getLastSelectionInBuffer().marker.bufferMarker
+    marker = getActiveEditor(event).getLastSelectionInBuffer().marker.bufferMarker
     headPosition = marker.getHeadPosition()
     tailPosition = marker.getTailPosition()
 
@@ -102,7 +102,7 @@ module.exports =
     marker.setTailPosition(headPosition)
 
   copy: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
     cursorMarker = editor.getMarkers()[0]
 
     editor.copySelectedText()
@@ -110,7 +110,7 @@ module.exports =
     editor.clearSelections()
 
   killRegion: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     try
       editor.cutSelectedText()
@@ -119,37 +119,37 @@ module.exports =
       event.abortKeyBinding()
 
   forwardChar: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectRight())
 
   backwardChar: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectLeft())
 
   nextLine: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectDown())
 
   previousLine: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectUp())
 
   moveBeginningOfLine: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectToBeginningOfLine())
 
   moveEndOfLine: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event, @getCursorMarker(editor), -> editor.selectToEndOfLine())
 
   beginningOfBuffer: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event,
       @getCursorMarker(editor),
@@ -157,7 +157,7 @@ module.exports =
       (-> editor.moveCursorToTop()))
 
   endOfBuffer: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event,
       @getCursorMarker(editor),
@@ -165,7 +165,7 @@ module.exports =
       (-> editor.moveCursorToBottom()))
 
   backToIndentation: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
 
     @doMotion(event,
       @getCursorMarker(editor),
@@ -173,7 +173,7 @@ module.exports =
       (-> editor.moveCursorToFirstCharacterOfLine()))
 
   scrollUp: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
     editorView = atom.workspaceView.find('.editor.is-focused').view()
     firstRow = editorView.getFirstVisibleScreenRow()
     lastRow = editorView.getLastVisibleScreenRow()
@@ -187,7 +187,7 @@ module.exports =
       (-> editor.moveCursorDown(rowCount)))
 
   scrollDown: (event) ->
-    editor = @getActiveEditor(event)
+    editor = getActiveEditor(event)
     editorView = atom.workspaceView.find('.editor.is-focused').view()
     firstRow = editorView.getFirstVisibleScreenRow()
     lastRow = editorView.getLastVisibleScreenRow()
