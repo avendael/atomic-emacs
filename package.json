@@ -1,7 +1,7 @@
 {
   "name": "atomic-emacs",
   "main": "./lib/atomic-emacs",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "An atomic implementation of emacs keybindings INCOMPLETE",
   "activationEvents": [
     "atomic-emacs:beginning-of-buffer",
