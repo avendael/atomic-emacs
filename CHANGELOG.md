@@ -1,3 +1,7 @@
+## 0.2.2
+* Fixed a bug where the next and previous line commands cause a crash when used in the file finder without an editor opened.
+* Moved some keybindings to `.body` so that they can be used in other views, ie. settings view
+
 ## 0.2.1
 
 * Fixed a bug where the selection can only move in the y-axis.
