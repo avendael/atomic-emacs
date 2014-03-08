@@ -1,5 +1,6 @@
 'body':
   'ctrl-g': 'core:cancel'
+  'alt-x': 'command-palette:toggle'
 
 '.editor':
   'ctrl-f': 'atomic-emacs:forward-char'
@@ -33,7 +34,6 @@
   'ctrl-x k': 'core:close'
   'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
-  'alt-x': 'command-palette:toggle'
   'alt-w': 'atomic-emacs:copy'
   'alt-;': 'editor:toggle-line-comments'
   'alt-v': 'core:page-up'
