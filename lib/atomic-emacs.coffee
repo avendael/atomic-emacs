@@ -1,8 +1,5 @@
 module.exports =
   activate: ->
-    atom.workspaceView.command "atomic-emacs:beginning-of-buffer", => @beginningOfBuffer()
-    atom.workspaceView.command "atomic-emacs:end-of-buffer", => @endOfBuffer()
-    atom.workspaceView.command "atomic-emacs:back-to-indentation", => @backToIndentation()
     atom.workspaceView.command "atomic-emacs:upcase-region", => @upcaseRegion()
     atom.workspaceView.command "atomic-emacs:downcase-region", => @downcaseRegion()
     atom.workspaceView.command "atomic-emacs:open-line", => @openLine()
@@ -13,43 +10,28 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:remove-mark", (event) => @removeMark(event)
     atom.workspaceView.command "atomic-emacs:exchange-point-and-mark", => @exchangePointAndMark()
     atom.workspaceView.command "atomic-emacs:copy", => @copy()
-    atom.workspaceView.command "atomic-emacs:kill-region", => @killRegion()
+    atom.workspaceView.command "atomic-emacs:kill-region", (event) => @killRegion(event)
     atom.workspaceView.command "atomic-emacs:forward-char", (event) => @forwardChar(event)
     atom.workspaceView.command "atomic-emacs:backward-char", (event) => @backwardChar(event)
     atom.workspaceView.command "atomic-emacs:next-line", (event) => @nextLine(event)
     atom.workspaceView.command "atomic-emacs:previous-line", (event) => @previousLine(event)
     atom.workspaceView.command "atomic-emacs:move-beginning-of-line", (event) => @moveBeginningOfLine(event)
     atom.workspaceView.command "atomic-emacs:move-end-of-line", (event) => @moveEndOfLine(event)
+    atom.workspaceView.command "atomic-emacs:beginning-of-buffer", (event) => @beginningOfBuffer(event)
+    atom.workspaceView.command "atomic-emacs:end-of-buffer", (event) => @endOfBuffer(event)
+    atom.workspaceView.command "atomic-emacs:back-to-indentation", (event) => @backToIndentation(event)
 
   getActiveEditor: ->
     atom.workspace.getActiveEditor()
 
-  beginningOfBuffer: ->
+  doMotion: (event, selectMotion, defaultMotion) ->
     editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
+    cursorMarker = if editor then editor.getMarkers()[0] else false
 
-    if cursorMarker.retainSelection
-      editor.selectToTop()
+    if cursorMarker and cursorMarker.retainSelection
+      editor[selectMotion]()
     else
-      editor.moveCursorToTop()
-
-  endOfBuffer: ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectToBottom()
-    else
-      editor.moveCursorToBottom()
-
-  backToIndentation: ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectToFirstCharacterOfLine()
-    else
-      editor.moveCursorToFirstCharacterOfLine()
+      if defaultMotion then editor[defaultMotion]() else event.abortKeyBinding()
 
   upcaseRegion: ->
     @getActiveEditor().upperCase()
@@ -102,9 +84,9 @@ module.exports =
 
   removeMark: (event) ->
     editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
+    cursorMarker = if editor then editor.getMarkers()[0] else false
 
-    if cursorMarker.retainSelection
+    if cursorMarker and cursorMarker.retainSelection
       cursorMarker.retainSelection = false
       editor.clearSelections()
     else
@@ -126,62 +108,38 @@ module.exports =
     cursorMarker.retainSelection = false
     editor.clearSelections()
 
-  killRegion: ->
+  killRegion: (event) ->
     editor = @getActiveEditor()
 
-    editor.cutSelectedText()
-    @removeMark()
+    try
+      editor.cutSelectedText()
+      @removeMark()
+    catch
+      event.abortKeyBinding()
 
   forwardChar: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectRight()
-    else
-      event.abortKeyBinding()
+    @doMotion(event, 'selectRight')
 
   backwardChar: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectLeft()
-    else
-      event.abortKeyBinding()
+    @doMotion(event, 'selectLeft')
 
   nextLine: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectDown()
-    else
-      event.abortKeyBinding()
+    @doMotion(event, 'selectDown')
 
   previousLine: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectUp()
-    else
-      event.abortKeyBinding()
+    @doMotion(event, 'selectUp')
 
   moveBeginningOfLine: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
-
-    if cursorMarker.retainSelection
-      editor.selectToBeginningOfLine()
-    else
-      event.abortKeyBinding()
+    @doMotion(event, 'selectToBeginningOfLine')
 
   moveEndOfLine: (event) ->
-    editor = @getActiveEditor()
-    cursorMarker = editor.getMarkers()[0]
+    @doMotion(event, 'selectToEndOfLine')
 
-    if cursorMarker.retainSelection
-      editor.selectToEndOfLine()
-    else
-      event.abortKeyBinding()
+  beginningOfBuffer: (event) ->
+    @doMotion(event, 'selectToTop', 'moveCursorToTop')
+
+  endOfBuffer: (event) ->
+    @doMotion(event, 'selectToBottom', 'moveCursorToBottom')
+
+  backToIndentation: (event) ->
+    @doMotion(event, 'selectToFirstCharacterOfLine', 'moveCursorToFirstCharacterOfLine')
