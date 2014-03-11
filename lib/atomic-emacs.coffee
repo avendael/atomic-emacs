@@ -25,6 +25,8 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:kill-region", (event) => @killRegion(event)
     atom.workspaceView.command "atomic-emacs:forward-char", (event) => @forwardChar(event)
     atom.workspaceView.command "atomic-emacs:backward-char", (event) => @backwardChar(event)
+    atom.workspaceView.command "atomic-emacs:forward-word", (event) => @forwardWord(event)
+    atom.workspaceView.command "atomic-emacs:backward-word", (event) => @backwardWord(event)
     atom.workspaceView.command "atomic-emacs:next-line", (event) => @nextLine(event)
     atom.workspaceView.command "atomic-emacs:previous-line", (event) => @previousLine(event)
     atom.workspaceView.command "atomic-emacs:move-beginning-of-line", (event) => @moveBeginningOfLine(event)
@@ -127,6 +129,16 @@ module.exports =
     editor = getActiveEditor(event)
 
     doMotion(event, getCursorMarker(editor), -> editor.selectLeft())
+
+  forwardWord: (event) ->
+    editor = getActiveEditor(event)
+
+    doMotion(event, getCursorMarker(editor), -> editor.selectToEndOfWord())
+
+  backwardWord: (event) ->
+    editor = getActiveEditor(event)
+
+    doMotion(event, getCursorMarker(editor), -> editor.selectToBeginningOfWord())
 
   nextLine: (event) ->
     editor = getActiveEditor(event)

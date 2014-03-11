@@ -35,6 +35,8 @@
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
+  'alt-f': 'atomic-emacs:forward-word'
+  'alt-b': 'atomic-emacs:backward-word'
   'alt-w': 'atomic-emacs:copy'
   'alt-;': 'editor:toggle-line-comments'
   'alt-v': 'atomic-emacs:scroll-down'
@@ -42,6 +44,7 @@
   'alt->': 'atomic-emacs:end-of-buffer'
   'alt-m': 'atomic-emacs:back-to-indentation'
   'alt-/': 'autocomplete:toggle'
+  'alt-.': 'symbols-view:toggle-file-symbols'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'

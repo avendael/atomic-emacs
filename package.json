@@ -20,6 +20,8 @@
     "atomic-emacs:kill-region",
     "atomic-emacs:forward-char",
     "atomic-emacs:backward-char",
+    "atomic-emacs:forward-word",
+    "atomic-emacs:backward-word",
     "atomic-emacs:next-line",
     "atomic-emacs:previous-line",
     "atomic-emacs:move-beginning-of-line",
