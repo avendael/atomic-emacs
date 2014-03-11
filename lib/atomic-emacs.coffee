@@ -1,6 +1,15 @@
 getActiveEditor = (event) ->
   event.targetView().editor
 
+getCursorMarker = (editor) ->
+  if editor then editor.getMarkers()[0] else false
+
+doMotion = (event, cursorMarker, selectMotion, defaultMotion) ->
+  if cursorMarker and cursorMarker.retainSelection
+    if selectMotion then do selectMotion else event.abortKeyBinding()
+  else
+    if defaultMotion then do defaultMotion else event.abortKeyBinding()
+
 module.exports =
   activate: ->
     atom.workspaceView.command "atomic-emacs:upcase-region", (event) => @upcaseRegion(event)
@@ -25,15 +34,6 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:back-to-indentation", (event) => @backToIndentation(event)
     atom.workspaceView.command "atomic-emacs:scroll-up", (event) => @scrollUp(event)
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
-
-  getCursorMarker: (editor) ->
-    if editor then editor.getMarkers()[0] else false
-
-  doMotion: (event, cursorMarker, selectMotion, defaultMotion) ->
-    if cursorMarker and cursorMarker.retainSelection
-      if selectMotion then do selectMotion else event.abortKeyBinding()
-    else
-      if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
   upcaseRegion: (event) ->
     getActiveEditor(event).upperCase()
@@ -121,54 +121,54 @@ module.exports =
   forwardChar: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectRight())
+    doMotion(event, getCursorMarker(editor), -> editor.selectRight())
 
   backwardChar: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectLeft())
+    doMotion(event, getCursorMarker(editor), -> editor.selectLeft())
 
   nextLine: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectDown())
+    doMotion(event, getCursorMarker(editor), -> editor.selectDown())
 
   previousLine: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectUp())
+    doMotion(event, getCursorMarker(editor), -> editor.selectUp())
 
   moveBeginningOfLine: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectToBeginningOfLine())
+    doMotion(event, getCursorMarker(editor), -> editor.selectToBeginningOfLine())
 
   moveEndOfLine: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event, @getCursorMarker(editor), -> editor.selectToEndOfLine())
+    doMotion(event, getCursorMarker(editor), -> editor.selectToEndOfLine())
 
   beginningOfBuffer: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event,
-      @getCursorMarker(editor),
+    doMotion(event,
+      getCursorMarker(editor),
       (-> editor.selectToTop()),
       (-> editor.moveCursorToTop()))
 
   endOfBuffer: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event,
-      @getCursorMarker(editor),
+    doMotion(event,
+      getCursorMarker(editor),
       (-> editor.selectToBottom()),
       (-> editor.moveCursorToBottom()))
 
   backToIndentation: (event) ->
     editor = getActiveEditor(event)
 
-    @doMotion(event,
-      @getCursorMarker(editor),
+    doMotion(event,
+      getCursorMarker(editor),
       (-> editor.selectToFirstCharacterOfLine()),
       (-> editor.moveCursorToFirstCharacterOfLine()))
 
@@ -181,8 +181,8 @@ module.exports =
     rowCount = (lastRow - firstRow) - (currentRow - firstRow)
 
     editorView.scrollToBufferPosition([lastRow * 2, 0])
-    @doMotion(event,
-      @getCursorMarker(editor),
+    doMotion(event,
+      getCursorMarker(editor),
       (-> editor.selectDown(rowCount)),
       (-> editor.moveCursorDown(rowCount)))
 
@@ -195,7 +195,7 @@ module.exports =
     rowCount = (lastRow - firstRow) - (lastRow - currentRow)
 
     editorView.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
-    @doMotion(event,
-      @getCursorMarker(editor),
+    doMotion(event,
+      getCursorMarker(editor),
       (-> editor.selectUp(rowCount)),
       (-> editor.moveCursorUp(rowCount)))
