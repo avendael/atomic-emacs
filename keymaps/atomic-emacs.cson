@@ -45,6 +45,8 @@
   'alt-m': 'atomic-emacs:back-to-indentation'
   'alt-/': 'autocomplete:toggle'
   'alt-.': 'symbols-view:toggle-file-symbols'
+  'alt-\\': 'atomic-emacs:delete-horizontal-space'
+  'alt-space': 'atomic-emacs:just-one-space'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'
