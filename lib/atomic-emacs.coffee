@@ -10,6 +10,28 @@ doMotion = (event, cursorMarker, selectMotion, defaultMotion) ->
   else
     if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
+NONSPACE_REGEXP = /[^ \t]/
+
+horizontalSpaceRange = (cursor) ->
+  find = searchBackwards(cursor, NONSPACE_REGEXP)
+  start = if find then find.range.end else [0, 0]
+  find = searchForwards(cursor, NONSPACE_REGEXP)
+  end = if find then find.range.start else cursor.editor.getEofBufferPosition()
+  [start, end]
+
+searchBackwards = (cursor, regexp) ->
+  range = {start: [0, 0], end: cursor.getBufferPosition()}
+  result = null
+  cursor.editor.backwardsScanInBufferRange regexp, range, (r) -> result = r
+  result
+
+searchForwards = (cursor, regexp) ->
+  editor = cursor.editor
+  range = {start: cursor.getBufferPosition(), end: editor.getEofBufferPosition()}
+  result = null
+  editor.scanInBufferRange regexp, range, (r) -> result = r
+  result
+
 module.exports =
   activate: ->
     atom.workspaceView.command "atomic-emacs:upcase-region", (event) => @upcaseRegion(event)
@@ -36,6 +58,9 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:back-to-indentation", (event) => @backToIndentation(event)
     atom.workspaceView.command "atomic-emacs:scroll-up", (event) => @scrollUp(event)
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
+    atom.workspaceView.command "atomic-emacs:just-one-space", (event) => @justOneSpace(event)
+    atom.workspaceView.command "atomic-emacs:delete-horizontal-space", (event) => @deleteHorizontalSpace(event)
+    atom.workspaceView.command "atomic-emacs:recenter-top-bottom", (event) => @recenterTopBottom(event)
 
   upcaseRegion: (event) ->
     getActiveEditor(event).upperCase()
@@ -211,3 +236,24 @@ module.exports =
       getCursorMarker(editor),
       (-> editor.selectUp(rowCount)),
       (-> editor.moveCursorUp(rowCount)))
+
+  justOneSpace: (event) ->
+    editor = getActiveEditor(event)
+    for cursor in editor.cursors
+      range = horizontalSpaceRange(cursor)
+      editor.setTextInBufferRange(range, ' ')
+
+  deleteHorizontalSpace: (event) ->
+    editor = getActiveEditor(event)
+    for cursor in editor.cursors
+      range = horizontalSpaceRange(cursor)
+      editor.setTextInBufferRange(range, '')
+
+  recenterTopBottom: (event) ->
+    editor = getActiveEditor(event)
+    view = event.targetView()
+    minRow = Math.min((c.getBufferRow() for c in editor.getCursors())...)
+    maxRow = Math.max((c.getBufferRow() for c in editor.getCursors())...)
+    minOffset = view.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = view.pixelPositionForBufferPosition([maxRow, 0])
+    view.scrollTop((minOffset.top + maxOffset.top - view.scrollView.height())/2)

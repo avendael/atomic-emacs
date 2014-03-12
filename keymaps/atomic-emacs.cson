@@ -17,6 +17,7 @@
   'ctrl-p': 'atomic-emacs:previous-line'
   'ctrl-a': 'atomic-emacs:move-beginning-of-line'
   'ctrl-e': 'atomic-emacs:move-end-of-line'
+  'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-g': 'atomic-emacs:remove-mark'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'atomic-emacs:kill-region'
@@ -45,6 +46,8 @@
   'alt-m': 'atomic-emacs:back-to-indentation'
   'alt-/': 'autocomplete:toggle'
   'alt-.': 'symbols-view:toggle-file-symbols'
+  'alt-\\': 'atomic-emacs:delete-horizontal-space'
+  'alt-space': 'atomic-emacs:just-one-space'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'
