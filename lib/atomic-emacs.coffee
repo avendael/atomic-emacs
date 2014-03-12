@@ -32,6 +32,13 @@ searchForwards = (cursor, regexp) ->
   editor.scanInBufferRange regexp, range, (r) -> result = r
   result
 
+endLineIfNecessary = (cursor) ->
+  row = cursor.getBufferPosition().row
+  editor = cursor.editor
+  if row == editor.getLineCount() - 1
+    length = cursor.getCurrentBufferLine().length
+    editor.setTextInBufferRange([[row, length], [row, length]], "\n")
+
 module.exports =
   activate: ->
     atom.workspaceView.command "atomic-emacs:upcase-region", (event) => @upcaseRegion(event)
@@ -82,21 +89,19 @@ module.exports =
 
   transposeLines: (event) ->
     editor = getActiveEditor(event)
+    cursor = editor.getCursor()
+    row = cursor.getBufferRow()
 
-    editor.transact(->
-      editor.moveCursorToBeginningOfLine()
-      editor.cutToEndOfLine()
-      editor.moveCursorUp()
-      editor.insertNewline()
-      editor.moveCursorUp()
-      editor.pasteText()
-      editor.moveCursorToBeginningOfLine()
-      editor.indent()
-      editor.moveCursorDown()
-      editor.moveCursorToBeginningOfLine()
-      editor.indent()
-      editor.moveCursorDown()
-      editor.deleteLine())
+    editor.transact ->
+      if row == 0
+        endLineIfNecessary(cursor)
+        cursor.moveDown()
+        row += 1
+      endLineIfNecessary(cursor)
+
+      text = editor.getTextInBufferRange([[row, 0], [row + 1, 0]])
+      editor.deleteLine(row)
+      editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
 
   markWholeBuffer: (event) ->
     getActiveEditor(event).selectAll()

@@ -1,29 +1,42 @@
+{WorkspaceView} = require 'atom'
 AtomicEmacs = require '../lib/atomic-emacs'
-
-# Use the command `window:run-package-specs` (cmd-alt-ctrl-p) to run specs.
-#
-# To run a specific `it` or `describe` block add an `f` to the front (e.g. `fit`
-# or `fdescribe`). Remove the `f` to unfocus the block.
+EditorState = require './editor-state'
 
 describe "AtomicEmacs", ->
-  activationPromise = null
-
   beforeEach ->
     atom.workspaceView = new WorkspaceView
-    activationPromise = atom.packages.activatePackage('atomicEmacs')
 
-  describe "when the atomic-emacs:toggle event is triggered", ->
-    it "attaches and then detaches the view", ->
-      expect(atom.workspaceView.find('.atomic-emacs')).not.toExist()
+  describe "atomic-emacs:transpose-lines", ->
+    beforeEach ->
+      @editor = atom.project.openSync()
+      @event = targetView: => {editor: @editor}
 
-      # This is an activation event, triggering it will cause the package to be
-      # activated.
-      atom.workspaceView.trigger 'atomic-emacs:toggle'
+    it "transposes this line with the previous one, and moves to the next line", ->
+      EditorState.set(@editor, "aaa\nb[0]bb\nccc\n")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("bbb\naaa\n[0]ccc\n")
 
-      waitsForPromise ->
-        activationPromise
+    it "pretends it's on the second line if it's on the first", ->
+      EditorState.set(@editor, "a[0]aa\nbbb\nccc\n")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("bbb\naaa\n[0]ccc\n")
 
-      runs ->
-        expect(atom.workspaceView.find('.atomic-emacs')).toExist()
-        atom.workspaceView.trigger 'atomic-emacs:toggle'
-        expect(atom.workspaceView.find('.atomic-emacs')).not.toExist()
+    it "creates a newline at end of file if necessary", ->
+      EditorState.set(@editor, "aaa\nb[0]bb")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("bbb\naaa\n[0]")
+
+    it "still transposes if at the end of the buffer after a trailing newline", ->
+      EditorState.set(@editor, "aaa\nbbb\n[0]")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa\n\nbbb\n[0]")
+
+    it "inserts a blank line at the top if there's only one line with a trailing newline", ->
+      EditorState.set(@editor, "a[0]aa\n")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("\naaa\n[0]")
+
+    it "inserts a blank line at the top if there's only one line with no trailing newline", ->
+      EditorState.set(@editor, "a[0]aa")
+      AtomicEmacs.transposeLines(@event)
+      expect(EditorState.get(@editor)).toEqual("\naaa\n[0]")
