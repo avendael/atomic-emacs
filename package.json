@@ -28,6 +28,7 @@
     "atomic-emacs:move-end-of-line",
     "atomic-emacs:scroll-up",
     "atomic-emacs:scroll-down",
+    "atomic-emacs:recenter-top-bottom",
     "atomic-emacs:just-one-space",
     "atomic-emacs:delete-horizontal-space"
   ],

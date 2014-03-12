@@ -60,6 +60,7 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
     atom.workspaceView.command "atomic-emacs:just-one-space", (event) => @justOneSpace(event)
     atom.workspaceView.command "atomic-emacs:delete-horizontal-space", (event) => @deleteHorizontalSpace(event)
+    atom.workspaceView.command "atomic-emacs:recenter-top-bottom", (event) => @recenterTopBottom(event)
 
   upcaseRegion: (event) ->
     getActiveEditor(event).upperCase()
@@ -247,3 +248,12 @@ module.exports =
     for cursor in editor.cursors
       range = horizontalSpaceRange(cursor)
       editor.setTextInBufferRange(range, '')
+
+  recenterTopBottom: (event) ->
+    editor = getActiveEditor(event)
+    view = event.targetView()
+    minRow = Math.min((c.getBufferRow() for c in editor.getCursors())...)
+    maxRow = Math.max((c.getBufferRow() for c in editor.getCursors())...)
+    minOffset = view.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = view.pixelPositionForBufferPosition([maxRow, 0])
+    view.scrollTop((minOffset.top + maxOffset.top - view.scrollView.height())/2)
