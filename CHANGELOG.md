@@ -1,11 +1,17 @@
+## 0.2.4
+* Set mark will now retain selection when moving by words.
+* Added the recenter-top-bottom command.
+* Added the just-one-space command.
+* Added the delete-horizontal-space command.
+
 ## 0.2.3
-* ctrl-v and alt-v will now retain the mark if active
-* changed binding of alt-/ from `autocomplete:attach` to `autocomplete:toggle`
-* Bind ctrl-s and ctrl-r to find next/prev when in `.find-and-replace`
+* ctrl-v and alt-v will now retain the mark if active.
+* changed binding of alt-/ from `autocomplete:attach` to `autocomplete:toggle`.
+* Bind ctrl-s and ctrl-r to find next/prev when in `.find-and-replace`.
 
 ## 0.2.2
 * Fixed a bug where the next and previous line commands cause a crash when used in the file finder without an editor opened.
-* Moved some keybindings to `.body` so that they can be used in other views, ie. settings view
+* Moved some keybindings to `.body` so that they can be used in other views, ie. settings view.
 
 ## 0.2.1
 
@@ -18,7 +24,7 @@
 * Added marks to select an arbitrary group of text. This should be mapped by the user because the core ctrl-space mapping can't be overriden by this package.
 * Added transpose characters.
 * Added an emacs style copy mapped to alt-w.
-* Added alt-; mapping for toggling line comments
+* Added alt-; mapping for toggling line comments.
 * The mark's head and tail can be swapped with ctrl-x ctrl-x.
 * Transposing lines now make use of the new transactions API.
 
