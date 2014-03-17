@@ -70,32 +70,56 @@ class CursorTools
   goToMatchEndForward: (regExp) ->
     @_goTo @locateForward(regExp)?.end
 
+  # Skip backwards over the given characters.
+  #
+  # If the end of the buffer is reached, remain there.
+  skipCharactersBackward: (characters) ->
+    regexp = new RegExp("[^#{escapeRegExp(characters)}]")
+    @skipBackwardUntil(regexp)
+
+  # Skip forwards over the given characters.
+  #
+  # If the end of the buffer is reached, remain there.
+  skipCharactersForward: (characters) ->
+    regexp = new RegExp("[^#{escapeRegExp(characters)}]")
+    @skipForwardUntil(regexp)
+
   # Skip backwards over any word characters.
   #
   # If the beginning of the buffer is reached, remain there.
   skipWordCharactersBackward: ->
-    if not @goToMatchEndBackward(@_getNonWordCharacterRegExp())
-      @_goTo BOB
+    @skipBackwardUntil(@_getNonWordCharacterRegExp())
 
   # Skip forwards over any word characters.
   #
   # If the end of the buffer is reached, remain there.
   skipWordCharactersForward: ->
-    if not @goToMatchStartForward(@_getNonWordCharacterRegExp())
-      @_goTo @editor.getEofBufferPosition()
+    @skipForwardUntil(@_getNonWordCharacterRegExp())
 
   # Skip backwards over any non-word characters.
   #
   # If the beginning of the buffer is reached, remain there.
   skipNonWordCharactersBackward: ->
-    if not @goToMatchEndBackward(@_getWordCharacterRegExp())
-      @_goTo BOB
+    @skipBackwardUntil(@_getWordCharacterRegExp())
 
   # Skip forwards over any non-word characters.
   #
   # If the end of the buffer is reached, remain there.
   skipNonWordCharactersForward: ->
-    if not @goToMatchStartForward(@_getWordCharacterRegExp())
+    @skipForwardUntil(@_getWordCharacterRegExp())
+
+  # Skip over characters until the previous occurrence of the given regexp.
+  #
+  # If the beginning of the buffer is reached, remain there.
+  skipBackwardUntil: (regexp) ->
+    if not @goToMatchEndBackward(regexp)
+      @_goTo BOB
+
+  # Skip over characters until the next occurrence of the given regexp.
+  #
+  # If the end of the buffer is reached, remain there.
+  skipForwardUntil: (regexp) ->
+    if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
 
   # Delete and return the word at the cursor.

@@ -12,27 +12,13 @@ doMotion = (event, cursorMarker, selectMotion, defaultMotion) ->
   else
     if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
-NONSPACE_REGEXP = /[^ \t]/
-
 horizontalSpaceRange = (cursor) ->
-  find = searchBackwards(cursor, NONSPACE_REGEXP)
-  start = if find then find.range.end else [0, 0]
-  find = searchForwards(cursor, NONSPACE_REGEXP)
-  end = if find then find.range.start else cursor.editor.getEofBufferPosition()
+  cursorTools = new CursorTools(cursor)
+  cursorTools.skipCharactersBackward(' \t')
+  start = cursor.getBufferPosition()
+  cursorTools.skipCharactersForward(' \t')
+  end = cursor.getBufferPosition()
   [start, end]
-
-searchBackwards = (cursor, regexp) ->
-  range = {start: [0, 0], end: cursor.getBufferPosition()}
-  result = null
-  cursor.editor.backwardsScanInBufferRange regexp, range, (r) -> result = r
-  result
-
-searchForwards = (cursor, regexp) ->
-  editor = cursor.editor
-  range = {start: cursor.getBufferPosition(), end: editor.getEofBufferPosition()}
-  result = null
-  editor.scanInBufferRange regexp, range, (r) -> result = r
-  result
 
 endLineIfNecessary = (cursor) ->
   row = cursor.getBufferPosition().row

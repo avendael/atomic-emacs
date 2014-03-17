@@ -144,6 +144,38 @@ describe "CursorTools", ->
       expect(result).toBe(false)
       expect(EditorState.get(@editor)).toEqual("xx xx [0] xx xx")
 
+  describe "skipCharactersBackward", ->
+    it "moves backward over the given characters", ->
+      EditorState.set(@editor, "x..x..[0]")
+      @cursorTools.skipCharactersBackward('.')
+      expect(EditorState.get(@editor)).toEqual("x..x[0]..")
+
+    it "does not move if the previous character is not in the list", ->
+      EditorState.set(@editor, "..x[0]")
+      @cursorTools.skipCharactersBackward('.')
+      expect(EditorState.get(@editor)).toEqual("..x[0]")
+
+    it "moves to the beginning of the buffer if all prior characters are in the list", ->
+      EditorState.set(@editor, "..[0]")
+      @cursorTools.skipCharactersBackward('.')
+      expect(EditorState.get(@editor)).toEqual("[0]..")
+
+  describe "skipCharactersForward", ->
+    it "moves forward over the given characters", ->
+      EditorState.set(@editor, "[0]..x..x")
+      @cursorTools.skipCharactersForward('.')
+      expect(EditorState.get(@editor)).toEqual("..[0]x..x")
+
+    it "does not move if the next character is not in the list", ->
+      EditorState.set(@editor, "[0]x..")
+      @cursorTools.skipCharactersForward('.')
+      expect(EditorState.get(@editor)).toEqual("[0]x..")
+
+    it "moves to the end of the buffer if all following characters are in the list", ->
+      EditorState.set(@editor, "[0]..")
+      @cursorTools.skipCharactersForward('.')
+      expect(EditorState.get(@editor)).toEqual("..[0]")
+
   describe "skipWordCharactersBackward", ->
     it "moves over any word characters backward", ->
       EditorState.set(@editor, "abc abc[0]abc abc")
@@ -207,6 +239,38 @@ describe "CursorTools", ->
       EditorState.set(@editor, "[0]   ")
       @cursorTools.skipNonWordCharactersForward()
       expect(EditorState.get(@editor)).toEqual("   [0]")
+
+  describe "skipBackwardUntil", ->
+    it "moves backward over the given characters", ->
+      EditorState.set(@editor, "x..x..[0]")
+      @cursorTools.skipBackwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("x..x[0]..")
+
+    it "does not move if the previous character is not in the list", ->
+      EditorState.set(@editor, "..x[0]")
+      @cursorTools.skipBackwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("..x[0]")
+
+    it "moves to the beginning of the buffer if all prior characters are in the list", ->
+      EditorState.set(@editor, "..[0]")
+      @cursorTools.skipBackwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("[0]..")
+
+  describe "skipForwardUntil", ->
+    it "moves forward over the given characters", ->
+      EditorState.set(@editor, "[0]..x..x")
+      @cursorTools.skipForwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("..[0]x..x")
+
+    it "does not move if the next character is not in the list", ->
+      EditorState.set(@editor, "[0]x..")
+      @cursorTools.skipForwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("[0]x..")
+
+    it "moves to the end of the buffer if all following characters are in the list", ->
+      EditorState.set(@editor, "[0]..")
+      @cursorTools.skipForwardUntil(/[^\.]/)
+      expect(EditorState.get(@editor)).toEqual("..[0]")
 
   describe "extractWord", ->
     it "removes and returns the word the cursor is in", ->

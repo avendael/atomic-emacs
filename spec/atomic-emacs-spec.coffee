@@ -81,3 +81,55 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "a[0]aa")
       AtomicEmacs.transposeLines(@event)
       expect(EditorState.get(@editor)).toEqual("\naaa\n[0]")
+
+  describe "atomic-emacs:delete-horizontal-space", ->
+    it "deletes all horizontal space around each cursor", ->
+      EditorState.set(@editor, "a [0]\tb c [1]\td")
+      AtomicEmacs.deleteHorizontalSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b c[1]d")
+
+    it "deletes all horizontal space to the beginning of the buffer if in leading space", ->
+      EditorState.set(@editor, " [0]\ta")
+      AtomicEmacs.deleteHorizontalSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]a")
+
+    it "deletes all horizontal space to the end of the buffer if in trailing space", ->
+      EditorState.set(@editor, "a [0]\t")
+      AtomicEmacs.deleteHorizontalSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]")
+
+    it "deletes all text if the buffer only contains horizontal spaces", ->
+      EditorState.set(@editor, " [0]\t")
+      AtomicEmacs.deleteHorizontalSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]")
+
+    it "does not modify the buffer if there is no horizontal space around the cursor", ->
+      EditorState.set(@editor, "a[0]b")
+      AtomicEmacs.deleteHorizontalSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b")
+
+  describe "atomic-emacs:just-one-space", ->
+    it "replaces all horizontal space around each cursor with one space", ->
+      EditorState.set(@editor, "a [0]\tb c [1]\td")
+      AtomicEmacs.justOneSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a [0]b c [1]d")
+
+    it "replaces all horizontal space at the beginning of the buffer with one space if in leading space", ->
+      EditorState.set(@editor, " [0]\ta")
+      AtomicEmacs.justOneSpace(@event)
+      expect(EditorState.get(@editor)).toEqual(" [0]a")
+
+    it "replaces all horizontal space at the end of the buffer with one space if in trailing space", ->
+      EditorState.set(@editor, "a [0]\t")
+      AtomicEmacs.justOneSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a [0]")
+
+    it "replaces all text with one space if the buffer only contains horizontal spaces", ->
+      EditorState.set(@editor, " [0]\t")
+      AtomicEmacs.justOneSpace(@event)
+      expect(EditorState.get(@editor)).toEqual(" [0]")
+
+    it "does not modify the buffer if there is already exactly one space at around the cursor", ->
+      EditorState.set(@editor, "a[0]b")
+      AtomicEmacs.justOneSpace(@event)
+      expect(EditorState.get(@editor)).toEqual("a [0]b")
