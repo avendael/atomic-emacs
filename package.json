@@ -11,6 +11,7 @@
     "atomic-emacs:downcase-region",
     "atomic-emacs:open-line",
     "atomic-emacs:transpose-chars",
+    "atomic-emacs:transpose-words",
     "atomic-emacs:transpose-lines",
     "atomic-emacs:set-mark",
     "atomic-emacs:remove-mark",

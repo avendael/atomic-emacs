@@ -1,3 +1,5 @@
+CursorTools = require '../lib/cursor-tools'
+
 getActiveEditor = (event) ->
   event.targetView().editor
 
@@ -45,6 +47,7 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:downcase-region", (event) => @downcaseRegion(event)
     atom.workspaceView.command "atomic-emacs:open-line", (event) => @openLine(event)
     atom.workspaceView.command "atomic-emacs:transpose-chars", (event) => @transposeChars(event)
+    atom.workspaceView.command "atomic-emacs:transpose-words", (event) => @transposeWords(event)
     atom.workspaceView.command "atomic-emacs:transpose-lines", (event) => @transposeLines(event)
     atom.workspaceView.command "atomic-emacs:mark-whole-buffer", (event) => @markWholeBuffer(event)
     atom.workspaceView.command "atomic-emacs:set-mark", (event) => @setMark(event)
@@ -86,6 +89,28 @@ module.exports =
 
     editor.transpose()
     editor.moveCursorRight()
+
+  transposeWords: (event) ->
+    editor = getActiveEditor(event)
+
+    editor.transact ->
+      for cursor in editor.getCursors()
+        cursorTools = new CursorTools(cursor)
+        cursorTools.skipNonWordCharactersBackward()
+
+        word1 = cursorTools.extractWord()
+        word1Pos = cursor.getBufferPosition()
+        cursorTools.skipNonWordCharactersForward()
+        if editor.getEofBufferPosition().isEqual(cursor.getBufferPosition())
+          # No second word - put the first word back.
+          editor.setTextInBufferRange([word1Pos, word1Pos], word1)
+          cursorTools.skipNonWordCharactersBackward()
+        else
+          word2 = cursorTools.extractWord()
+          word2Pos = cursor.getBufferPosition()
+          editor.setTextInBufferRange([word2Pos, word2Pos], word1)
+          editor.setTextInBufferRange([word1Pos, word1Pos], word2)
+        cursor.setBufferPosition(cursor.getBufferPosition())
 
   transposeLines: (event) ->
     editor = getActiveEditor(event)
