@@ -1,3 +1,5 @@
+CursorTools = require '../lib/cursor-tools'
+
 getActiveEditor = (event) ->
   event.targetView().editor
 
@@ -10,27 +12,20 @@ doMotion = (event, cursorMarker, selectMotion, defaultMotion) ->
   else
     if defaultMotion then do defaultMotion else event.abortKeyBinding()
 
-NONSPACE_REGEXP = /[^ \t]/
-
 horizontalSpaceRange = (cursor) ->
-  find = searchBackwards(cursor, NONSPACE_REGEXP)
-  start = if find then find.range.end else [0, 0]
-  find = searchForwards(cursor, NONSPACE_REGEXP)
-  end = if find then find.range.start else cursor.editor.getEofBufferPosition()
+  cursorTools = new CursorTools(cursor)
+  cursorTools.skipCharactersBackward(' \t')
+  start = cursor.getBufferPosition()
+  cursorTools.skipCharactersForward(' \t')
+  end = cursor.getBufferPosition()
   [start, end]
 
-searchBackwards = (cursor, regexp) ->
-  range = {start: [0, 0], end: cursor.getBufferPosition()}
-  result = null
-  cursor.editor.backwardsScanInBufferRange regexp, range, (r) -> result = r
-  result
-
-searchForwards = (cursor, regexp) ->
+endLineIfNecessary = (cursor) ->
+  row = cursor.getBufferPosition().row
   editor = cursor.editor
-  range = {start: cursor.getBufferPosition(), end: editor.getEofBufferPosition()}
-  result = null
-  editor.scanInBufferRange regexp, range, (r) -> result = r
-  result
+  if row == editor.getLineCount() - 1
+    length = cursor.getCurrentBufferLine().length
+    editor.setTextInBufferRange([[row, length], [row, length]], "\n")
 
 module.exports =
   activate: ->
@@ -38,6 +33,7 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:downcase-region", (event) => @downcaseRegion(event)
     atom.workspaceView.command "atomic-emacs:open-line", (event) => @openLine(event)
     atom.workspaceView.command "atomic-emacs:transpose-chars", (event) => @transposeChars(event)
+    atom.workspaceView.command "atomic-emacs:transpose-words", (event) => @transposeWords(event)
     atom.workspaceView.command "atomic-emacs:transpose-lines", (event) => @transposeLines(event)
     atom.workspaceView.command "atomic-emacs:mark-whole-buffer", (event) => @markWholeBuffer(event)
     atom.workspaceView.command "atomic-emacs:set-mark", (event) => @setMark(event)
@@ -80,23 +76,43 @@ module.exports =
     editor.transpose()
     editor.moveCursorRight()
 
-  transposeLines: (event) ->
+  transposeWords: (event) ->
     editor = getActiveEditor(event)
 
-    editor.transact(->
-      editor.moveCursorToBeginningOfLine()
-      editor.cutToEndOfLine()
-      editor.moveCursorUp()
-      editor.insertNewline()
-      editor.moveCursorUp()
-      editor.pasteText()
-      editor.moveCursorToBeginningOfLine()
-      editor.indent()
-      editor.moveCursorDown()
-      editor.moveCursorToBeginningOfLine()
-      editor.indent()
-      editor.moveCursorDown()
-      editor.deleteLine())
+    editor.transact ->
+      for cursor in editor.getCursors()
+        cursorTools = new CursorTools(cursor)
+        cursorTools.skipNonWordCharactersBackward()
+
+        word1 = cursorTools.extractWord()
+        word1Pos = cursor.getBufferPosition()
+        cursorTools.skipNonWordCharactersForward()
+        if editor.getEofBufferPosition().isEqual(cursor.getBufferPosition())
+          # No second word - put the first word back.
+          editor.setTextInBufferRange([word1Pos, word1Pos], word1)
+          cursorTools.skipNonWordCharactersBackward()
+        else
+          word2 = cursorTools.extractWord()
+          word2Pos = cursor.getBufferPosition()
+          editor.setTextInBufferRange([word2Pos, word2Pos], word1)
+          editor.setTextInBufferRange([word1Pos, word1Pos], word2)
+        cursor.setBufferPosition(cursor.getBufferPosition())
+
+  transposeLines: (event) ->
+    editor = getActiveEditor(event)
+    cursor = editor.getCursor()
+    row = cursor.getBufferRow()
+
+    editor.transact ->
+      if row == 0
+        endLineIfNecessary(cursor)
+        cursor.moveDown()
+        row += 1
+      endLineIfNecessary(cursor)
+
+      text = editor.getTextInBufferRange([[row, 0], [row + 1, 0]])
+      editor.deleteLine(row)
+      editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
 
   markWholeBuffer: (event) ->
     getActiveEditor(event).selectAll()
