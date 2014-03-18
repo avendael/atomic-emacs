@@ -2,7 +2,7 @@
   "name": "atomic-emacs",
   "main": "./lib/atomic-emacs",
   "version": "0.2.4",
-  "description": "An atomic implementation of emacs keybindings INCOMPLETE",
+  "description": "An atomic implementation of emacs keybindings",
   "activationEvents": [
     "atomic-emacs:beginning-of-buffer",
     "atomic-emacs:end-of-buffer",

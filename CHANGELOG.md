@@ -1,3 +1,8 @@
+## 0.2.5
+* Added alt-t as transpose-words.
+* Improved transpose-lines. Indents are now included in the transposed lines.
+* New API for cursors.
+
 ## 0.2.4
 * Set mark will now retain selection when moving by words.
 * Added the recenter-top-bottom command.

@@ -43,6 +43,7 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 * 'alt-f': 'atomic-emacs:forward-word'
 * 'alt-b': 'atomic-emacs:backward-word'
+* 'atl-t': 'atomic-emacs:transpose-words'
 * 'alt-w': 'atomic-emacs:copy'
 * 'alt-;': 'editor:toggle-line-comments'
 * 'alt-v': 'atomic-emacs:scroll-down'
@@ -70,3 +71,7 @@ Version 1.0.0 should be somewhat close to what [sublemacspro](https://github.com
 * Kill ring
 * Macros
 * Motion commands for other platforms (OSX has the basic emacs motion commands by default)
+
+### Contributing
+
+Yes please!
