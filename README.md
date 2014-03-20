@@ -54,6 +54,8 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'alt-.': 'symbols-view:toggle-file-symbols'
 * 'alt-\\': 'atomic-emacs:delete-horizontal-space'
 * 'alt-space': 'atomic-emacs:just-one-space'
+* 'alt-[': 'atomic-emacs:backward-paragraph'
+* 'alt-]': 'atomic-emacs:forward-paragraph'
 
 #### Some things that might not work as expected
 

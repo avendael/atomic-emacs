@@ -31,7 +31,9 @@
     "atomic-emacs:scroll-down",
     "atomic-emacs:recenter-top-bottom",
     "atomic-emacs:just-one-space",
-    "atomic-emacs:delete-horizontal-space"
+    "atomic-emacs:delete-horizontal-space",
+    "atomic-emacs:backward-paragraph",
+    "atomic-emacs:forward-paragraph"
   ],
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",

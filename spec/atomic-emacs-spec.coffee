@@ -133,3 +133,65 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "a[0]b")
       AtomicEmacs.justOneSpace(@event)
       expect(EditorState.get(@editor)).toEqual("a [0]b")
+
+  describe "atomic-emacs:backward-paragraph", ->
+    it "moves the cursor backwards to an empty line", ->
+      EditorState.set(@editor, "aaaaa\n\nbbbbbb")
+      @editor.moveCursorToBottom()
+      AtomicEmacs.backwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor backwards to a line that only contains spaces", ->
+      EditorState.set(@editor, "aaaaa\n                    \nbbbbbb")
+      @editor.moveCursorToBottom()
+      AtomicEmacs.backwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor backwards to a line that only contains tabs", ->
+      EditorState.set(@editor, "aaaaa\n\t\t\t\nbbbbbb")
+      @editor.moveCursorToBottom()
+      AtomicEmacs.backwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor backwards to a line that only contains whitespaces", ->
+      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
+      @editor.moveCursorToBottom()
+      AtomicEmacs.backwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "does nothing when the cursor is at the first line of the buffer", ->
+      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
+      @editor.moveCursorToTop()
+      AtomicEmacs.backwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(0)
+
+  describe "atomic-emacs:forward-paragraph", ->
+    it "moves the cursor forward to an empty line", ->
+      EditorState.set(@editor, "aaaaa\n\nbbbbbb")
+      @editor.moveCursorToTop()
+      AtomicEmacs.forwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor forward to a line that only contains spaces", ->
+      EditorState.set(@editor, "aaaaa\n                    \nbbbbbb")
+      @editor.moveCursorToTop()
+      AtomicEmacs.forwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor forward to a line that only contains tabs", ->
+      EditorState.set(@editor, "aaaaa\n\t\t\t\nbbbbbb")
+      @editor.moveCursorToTop()
+      AtomicEmacs.forwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "moves the cursor forward to a line that only contains whitespaces", ->
+      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
+      @editor.moveCursorToTop()
+      AtomicEmacs.forwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+
+    it "does nothing when the cursor is at the last line of the buffer", ->
+      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
+      @editor.moveCursorToBottom()
+      AtomicEmacs.forwardParagraph(@event)
+      expect(@editor.getCursorBufferPosition().row).toEqual(2)

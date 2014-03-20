@@ -1,3 +1,6 @@
+## 0.2.6
+* Added movement by paragraph with marks support. Not yet 100% emacs compatible.
+
 ## 0.2.5
 * Added alt-t as transpose-words.
 * Improved transpose-lines. Indents are now included in the transposed lines.

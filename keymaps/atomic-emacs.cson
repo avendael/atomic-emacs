@@ -49,6 +49,8 @@
   'alt-.': 'symbols-view:toggle-file-symbols'
   'alt-\\': 'atomic-emacs:delete-horizontal-space'
   'alt-space': 'atomic-emacs:just-one-space'
+  'alt-[': 'atomic-emacs:backward-paragraph'
+  'alt-]': 'atomic-emacs:forward-paragraph'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'

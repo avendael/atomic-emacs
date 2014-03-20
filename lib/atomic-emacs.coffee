@@ -54,6 +54,8 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:back-to-indentation", (event) => @backToIndentation(event)
     atom.workspaceView.command "atomic-emacs:scroll-up", (event) => @scrollUp(event)
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
+    atom.workspaceView.command "atomic-emacs:backward-paragraph", (event) => @backwardParagraph(event)
+    atom.workspaceView.command "atomic-emacs:forward-paragraph", (event) => @forwardParagraph(event)
     atom.workspaceView.command "atomic-emacs:just-one-space", (event) => @justOneSpace(event)
     atom.workspaceView.command "atomic-emacs:delete-horizontal-space", (event) => @deleteHorizontalSpace(event)
     atom.workspaceView.command "atomic-emacs:recenter-top-bottom", (event) => @recenterTopBottom(event)
@@ -228,12 +230,15 @@ module.exports =
   scrollUp: (event) ->
     editor = getActiveEditor(event)
     editorView = atom.workspaceView.find('.editor.is-focused').view()
-    firstRow = editorView.getFirstVisibleScreenRow()
-    lastRow = editorView.getLastVisibleScreenRow()
-    currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - (currentRow - firstRow)
 
-    editorView.scrollToBufferPosition([lastRow * 2, 0])
+    if editorView
+      firstRow = editorView.getFirstVisibleScreenRow()
+      lastRow = editorView.getLastVisibleScreenRow()
+      currentRow = editor.cursors[0].getBufferRow()
+      rowCount = (lastRow - firstRow) - (currentRow - firstRow)
+
+      editorView.scrollToBufferPosition([lastRow * 2, 0])
+
     doMotion(event,
       getCursorMarker(editor),
       (-> editor.selectDown(rowCount)),
@@ -242,16 +247,76 @@ module.exports =
   scrollDown: (event) ->
     editor = getActiveEditor(event)
     editorView = atom.workspaceView.find('.editor.is-focused').view()
-    firstRow = editorView.getFirstVisibleScreenRow()
-    lastRow = editorView.getLastVisibleScreenRow()
-    currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - (lastRow - currentRow)
 
-    editorView.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
+    if editorView
+      firstRow = editorView.getFirstVisibleScreenRow()
+      lastRow = editorView.getLastVisibleScreenRow()
+      currentRow = editor.cursors[0].getBufferRow()
+      rowCount = (lastRow - firstRow) - (lastRow - currentRow)
+
+      editorView.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
+
     doMotion(event,
       getCursorMarker(editor),
       (-> editor.selectUp(rowCount)),
       (-> editor.moveCursorUp(rowCount)))
+
+  backwardParagraph: (event) ->
+    editor = getActiveEditor(event)
+
+    for cursor in editor.getCursors()
+      currentRow = editor.getCursorBufferPosition().row
+
+      break if currentRow <= 0
+
+      cursorTools = new CursorTools(cursor)
+      blankRow = cursorTools.locateBackward(/^\s+$|^\s*$/).start.row
+
+      while currentRow == blankRow
+        break if currentRow <= 0
+
+        doMotion(event,
+          getCursorMarker(editor),
+          (-> editor.selectUp()),
+          (-> editor.moveCursorUp()))
+
+        currentRow = editor.getCursorBufferPosition().row
+        blankRange = cursorTools.locateBackward(/^\s+$|^\s*$/)
+        blankRow = if blankRange then blankRange.start.row else 0
+
+      rowCount = currentRow - blankRow
+
+      doMotion(event,
+        getCursorMarker(editor),
+        (-> editor.selectUp(rowCount))
+        (-> editor.moveCursorUp(rowCount)))
+
+  forwardParagraph: (event) ->
+    editor = getActiveEditor(event)
+    lineCount = editor.buffer.getLineCount() - 1
+
+    for cursor in editor.getCursors()
+      currentRow = editor.getCursorBufferPosition().row
+      break if currentRow >= lineCount
+
+      cursorTools = new CursorTools(cursor)
+      blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
+
+      while currentRow == blankRow
+        doMotion(event,
+          getCursorMarker(editor),
+          (-> editor.selectDown()),
+          (-> editor.moveCursorDown()))
+
+        currentRow = editor.getCursorBufferPosition().row
+        blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
+
+      rowCount = blankRow - currentRow
+
+      doMotion(event,
+        getCursorMarker(editor),
+        (-> editor.selectDown(rowCount))
+        (-> editor.moveCursorDown(rowCount)))
 
   justOneSpace: (event) ->
     editor = getActiveEditor(event)
