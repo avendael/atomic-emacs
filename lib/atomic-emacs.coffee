@@ -35,6 +35,8 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:copy", (event) => @copy(event)
     atom.workspaceView.command "atomic-emacs:forward-char", (event) => @forwardChar(event)
     atom.workspaceView.command "atomic-emacs:backward-char", (event) => @backwardChar(event)
+    atom.workspaceView.command "atomic-emacs:forward-word", (event) => @forwardWord(event)
+    atom.workspaceView.command "atomic-emacs:backward-word", (event) => @backwardWord(event)
     atom.workspaceView.command "atomic-emacs:next-line", (event) => @nextLine(event)
     atom.workspaceView.command "atomic-emacs:previous-line", (event) => @previousLine(event)
     atom.workspaceView.command "atomic-emacs:beginning-of-buffer", (event) => @beginningOfBuffer(event)
@@ -139,6 +141,20 @@ module.exports =
     editor = getActiveEditor(event)
     editor.moveCursors (cursor) ->
       cursor.moveLeft()
+
+  forwardWord: (event) ->
+    editor = getActiveEditor(event)
+    editor.moveCursors (cursor) ->
+      tools = new CursorTools(cursor)
+      tools.skipNonWordCharactersForward()
+      tools.skipWordCharactersForward()
+
+  backwardWord: (event) ->
+    editor = getActiveEditor(event)
+    editor.moveCursors (cursor) ->
+      tools = new CursorTools(cursor)
+      tools.skipNonWordCharactersBackward()
+      tools.skipWordCharactersBackward()
 
   nextLine: (event) ->
     editor = getActiveEditor(event)
