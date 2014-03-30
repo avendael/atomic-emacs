@@ -1,5 +1,6 @@
 {WorkspaceView} = require 'atom'
 AtomicEmacs = require '../lib/atomic-emacs'
+Mark = require '../lib/mark'
 EditorState = require './editor-state'
 
 describe "AtomicEmacs", ->
@@ -134,6 +135,104 @@ describe "AtomicEmacs", ->
       AtomicEmacs.justOneSpace(@event)
       expect(EditorState.get(@editor)).toEqual("a [0]b")
 
+  describe "atomic-emacs:backward-char", ->
+    it "moves the cursor backward one character", ->
+      EditorState.set(@editor, "x[0]")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    it "does nothing at the start of the buffer", ->
+      EditorState.set(@editor, "[0]x")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    it "extends an active selection if the mark is set", ->
+      EditorState.set(@editor, "ab[0]c")
+      AtomicEmacs.setMark(@event)
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b(0)c")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
+
+  describe "atomic_emacs:set-mark", ->
+    it "sets and activates the mark of all cursors", ->
+      EditorState.set(@editor, "[0].[1]")
+      [cursor0, cursor1] = @editor.getCursors()
+      AtomicEmacs.setMark(@event)
+
+      expect(AtomicEmacs.Mark.for(cursor0).isActive()).toBe(true)
+      point = AtomicEmacs.Mark.for(cursor0).getBufferPosition()
+      expect([point.row, point.column]).toEqual([0, 0])
+
+      expect(AtomicEmacs.Mark.for(cursor1).isActive()).toBe(true)
+      point = AtomicEmacs.Mark.for(cursor1).getBufferPosition()
+      expect([point.row, point.column]).toEqual([0, 1])
+
+  describe "atomic-emacs:keyboard-quit", ->
+    it "deactivates all marks", ->
+      EditorState.set(@editor, "[0].[1]")
+      [mark0, mark1] = (AtomicEmacs.Mark.for(c) for c in @editor.getCursors())
+      m.activate() for m in [mark0, mark1]
+      AtomicEmacs.keyboardQuit(@event)
+      expect(mark0.isActive()).toBe(false)
+
+  describe "atomic-emacs:forward-char", ->
+    it "moves the cursor forward one character", ->
+      EditorState.set(@editor, "[0]x")
+      AtomicEmacs.forwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("x[0]")
+
+    it "does nothing at the end of the buffer", ->
+      EditorState.set(@editor, "x[0]")
+      AtomicEmacs.forwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("x[0]")
+
+    it "extends an active selection if the mark is set", ->
+      EditorState.set(@editor, "a[0]bc")
+      AtomicEmacs.setMark(@event)
+      AtomicEmacs.forwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("a(0)b[0]c")
+      AtomicEmacs.forwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("a(0)bc[0]")
+
+  describe "atomic-emacs:previous-line", ->
+    it "moves the cursor up one line", ->
+      EditorState.set(@editor, "ab\na[0]b\n")
+      AtomicEmacs.previousLine(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\n")
+
+    it "goes to the start of the line if already at the top of the buffer", ->
+      EditorState.set(@editor, "x[0]")
+      AtomicEmacs.previousLine(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    it "extends an active selection if the mark is set", ->
+      EditorState.set(@editor, "ab\nab\na[0]b\n")
+      AtomicEmacs.setMark(@event)
+      AtomicEmacs.previousLine(@event)
+      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\na(0)b\n")
+      AtomicEmacs.previousLine(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\na(0)b\n")
+
+  describe "atomic-emacs:next-line", ->
+    it "moves the cursor down one line", ->
+      EditorState.set(@editor, "a[0]b\nab\n")
+      AtomicEmacs.nextLine(@event)
+      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\n")
+
+    it "goes to the end of the line if already at the bottom of the buffer", ->
+      EditorState.set(@editor, "[0]x")
+      AtomicEmacs.nextLine(@event)
+      expect(EditorState.get(@editor)).toEqual("x[0]")
+
+    it "extends an active selection if the mark is set", ->
+      EditorState.set(@editor, "a[0]b\nab\nab\n")
+      AtomicEmacs.setMark(@event)
+      AtomicEmacs.nextLine(@event)
+      expect(EditorState.get(@editor)).toEqual("a(0)b\na[0]b\nab\n")
+      AtomicEmacs.nextLine(@event)
+      expect(EditorState.get(@editor)).toEqual("a(0)b\nab\na[0]b\n")
+
   describe "atomic-emacs:backward-paragraph", ->
     it "moves the cursor backwards to an empty line", ->
       EditorState.set(@editor, "aaaaa\n\nbbbbbb")
@@ -195,3 +294,12 @@ describe "AtomicEmacs", ->
       @editor.moveCursorToBottom()
       AtomicEmacs.forwardParagraph(@event)
       expect(@editor.getCursorBufferPosition().row).toEqual(2)
+
+  describe "atomic-emacs:exchange-point-and-mark", ->
+    it "exchanges all cursors with their marks", ->
+      EditorState.set(@editor, "[0]..[1].")
+      for cursor in @editor.getCursors()
+        Mark.for(cursor)
+        cursor.moveRight()
+      AtomicEmacs.exchangePointAndMark(@event)
+      expect(EditorState.get(@editor)).toEqual("[0].(0).[1].(1)")
