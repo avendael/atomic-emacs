@@ -1,3 +1,6 @@
+## 0.2.7
+* Mark improvements.
+
 ## 0.2.6
 * Added movement by paragraph with marks support. Not yet 100% emacs compatible.
 
