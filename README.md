@@ -43,6 +43,7 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 * 'alt-f': 'atomic-emacs:forward-word'
 * 'alt-b': 'atomic-emacs:backward-word'
+* 'alt-q': 'autoflow:reflow-paragraph'
 * 'atl-t': 'atomic-emacs:transpose-words'
 * 'alt-w': 'atomic-emacs:copy'
 * 'alt-;': 'editor:toggle-line-comments'
