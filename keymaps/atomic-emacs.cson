@@ -37,6 +37,7 @@
   'alt-f': 'atomic-emacs:forward-word'
   'alt-b': 'atomic-emacs:backward-word'
   'alt-d': 'atomic-emacs:kill-word'
+  'alt-q': 'autoflow:reflow-paragraph'
   'alt-t': 'atomic-emacs:transpose-words'
   'alt-w': 'atomic-emacs:copy'
   'alt-;': 'editor:toggle-line-comments'
