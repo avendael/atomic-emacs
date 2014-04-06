@@ -36,7 +36,7 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:forward-char", (event) => @forwardChar(event)
     atom.workspaceView.command "atomic-emacs:backward-char", (event) => @backwardChar(event)
     atom.workspaceView.command "atomic-emacs:forward-word", (event) => @forwardWord(event)
-    atom.workspaceView.command "atomic-emacs:backward-word", (event) => @backwardWord(event)
+    atom.workspaceView.command "atomic-emacs:kill-word", (event) => @killWord(event)
     atom.workspaceView.command "atomic-emacs:next-line", (event) => @nextLine(event)
     atom.workspaceView.command "atomic-emacs:previous-line", (event) => @previousLine(event)
     atom.workspaceView.command "atomic-emacs:beginning-of-buffer", (event) => @beginningOfBuffer(event)
@@ -45,6 +45,8 @@ module.exports =
     atom.workspaceView.command "atomic-emacs:scroll-down", (event) => @scrollDown(event)
     atom.workspaceView.command "atomic-emacs:backward-paragraph", (event) => @backwardParagraph(event)
     atom.workspaceView.command "atomic-emacs:forward-paragraph", (event) => @forwardParagraph(event)
+    atom.workspaceView.command "atomic-emacs:backward-word", (event) => @backwardWord(event)
+    atom.workspaceView.command "atomic-emacs:backward-kill-word", (event) => @backwardKillWord(event)
     atom.workspaceView.command "atomic-emacs:just-one-space", (event) => @justOneSpace(event)
     atom.workspaceView.command "atomic-emacs:delete-horizontal-space", (event) => @deleteHorizontalSpace(event)
     atom.workspaceView.command "atomic-emacs:recenter-top-bottom", (event) => @recenterTopBottom(event)
@@ -234,6 +236,28 @@ module.exports =
 
       rowCount = blankRow - currentRow
       editor.moveCursorDown(rowCount)
+
+  backwardKillWord: (event) ->
+    editor = getActiveEditor(event)
+    editor.transact ->
+      for selection in editor.getSelections()
+        selection.modifySelection ->
+          if selection.isEmpty()
+            cursorTools = new CursorTools(selection.cursor)
+            cursorTools.skipNonWordCharactersBackward()
+            cursorTools.skipWordCharactersBackward()
+          selection.deleteSelectedText()
+
+  killWord: (event) ->
+    editor = getActiveEditor(event)
+    editor.transact ->
+      for selection in editor.getSelections()
+        selection.modifySelection ->
+          if selection.isEmpty()
+            cursorTools = new CursorTools(selection.cursor)
+            cursorTools.skipNonWordCharactersForward()
+            cursorTools.skipWordCharactersForward()
+          selection.deleteSelectedText()
 
   justOneSpace: (event) ->
     editor = getActiveEditor(event)
