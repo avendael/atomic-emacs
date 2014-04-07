@@ -109,6 +109,88 @@ describe "AtomicEmacs", ->
       AtomicEmacs.deleteHorizontalSpace(@event)
       expect(EditorState.get(@editor)).toEqual("a[0]b")
 
+  describe "atomic-emacs:kill-word", ->
+    it "deletes from the cursor to the end of the word if inside a word", ->
+      EditorState.set(@editor, "aaa b[0]bb ccc")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0] ccc")
+
+    it "deletes the word in front of the cursor if at the beginning of a word", ->
+      EditorState.set(@editor, "aaa [0]bbb ccc")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] ccc")
+
+    it "deletes the next word if at the end of a word", ->
+      EditorState.set(@editor, "aaa[0] bbb ccc")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa[0] ccc")
+
+    it "deletes the next word if between words", ->
+      EditorState.set(@editor, "aaa [0] bbb ccc")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] ccc")
+
+    it "does nothing if at the end of the buffer", ->
+      EditorState.set(@editor, "aaa bbb ccc[0]")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa bbb ccc[0]")
+
+    it "deletes the trailing space in front of the cursor if at the end of the buffer", ->
+      EditorState.set(@editor, "aaa bbb ccc [0] ")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa bbb ccc [0]")
+
+    it "deletes any selected text", ->
+      EditorState.set(@editor, "aaa b(0)b[0]b ccc")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]b ccc")
+
+    it "operates on multiple cursors", ->
+      EditorState.set(@editor, "aaa b[0]bb c[1]cc ddd")
+      AtomicEmacs.killWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0] c[1] ddd")
+
+  describe "atomic-emacs:backward-kill-word", ->
+    it "deletes from the cursor to the beginning of the word if inside a word", ->
+      EditorState.set(@editor, "aaa bb[0]b ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0]b ccc")
+
+    it "deletes the word behind the cursor if at the end of a word", ->
+      EditorState.set(@editor, "aaa bbb[0] ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] ccc")
+
+    it "deletes the previous word if at the beginning of a word", ->
+      EditorState.set(@editor, "aaa bbb [0]ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0]ccc")
+
+    it "deletes the previous word if between words", ->
+      EditorState.set(@editor, "aaa bbb [0] ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] ccc")
+
+    it "does nothing if at the beginning of the buffer", ->
+      EditorState.set(@editor, "[0]aaa bbb ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]aaa bbb ccc")
+
+    it "deletes the leading space behind the cursor if at the beginning of the buffer", ->
+      EditorState.set(@editor, " [0] aaa bbb ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("[0] aaa bbb ccc")
+
+    it "deletes any selected text", ->
+      EditorState.set(@editor, "aaa b(0)b[0]b ccc")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]b ccc")
+
+    it "operates on multiple cursors", ->
+      EditorState.set(@editor, "aaa bb[0]b cc[1]c ddd")
+      AtomicEmacs.backwardKillWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0]b [1]c ddd")
+
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
       EditorState.set(@editor, "a [0]\tb c [1]\td")
@@ -135,25 +217,6 @@ describe "AtomicEmacs", ->
       AtomicEmacs.justOneSpace(@event)
       expect(EditorState.get(@editor)).toEqual("a [0]b")
 
-  describe "atomic-emacs:backward-char", ->
-    it "moves the cursor backward one character", ->
-      EditorState.set(@editor, "x[0]")
-      AtomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "does nothing at the start of the buffer", ->
-      EditorState.set(@editor, "[0]x")
-      AtomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "ab[0]c")
-      AtomicEmacs.setMark(@event)
-      AtomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b(0)c")
-      AtomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
-
   describe "atomic_emacs:set-mark", ->
     it "sets and activates the mark of all cursors", ->
       EditorState.set(@editor, "[0].[1]")
@@ -176,6 +239,25 @@ describe "AtomicEmacs", ->
       AtomicEmacs.keyboardQuit(@event)
       expect(mark0.isActive()).toBe(false)
 
+  describe "atomic-emacs:backward-char", ->
+    it "moves the cursor backward one character", ->
+      EditorState.set(@editor, "x[0]")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    it "does nothing at the start of the buffer", ->
+      EditorState.set(@editor, "[0]x")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    it "extends an active selection if the mark is set", ->
+      EditorState.set(@editor, "ab[0]c")
+      AtomicEmacs.setMark(@event)
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]b(0)c")
+      AtomicEmacs.backwardChar(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
+
   describe "atomic-emacs:forward-char", ->
     it "moves the cursor forward one character", ->
       EditorState.set(@editor, "[0]x")
@@ -194,6 +276,58 @@ describe "AtomicEmacs", ->
       expect(EditorState.get(@editor)).toEqual("a(0)b[0]c")
       AtomicEmacs.forwardChar(@event)
       expect(EditorState.get(@editor)).toEqual("a(0)bc[0]")
+
+  describe "atomic-emacs:backward-word", ->
+    it "moves all cursors to the beginning of the current word if in a word", ->
+      EditorState.set(@editor, "aa b[0]b c[1]c")
+      AtomicEmacs.backwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa [0]bb [1]cc")
+
+    it "moves to the beginning of the previous word if between words", ->
+      EditorState.set(@editor, "aa bb [0] cc")
+      AtomicEmacs.backwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa [0]bb  cc")
+
+    it "moves to the beginning of the previous word if at the start of a word", ->
+      EditorState.set(@editor, "aa bb [0]cc")
+      AtomicEmacs.backwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa [0]bb cc")
+
+    it "moves to the beginning of the buffer if at the start of the first word", ->
+      EditorState.set(@editor, " [0]aa bb")
+      AtomicEmacs.backwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("[0] aa bb")
+
+    it "moves to the beginning of the buffer if before the start of the first word", ->
+      EditorState.set(@editor, " [0] aa bb")
+      AtomicEmacs.backwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]  aa bb")
+
+  describe "atomic-emacs:forward-word", ->
+    it "moves all cursors to the end of the current word if in a word", ->
+      EditorState.set(@editor, "a[0]a b[1]b cc")
+      AtomicEmacs.forwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa[0] bb[1] cc")
+
+    it "moves to the end of the next word if between words", ->
+      EditorState.set(@editor, "aa [0] bb cc")
+      AtomicEmacs.forwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa  bb[0] cc")
+
+    it "moves to the end of the next word if at the end of a word", ->
+      EditorState.set(@editor, "aa[0] bb cc")
+      AtomicEmacs.forwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa bb[0] cc")
+
+    it "moves to the end of the buffer if at the end of the last word", ->
+      EditorState.set(@editor, "aa bb[0] ")
+      AtomicEmacs.forwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa bb [0]")
+
+    it "moves to the end of the buffer if past the end of the last word", ->
+      EditorState.set(@editor, "aa bb [0] ")
+      AtomicEmacs.forwardWord(@event)
+      expect(EditorState.get(@editor)).toEqual("aa bb  [0]")
 
   describe "atomic-emacs:previous-line", ->
     it "moves the cursor up one line", ->
