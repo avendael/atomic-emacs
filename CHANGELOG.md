@@ -1,3 +1,7 @@
+## 0.2.8
+* M-q bound to reflow-paragraph.
+* Movement by words are now more emacs-like.
+
 ## 0.2.7
 * Mark improvements.
 
