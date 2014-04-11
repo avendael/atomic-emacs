@@ -1,3 +1,7 @@
+## 0.2.11
+* Because of a tagging mishap, what should have been 0.2.9 became 0.2.11
+* Tags that weren't deleted were deleted, but I forgot to update package.json. Hence 0.2.11. Bummer.
+
 ## 0.2.9
 * Arrow keys should now work properly with set-mark.
 * ctrl-n and ctrl-p should now work as expected in fuzzy-finder.
