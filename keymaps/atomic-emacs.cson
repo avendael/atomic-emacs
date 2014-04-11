@@ -52,6 +52,10 @@
   'alt-space': 'atomic-emacs:just-one-space'
   'alt-[': 'atomic-emacs:backward-paragraph'
   'alt-]': 'atomic-emacs:forward-paragraph'
+  'up': 'atomic-emacs:previous-line'
+  'down': 'atomic-emacs:next-line'
+  'left': 'atomic-emacs:backward-char'
+  'right': 'atomic-emacs:forward-char'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'

@@ -1,3 +1,8 @@
+## 0.2.9
+* Arrow keys should now work properly with set-mark.
+* ctrl-n and ctrl-p should now work as expected in fuzzy-finder.
+* alt-w now uses the new mark deactivate API.
+
 ## 0.2.8
 * M-q bound to reflow-paragraph.
 * Movement by words are now more emacs-like.

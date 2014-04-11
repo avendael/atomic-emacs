@@ -19,6 +19,10 @@ endLineIfNecessary = (cursor) ->
     length = cursor.getCurrentBufferLine().length
     editor.setTextInBufferRange([[row, length], [row, length]], "\n")
 
+deactivateCursors = (editor) ->
+  for cursor in editor.getCursors()
+    Mark.for(cursor).deactivate()
+
 module.exports =
   Mark: Mark
 
@@ -118,8 +122,7 @@ module.exports =
 
   keyboardQuit: (event) ->
     editor = getActiveEditor(event)
-    for cursor in editor.getCursors()
-      Mark.for(cursor).deactivate()
+    deactivateCursors(editor)
 
   exchangePointAndMark: (event) ->
     editor = getActiveEditor(event)
@@ -128,11 +131,9 @@ module.exports =
 
   copy: (event) ->
     editor = getActiveEditor(event)
-    cursorMarker = editor.getMarkers()[0]
 
     editor.copySelectedText()
-    cursorMarker.retainSelection = false
-    editor.clearSelections()
+    deactivateCursors(editor)
 
   forwardChar: (event) ->
     editor = getActiveEditor(event)
@@ -159,11 +160,17 @@ module.exports =
       tools.skipWordCharactersBackward()
 
   nextLine: (event) ->
+    if atom.workspaceView.find('.fuzzy-finder').view()
+      event.abortKeyBinding()
+
     editor = getActiveEditor(event)
     editor.moveCursors (cursor) ->
       cursor.moveDown()
 
   previousLine: (event) ->
+    if atom.workspaceView.find('.fuzzy-finder').view()
+      event.abortKeyBinding()
+
     editor = getActiveEditor(event)
     editor.moveCursors (cursor) ->
       cursor.moveUp()
