@@ -49,6 +49,7 @@
   'alt-.': 'symbols-view:toggle-file-symbols'
   'alt-\\': 'atomic-emacs:delete-horizontal-space'
   'alt-backspace': 'atomic-emacs:backward-kill-word'
+  'alt-delete': 'atomic-emacs:backward-kill-word'
   'alt-space': 'atomic-emacs:just-one-space'
   'alt-[': 'atomic-emacs:backward-paragraph'
   'alt-]': 'atomic-emacs:forward-paragraph'
