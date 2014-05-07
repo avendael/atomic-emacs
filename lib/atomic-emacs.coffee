@@ -160,7 +160,8 @@ module.exports =
       tools.skipWordCharactersBackward()
 
   nextLine: (event) ->
-    if atom.workspaceView.find('.fuzzy-finder').view()
+    if atom.workspaceView.find('.fuzzy-finder').view() or
+       atom.workspaceView.find('.command-palette').view()
       event.abortKeyBinding()
 
     editor = getActiveEditor(event)
@@ -168,7 +169,8 @@ module.exports =
       cursor.moveDown()
 
   previousLine: (event) ->
-    if atom.workspaceView.find('.fuzzy-finder').view()
+    if atom.workspaceView.find('.fuzzy-finder').view() or
+       atom.workspaceView.find('.command-palette').view()
       event.abortKeyBinding()
 
     editor = getActiveEditor(event)
