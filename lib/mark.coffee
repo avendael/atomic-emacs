@@ -33,7 +33,9 @@ class Mark
   activate: ->
     if not @active
       @movedCallback ?= (event) => @_updateSelection(event)
-      @modifiedCallback ?= (event) => @deactivate()
+      @modifiedCallback ?= (event) =>
+        return if @_isIndent(event) or @_isOutdent(event)
+        @deactivate()
       @cursor.on 'moved', @movedCallback
       @editor.getBuffer().on 'changed', @modifiedCallback
       @active = true
@@ -72,7 +74,25 @@ class Mark
       finally
         @updating = false
 
-Mark.for = (cursor) ->
-  cursor._atomicEmacsMark ?= new Mark(cursor)
+  Mark.for = (cursor) ->
+   cursor._atomicEmacsMark ?= new Mark(cursor)
+
+  _isIndent: (event)->
+    @_isIndentOutdent(event.newRange, event.newText)
+
+  _isOutdent: (event)->
+    @_isIndentOutdent(event.oldRange, event.oldText)
+
+  _isIndentOutdent: (range, text)->
+    tabLength = @editor.getTabLength()
+    diff = range.end.column - range.start.column
+    true if diff == @editor.getTabLength() and range.start.row == range.end.row and @_checkTextForSpaces(text, tabLength)
+
+  _checkTextForSpaces: (text, tabSize)->
+    return false unless text and text.length is tabSize
+
+    for ch in text
+      return false unless ch is " "
+    true
 
 module.exports = Mark

@@ -89,6 +89,32 @@ describe "Mark", ->
       expect(EditorState.get(@editor)).toEqual("x.[0].")
       expect(@cursor.selection.isEmpty()).toBe(true)
 
+    it "doesn't deactive the mark if changes are indents", ->
+      EditorState.set(@editor, ".[0]..")
+      mark = Mark.for(@cursor)
+
+      mark.set().activate()
+      @cursor.setBufferPosition([0, 2])
+      expect(EditorState.get(@editor)).toEqual(".(0).[0].")
+
+      @editor.indentSelectedRows()
+      expect(mark.isActive()).toBe(true)
+      expect(EditorState.get(@editor)).toEqual("  .(0).[0].")
+      expect(@cursor.selection.isEmpty()).toBe(false)
+
+    it "doesn't deactive the mark if changes are outdents", ->
+      EditorState.set(@editor, ".[0]..")
+      mark = Mark.for(@cursor)
+
+      mark.set().activate()
+      @cursor.setBufferPosition([0, 2])
+      expect(EditorState.get(@editor)).toEqual(".(0).[0].")
+
+      @editor.outdentSelectedRows()
+      expect(mark.isActive()).toBe(true)
+      expect(EditorState.get(@editor)).toEqual(".(0).[0].")
+      expect(@cursor.selection.isEmpty()).toBe(false)
+
   describe "deactivate", ->
     it "deactivates the mark", ->
       mark = Mark.for(@cursor)
