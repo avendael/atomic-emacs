@@ -1,3 +1,7 @@
+## 0.2.12
+* previous-line and next-line now works for the command palette.
+* tab now works as expected when the mark is active.
+
 ## 0.2.11
 * Because of a tagging mishap, what should have been 0.2.9 became 0.2.11
 * Tags that weren't deleted were deleted, but I forgot to update package.json. Hence 0.2.11. Bummer.
