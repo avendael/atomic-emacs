@@ -10,7 +10,7 @@
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x o': 'window:focus-next-pane'
 
-'.editor':
+'.editor:not(.mini)':
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
   'ctrl-n': 'atomic-emacs:next-line'
