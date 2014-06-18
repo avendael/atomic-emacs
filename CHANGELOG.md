@@ -1,3 +1,6 @@
+## 0.2.13
+* Partial fix for Uncaught TypeError, issue #17
+
 ## 0.2.12
 * previous-line and next-line now works for the command palette.
 * tab now works as expected when the mark is active.

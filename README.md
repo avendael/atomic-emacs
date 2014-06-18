@@ -67,6 +67,8 @@ There is a set-marks command. However, the ctrl-space mapping is being used by a
   'ctrl-space': 'atomic-emacs:set-mark'
 ```
 
+There is also a known issue that suddenly borks the keybindings. Please check issue [#17](https://github.com/avendael/atomic-emacs/issues/17) for the workaround.
+
 ### Future Work
 
 Version 1.0.0 should be somewhat close to what [sublemacspro](https://github.com/grundprinzip/sublemacspro) currently has as of time of writing (03/04/14), and then improve further based on that. Next up are:
