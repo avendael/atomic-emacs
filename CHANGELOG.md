@@ -1,3 +1,6 @@
+## 0.3.0
+* Make atomic-emacs work with React.
+
 ## 0.2.13
 * Partial fix for Uncaught TypeError, issue #17
 
