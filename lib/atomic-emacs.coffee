@@ -73,7 +73,7 @@ class AtomicEmacs
     @editor.moveCursorRight()
 
   transposeWords: (event) ->
-    @editor.transact ->
+    @editor.transact =>
       for cursor in @editor.getCursors()
         cursorTools = new CursorTools(cursor)
         cursorTools.skipNonWordCharactersBackward()
@@ -96,7 +96,7 @@ class AtomicEmacs
     cursor = @editor.getCursor()
     row = cursor.getBufferRow()
 
-    @editor.transact ->
+    @editor.transact =>
       if row == 0
         endLineIfNecessary(cursor)
         cursor.moveDown()
@@ -220,7 +220,7 @@ class AtomicEmacs
       @editor.moveCursorDown(rowCount)
 
   backwardKillWord: (event) ->
-    @editor.transact ->
+    @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection ->
           if selection.isEmpty()
@@ -230,7 +230,7 @@ class AtomicEmacs
           selection.deleteSelectedText()
 
   killWord: (event) ->
-    @editor.transact ->
+    @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection ->
           if selection.isEmpty()
