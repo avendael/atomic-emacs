@@ -1,3 +1,6 @@
+## 0.3.1
+* Fixed a bug where the editor is not being accessible inside transact.
+
 ## 0.3.0
 * Make atomic-emacs work with React.
 
