@@ -1,3 +1,8 @@
+## 0.3.2
+* Fixed the recenter command.
+* Fixed the test suite.
+* Enabled travis ci.
+
 ## 0.3.1
 * Fixed a bug where the editor is not being accessible inside transact.
 
