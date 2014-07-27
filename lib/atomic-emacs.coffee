@@ -23,6 +23,9 @@ deactivateCursors = (editor) ->
 module.exports =
   Mark: Mark
 
+  attachInstance: (editorView, editor) ->
+    editorView._atomicEmacs ?= new AtomicEmacs(editorView, editor)
+
   activate: ->
     atom.workspaceView.eachEditorView (editorView) ->
       atomicEmacs = new AtomicEmacs(editorView, editorView.editor)
@@ -57,6 +60,8 @@ module.exports =
 
 class AtomicEmacs
   constructor: (@editorView, @editor) ->
+
+  Mark: Mark
 
   upcaseRegion: (event) ->
     @editor.upperCase()
@@ -250,9 +255,8 @@ class AtomicEmacs
       @editor.setTextInBufferRange(range, '')
 
   recenterTopBottom: (event) ->
-    view = event.targetView()
     minRow = Math.min((c.getBufferRow() for c in @editor.getCursors())...)
     maxRow = Math.max((c.getBufferRow() for c in @editor.getCursors())...)
-    minOffset = view.pixelPositionForBufferPosition([minRow, 0])
-    maxOffset = view.pixelPositionForBufferPosition([maxRow, 0])
-    view.scrollTop((minOffset.top + maxOffset.top - view.scrollView.height())/2)
+    minOffset = @editorView.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = @editorView.pixelPositionForBufferPosition([maxRow, 0])
+    @editorView.scrollTop((minOffset.top + maxOffset.top - @editorView.scrollView.height())/2)
