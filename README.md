@@ -1,6 +1,7 @@
 ## Atomic Emacs
 
 An atomic implementation of emacs keybindings.
+![Build Status](https://travis-ci.org/avendael/atomic-emacs.svg?branch=master)
 
 ### Important Note
 
