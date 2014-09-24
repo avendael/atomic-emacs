@@ -46,7 +46,7 @@ class Mark
       @editor.getBuffer().on 'changed', @modifiedCallback
       @active = false
     @cursor.clearSelection()
-    @cursor.selection.screenRangeChanged()  # force redraw of selection
+    @cursor.selection.screenRangeChanged(@marker)  # force redraw of selection
 
   isActive: ->
     @active
