@@ -9,6 +9,10 @@
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x o': 'window:focus-next-pane'
+  'ctrl-b': 'unset!'
+  'ctrl-f': 'unset!'
+  'ctrl-p': 'unset!'
+  'ctrl-n': 'unset!'
 
 '.editor:not(.mini)':
   'ctrl-f': 'atomic-emacs:forward-char'
