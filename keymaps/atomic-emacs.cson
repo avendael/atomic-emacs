@@ -16,7 +16,7 @@
   'ctrl-n': 'atomic-emacs:next-line'
   'ctrl-p': 'atomic-emacs:previous-line'
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
-  'ctrl-k': 'editor:delete-to-end-of-line'
+  'ctrl-k': 'editor:cut-to-end-of-line'
   'ctrl-g': 'core:cancel'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'core:cut'
