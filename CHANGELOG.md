@@ -1,3 +1,6 @@
+## 0.3.5
+* Bind ctrl-k to `editor:cut-to-end-of-line`
+
 ## 0.3.4
 * Rename `autoflow:reflow-paragraph` to `autoflow:reflow-selection` because of upstream change.
 * Bind ctrl-k to `editor:delete-to-end-of-line`

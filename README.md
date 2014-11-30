@@ -25,7 +25,7 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-e': 'atomic-emacs:move-end-of-line'
 * 'ctrl-l': 'atomic-emacs:recenter-top-bottom'
 * 'ctrl-g': 'atomic-emacs:remove-mark'
-* 'ctrl-k': 'editor:delete-to-end-of-line'
+* 'ctrl-k': 'editor:cut-to-end-of-line'
 * 'ctrl-y': 'core:paste'
 * 'ctrl-w': 'atomic-emacs:kill-region'
 * 'ctrl-v': 'atomic-emacs:scroll-up'
