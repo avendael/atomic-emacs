@@ -151,18 +151,10 @@ class AtomicEmacs
       tools.skipWordCharactersBackward()
 
   nextLine: (event) ->
-    if atom.workspaceView.find('.fuzzy-finder').view() or
-       atom.workspaceView.find('.command-palette').view()
-      event.abortKeyBinding()
-
     @editor.moveCursors (cursor) ->
       cursor.moveDown()
 
   previousLine: (event) ->
-    if atom.workspaceView.find('.fuzzy-finder').view() or
-       atom.workspaceView.find('.command-palette').view()
-      event.abortKeyBinding()
-
     @editor.moveCursors (cursor) ->
       cursor.moveUp()
 

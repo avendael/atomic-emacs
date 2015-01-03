@@ -1,3 +1,6 @@
+## 0.3.6
+* Fix `next-line` and `previous-line` skipping bug.
+
 ## 0.3.5
 * Bind ctrl-k to `editor:cut-to-end-of-line`
 
