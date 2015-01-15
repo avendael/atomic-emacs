@@ -11,10 +11,6 @@
   'ctrl-x o': 'window:focus-next-pane'
 
 '.editor:not(.mini)':
-  'ctrl-f': 'atomic-emacs:forward-char'
-  'ctrl-b': 'atomic-emacs:backward-char'
-  'ctrl-n': 'atomic-emacs:next-line'
-  'ctrl-p': 'atomic-emacs:previous-line'
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-k': 'editor:cut-to-end-of-line'
   'ctrl-g': 'core:cancel'
@@ -54,10 +50,6 @@
   'alt-space': 'atomic-emacs:just-one-space'
   'alt-[': 'atomic-emacs:backward-paragraph'
   'alt-]': 'atomic-emacs:forward-paragraph'
-  'up': 'atomic-emacs:previous-line'
-  'down': 'atomic-emacs:next-line'
-  'left': 'atomic-emacs:backward-char'
-  'right': 'atomic-emacs:forward-char'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'
