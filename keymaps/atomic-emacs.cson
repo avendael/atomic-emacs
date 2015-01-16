@@ -11,6 +11,10 @@
   'ctrl-x o': 'window:focus-next-pane'
 
 '.editor:not(.mini)':
+  'ctrl-f': 'core:move-right'
+  'ctrl-b': 'core:move-left'
+  'ctrl-n': 'core:move-down'
+  'ctrl-p': 'core:move-up'
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-k': 'editor:cut-to-end-of-line'
   'ctrl-g': 'core:cancel'
