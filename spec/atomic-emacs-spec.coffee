@@ -263,51 +263,6 @@ describe "AtomicEmacs", ->
       @atomicEmacs.backwardChar(@event)
       expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
 
-  describe "atomic-emacs:forward-char", ->
-    it "moves the cursor forward one character", ->
-      EditorState.set(@editor, "[0]x")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "does nothing at the end of the buffer", ->
-      EditorState.set(@editor, "x[0]")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "a[0]bc")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b[0]c")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)bc[0]")
-
-  describe "atomic-emacs:backward-word", ->
-    it "moves all cursors to the beginning of the current word if in a word", ->
-      EditorState.set(@editor, "aa b[0]b c[1]c")
-      @atomicEmacs.backwardWord(@event)
-      expect(EditorState.get(@editor)).toEqual("aa [0]bb [1]cc")
-
-    it "moves to the beginning of the previous word if between words", ->
-      EditorState.set(@editor, "aa bb [0] cc")
-      @atomicEmacs.backwardWord(@event)
-      expect(EditorState.get(@editor)).toEqual("aa [0]bb  cc")
-
-    it "moves to the beginning of the previous word if at the start of a word", ->
-      EditorState.set(@editor, "aa bb [0]cc")
-      @atomicEmacs.backwardWord(@event)
-      expect(EditorState.get(@editor)).toEqual("aa [0]bb cc")
-
-    it "moves to the beginning of the buffer if at the start of the first word", ->
-      EditorState.set(@editor, " [0]aa bb")
-      @atomicEmacs.backwardWord(@event)
-      expect(EditorState.get(@editor)).toEqual("[0] aa bb")
-
-    it "moves to the beginning of the buffer if before the start of the first word", ->
-      EditorState.set(@editor, " [0] aa bb")
-      @atomicEmacs.backwardWord(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]  aa bb")
-
   describe "atomic-emacs:forward-word", ->
     it "moves all cursors to the end of the current word if in a word", ->
       EditorState.set(@editor, "a[0]a b[1]b cc")
@@ -333,44 +288,6 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "aa bb [0] ")
       @atomicEmacs.forwardWord(@event)
       expect(EditorState.get(@editor)).toEqual("aa bb  [0]")
-
-  describe "atomic-emacs:previous-line", ->
-    it "moves the cursor up one line", ->
-      EditorState.set(@editor, "ab\na[0]b\n")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\n")
-
-    it "goes to the start of the line if already at the top of the buffer", ->
-      EditorState.set(@editor, "x[0]")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "ab\nab\na[0]b\n")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\na(0)b\n")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\na(0)b\n")
-
-  describe "atomic-emacs:next-line", ->
-    it "moves the cursor down one line", ->
-      EditorState.set(@editor, "a[0]b\nab\n")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\n")
-
-    it "goes to the end of the line if already at the bottom of the buffer", ->
-      EditorState.set(@editor, "[0]x")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "a[0]b\nab\nab\n")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b\na[0]b\nab\n")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b\nab\na[0]b\n")
 
   describe "atomic-emacs:backward-paragraph", ->
     it "moves the cursor backwards to an empty line", ->

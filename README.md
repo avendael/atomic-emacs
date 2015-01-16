@@ -17,10 +17,10 @@ platforms. Once that time comes, I will gladly include those keybindings in this
 
 It's super incomplete, very alpha stage. Basically, just these:
 
-* 'ctrl-f': 'atomic-emacs:forward-char'
-* 'ctrl-b': 'atomic-emacs:backward-char'
-* 'ctrl-n': 'atomic-emacs:next-line'
-* 'ctrl-p': 'atomic-emacs:previous-line'
+* 'ctrl-f': supported by Atom
+* 'ctrl-b': supported by Atom
+* 'ctrl-n': supported by Atom
+* 'ctrl-p': supported by Atom
 * 'ctrl-a': 'atomic-emacs:move-beginning-of-line'
 * 'ctrl-e': 'atomic-emacs:move-end-of-line'
 * 'ctrl-l': 'atomic-emacs:recenter-top-bottom'
