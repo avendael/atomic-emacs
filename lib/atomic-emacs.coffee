@@ -25,8 +25,8 @@ module.exports =
   Mark: Mark
   disposables: new CompositeDisposable
 
-  attachInstance: (editorView, editor) ->
-    editorView._atomicEmacs ?= new AtomicEmacs(null, editor)
+  attachInstance: (editor) ->
+    new AtomicEmacs(null, editor)
 
   activate: ->
     atom.workspace.observeTextEditors (editor) =>

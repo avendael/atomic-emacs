@@ -1,10 +1,11 @@
-{WorkspaceView} = require 'atom'
 EditorState = require './editor-state'
 Mark = require './../lib/mark'
 
 describe "Mark", ->
+  workspaceElement = null
+
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
+    workspaceElement = atom.views.getView(atom.workspace)
     @editor = atom.project.openSync()
     @cursor = @editor.getCursor()
 

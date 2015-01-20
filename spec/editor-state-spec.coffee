@@ -1,7 +1,8 @@
-{WorkspaceView} = require 'atom'
 EditorState = require './editor-state'
 
 describe "EditorState", ->
+  workspaceElement = null
+
   cursorPosition = (editor, i) ->
     cursor = editor.getCursors()[i]
     point = cursor?.getBufferPosition()
@@ -16,7 +17,7 @@ describe "EditorState", ->
     [head?.row, head?.column, tail?.row, tail?.column]
 
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
+    workspaceElement = atom.views.getView(atom.workspace)
     @editor = atom.project.openSync()
 
   describe ".set", ->

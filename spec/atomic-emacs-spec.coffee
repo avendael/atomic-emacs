@@ -1,16 +1,15 @@
-{WorkspaceView} = require 'atom'
-{EditorView} = require 'atom'
 AtomicEmacs = require '../lib/atomic-emacs'
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
 
 describe "AtomicEmacs", ->
+  workspaceElement = null
+
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
+    workspaceElement = atom.views.getView(atom.workspace)
     @editor = atom.project.openSync()
-    @editorView = new EditorView(@editor)
     @event = targetView: => {editor: @editor}
-    @atomicEmacs = AtomicEmacs.attachInstance(@editorView, @editor)
+    @atomicEmacs = AtomicEmacs.attachInstance(@editor)
 
     AtomicEmacs.activate()
 
