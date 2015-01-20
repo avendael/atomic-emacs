@@ -18,7 +18,8 @@ describe "EditorState", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    @editor = atom.project.openSync()
+    waitsForPromise =>
+      atom.project.open().then (e) => @editor = e
 
   describe ".set", ->
     it "sets the buffer text", ->
