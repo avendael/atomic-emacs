@@ -1,3 +1,6 @@
+## 0.3.7
+* Bind `next-paragraph` and `previous-paragraph` to `M-]` and `M-[` respectively.
+
 ## 0.3.6
 * Fix `next-line` and `previous-line` skipping bug.
 
