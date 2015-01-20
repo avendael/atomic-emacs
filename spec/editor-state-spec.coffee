@@ -48,13 +48,13 @@ describe "EditorState", ->
   describe ".get", ->
     it "correctly positions cursors", ->
       @editor.setText('abc')
-      @editor.getCursor().setBufferPosition([0, 2])
+      @editor.getLastCursor().setBufferPosition([0, 2])
       @editor.addCursorAtBufferPosition([0, 1])
       expect(EditorState.get(@editor)).toEqual('a[1]b[0]c')
 
     it "correctly positions heads & tails of forward & reverse selections", ->
       @editor.setText('abcde')
-      @editor.getCursor().selection.setBufferRange([[0, 1], [0, 3]])
+      @editor.getLastCursor().selection.setBufferRange([[0, 1], [0, 3]])
       cursor = @editor.addCursorAtBufferPosition([0, 0])
       cursor.selection.setBufferRange([[0, 2], [0, 4]], isReversed: true)
       expect(EditorState.get(@editor)).toEqual('a(0)b[1]c[0]d(1)e')

@@ -6,11 +6,10 @@ describe "Mark", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    @editor = atom.project.openSync()
     waitsForPromise =>
       atom.project.open().then (e) => @editor = e
     runs =>
-        @cursor = @editor.getCursor()
+        @cursor = @editor.getLastCursor()
 
   describe ".for", ->
     it "returns the mark for the given cursor", ->
