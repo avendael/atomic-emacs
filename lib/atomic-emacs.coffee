@@ -24,11 +24,11 @@ module.exports =
   Mark: Mark
 
   attachInstance: (editorView, editor) ->
-    editorView._atomicEmacs ?= new AtomicEmacs(editorView, editor)
+    editorView._atomicEmacs ?= new AtomicEmacs(null, editor)
 
   activate: ->
     atom.workspaceView.eachEditorView (editorView) ->
-      atomicEmacs = new AtomicEmacs(editorView, editorView.editor)
+      atomicEmacs = new AtomicEmacs(null, editorView.editor)
       editorView.command "atomic-emacs:upcase-region", (event) => atomicEmacs.upcaseRegion(event)
       editorView.command "atomic-emacs:downcase-region", (event) => atomicEmacs.downcaseRegion(event)
       editorView.command "atomic-emacs:open-line", (event) => atomicEmacs.openLine(event)
@@ -59,7 +59,7 @@ module.exports =
       editorView.command "core:cancel", (event) => atomicEmacs.keyboardQuit(event)
 
 class AtomicEmacs
-  constructor: (@editorView, @editor) ->
+  constructor: (_, @editor) ->
 
   Mark: Mark
 
@@ -175,21 +175,19 @@ class AtomicEmacs
       cursor.moveUp()
 
   scrollUp: (event) ->
-    firstRow = @editorView.getFirstVisibleScreenRow()
-    lastRow = @editorView.getLastVisibleScreenRow()
+    [firstRow,lastRow] = @editor.getVisibleRowRange()
     currentRow = @editor.cursors[0].getBufferRow()
     rowCount = (lastRow - firstRow) - (currentRow - firstRow)
 
-    @editorView.scrollToBufferPosition([lastRow * 2, 0])
+    @editor.scrollToBufferPosition([lastRow * 2, 0])
     @editor.moveCursorDown(rowCount)
 
   scrollDown: (event) ->
-    firstRow = @editorView.getFirstVisibleScreenRow()
-    lastRow = @editorView.getLastVisibleScreenRow()
+    [firstRow,lastRow] = @editor.getVisibleRowRange()
     currentRow = @editor.cursors[0].getBufferRow()
     rowCount = (lastRow - firstRow) - (lastRow - currentRow)
 
-    @editorView.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
+    @editor.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
     @editor.moveCursorUp(rowCount)
 
   backwardParagraph: (event) ->
@@ -265,6 +263,6 @@ class AtomicEmacs
   recenterTopBottom: (event) ->
     minRow = Math.min((c.getBufferRow() for c in @editor.getCursors())...)
     maxRow = Math.max((c.getBufferRow() for c in @editor.getCursors())...)
-    minOffset = @editorView.pixelPositionForBufferPosition([minRow, 0])
-    maxOffset = @editorView.pixelPositionForBufferPosition([maxRow, 0])
-    @editorView.scrollTop((minOffset.top + maxOffset.top - @editorView.scrollView.height())/2)
+    minOffset = @editor.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = @editor.pixelPositionForBufferPosition([maxRow, 0])
+    @editor.setScrollTop((minOffset.top + maxOffset.top - @editor.getHeight())/2)
