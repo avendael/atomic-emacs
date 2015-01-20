@@ -104,7 +104,7 @@ class AtomicEmacs
         cursor.setBufferPosition(cursor.getBufferPosition())
 
   transposeLines: (event) ->
-    cursor = @editor.getCursor()
+    cursor = @editor.getLastCursor()
     row = cursor.getBufferRow()
 
     @editor.transact =>
