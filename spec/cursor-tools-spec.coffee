@@ -1,4 +1,3 @@
-{WorkspaceView} = require 'atom'
 EditorState = require './editor-state'
 CursorTools = require '../lib/cursor-tools'
 
@@ -9,8 +8,10 @@ rangeCoordinates = (range) ->
     range
 
 describe "CursorTools", ->
+  workspaceElement = null
+
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
+    workspaceElement = atom.views.getView(atom.workspace)
     @editor = atom.project.openSync()
     @cursorTools = new CursorTools(@editor.getCursor())
 
