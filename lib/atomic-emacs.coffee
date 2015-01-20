@@ -77,7 +77,7 @@ class AtomicEmacs
 
   openLine: (event) ->
     @editor.insertNewline()
-    @editor.moveCursorUp()
+    @editor.moveUp()
 
   transposeChars: (event) ->
     @editor.transpose()
@@ -186,7 +186,7 @@ class AtomicEmacs
     rowCount = (lastRow - firstRow) - (currentRow - firstRow)
 
     @editor.scrollToBufferPosition([lastRow * 2, 0])
-    @editor.moveCursorDown(rowCount)
+    @editor.moveDown(rowCount)
 
   scrollDown: (event) ->
     [firstRow,lastRow] = @editor.getVisibleRowRange()
@@ -194,7 +194,7 @@ class AtomicEmacs
     rowCount = (lastRow - firstRow) - (lastRow - currentRow)
 
     @editor.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
-    @editor.moveCursorUp(rowCount)
+    @editor.moveUp(rowCount)
 
   backwardParagraph: (event) ->
     for cursor in @editor.getCursors()
@@ -208,14 +208,14 @@ class AtomicEmacs
       while currentRow == blankRow
         break if currentRow <= 0
 
-        @editor.moveCursorUp()
+        @editor.moveUp()
 
         currentRow = @editor.getCursorBufferPosition().row
         blankRange = cursorTools.locateBackward(/^\s+$|^\s*$/)
         blankRow = if blankRange then blankRange.start.row else 0
 
       rowCount = currentRow - blankRow
-      @editor.moveCursorUp(rowCount)
+      @editor.moveUp(rowCount)
 
   forwardParagraph: (event) ->
     lineCount = @editor.buffer.getLineCount() - 1
@@ -228,13 +228,13 @@ class AtomicEmacs
       blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
 
       while currentRow == blankRow
-        @editor.moveCursorDown()
+        @editor.moveDown()
 
         currentRow = @editor.getCursorBufferPosition().row
         blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
 
       rowCount = blankRow - currentRow
-      @editor.moveCursorDown(rowCount)
+      @editor.moveDown(rowCount)
 
   backwardKillWord: (event) ->
     @editor.transact =>

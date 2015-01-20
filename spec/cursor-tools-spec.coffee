@@ -15,7 +15,7 @@ describe "CursorTools", ->
     waitsForPromise =>
       atom.project.open().then (e) => @editor = e
     runs =>
-        @cursorTools = new CursorTools(@editor.getCursor())
+        @cursorTools = new CursorTools(@editor.getLastCursor())
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->
