@@ -12,8 +12,10 @@ describe "CursorTools", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    @editor = atom.project.openSync()
-    @cursorTools = new CursorTools(@editor.getCursor())
+    waitsForPromise =>
+      atom.project.open().then (e) => @editor = e
+    runs =>
+        @cursorTools = new CursorTools(@editor.getCursor())
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->

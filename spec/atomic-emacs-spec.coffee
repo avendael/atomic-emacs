@@ -7,11 +7,12 @@ describe "AtomicEmacs", ->
 
   beforeEach ->
     workspaceElement = atom.views.getView(atom.workspace)
-    @editor = atom.project.openSync()
-    @event = targetView: => {editor: @editor}
-    @atomicEmacs = AtomicEmacs.attachInstance(@editor)
-
-    AtomicEmacs.activate()
+    waitsForPromise =>
+        atom.project.open().then (e) => @editor = e
+    runs =>
+        @event = targetView: => {editor: @editor}
+        @atomicEmacs = AtomicEmacs.attachInstance(@editor)
+        AtomicEmacs.activate()
 
   describe "atomic-emacs:transpose-words", ->
     it "transposes the current word with the one after it", ->
