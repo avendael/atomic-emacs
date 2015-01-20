@@ -29,8 +29,8 @@ module.exports =
     editorView._atomicEmacs ?= new AtomicEmacs(null, editor)
 
   activate: ->
-    atom.workspaceView.eachEditorView (editorView) =>
-      atomicEmacs = new AtomicEmacs(null, editorView.editor)
+    atom.workspace.observeTextEditors (editor) =>
+      atomicEmacs = new AtomicEmacs(null, editor)
       @disposables.add atom.commands.add 'atom-text-editor',
           "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
           "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
