@@ -1,12 +1,15 @@
-{WorkspaceView} = require 'atom'
 EditorState = require './editor-state'
 Mark = require './../lib/mark'
 
 describe "Mark", ->
+  workspaceElement = null
+
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
-    @editor = atom.project.openSync()
-    @cursor = @editor.getCursor()
+    workspaceElement = atom.views.getView(atom.workspace)
+    waitsForPromise =>
+      atom.project.open().then (e) => @editor = e
+    runs =>
+        @cursor = @editor.getLastCursor()
 
   describe ".for", ->
     it "returns the mark for the given cursor", ->
