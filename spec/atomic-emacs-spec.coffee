@@ -263,6 +263,15 @@ describe "AtomicEmacs", ->
       @atomicEmacs.backwardChar(@event)
       expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
 
+    it "aborts key binding if flag is set", ->
+      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
+      EditorState.set(@editor, "x[0]")
+      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
+      @atomicEmacs.backwardChar(event)
+
+      expect(event.abortKeyBinding).toHaveBeenCalled()
+      expect(EditorState.get(@editor)).toEqual("x[0]")
+
   describe "atomic-emacs:forward-char", ->
     it "moves the cursor forward one character", ->
       EditorState.set(@editor, "[0]x")
@@ -281,6 +290,15 @@ describe "AtomicEmacs", ->
       expect(EditorState.get(@editor)).toEqual("a(0)b[0]c")
       @atomicEmacs.forwardChar(@event)
       expect(EditorState.get(@editor)).toEqual("a(0)bc[0]")
+
+    it "aborts key binding if flag is set", ->
+      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
+      EditorState.set(@editor, "x[0]")
+      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
+      @atomicEmacs.forwardChar(event)
+
+      expect(event.abortKeyBinding).toHaveBeenCalled()
+      expect(EditorState.get(@editor)).toEqual("x[0]")
 
   describe "atomic-emacs:backward-word", ->
     it "moves all cursors to the beginning of the current word if in a word", ->
@@ -353,6 +371,15 @@ describe "AtomicEmacs", ->
       @atomicEmacs.previousLine(@event)
       expect(EditorState.get(@editor)).toEqual("a[0]b\nab\na(0)b\n")
 
+    it "aborts key binding if flag is set", ->
+      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
+      EditorState.set(@editor, "x[0]")
+      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
+      @atomicEmacs.previousLine(event)
+
+      expect(event.abortKeyBinding).toHaveBeenCalled()
+      expect(EditorState.get(@editor)).toEqual("x[0]")
+
   describe "atomic-emacs:next-line", ->
     it "moves the cursor down one line", ->
       EditorState.set(@editor, "a[0]b\nab\n")
@@ -371,6 +398,15 @@ describe "AtomicEmacs", ->
       expect(EditorState.get(@editor)).toEqual("a(0)b\na[0]b\nab\n")
       @atomicEmacs.nextLine(@event)
       expect(EditorState.get(@editor)).toEqual("a(0)b\nab\na[0]b\n")
+
+    it "aborts key binding if flag is set", ->
+      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
+      EditorState.set(@editor, "a[0]b\nab\nab\n")
+      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
+      @atomicEmacs.nextLine(event)
+
+      expect(event.abortKeyBinding).toHaveBeenCalled()
+      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\nab\n")
 
   describe "atomic-emacs:backward-paragraph", ->
     it "moves the cursor backwards to an empty line", ->

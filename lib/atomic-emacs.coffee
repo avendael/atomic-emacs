@@ -131,10 +131,16 @@ class AtomicEmacs
     deactivateCursors(@editor)
 
   forwardChar: (event) ->
+    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
+      event.abortKeyBinding()
+      return
     @editor.moveCursors (cursor) ->
       cursor.moveRight()
 
   backwardChar: (event) ->
+    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
+      event.abortKeyBinding()
+      return
     @editor.moveCursors (cursor) ->
       cursor.moveLeft()
 
@@ -151,10 +157,16 @@ class AtomicEmacs
       tools.skipWordCharactersBackward()
 
   nextLine: (event) ->
+    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
+      event.abortKeyBinding()
+      return
     @editor.moveCursors (cursor) ->
       cursor.moveDown()
 
   previousLine: (event) ->
+    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
+      event.abortKeyBinding()
+      return
     @editor.moveCursors (cursor) ->
       cursor.moveUp()
 
