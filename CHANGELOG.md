@@ -1,5 +1,8 @@
+## 0.4
+* Added a setting to use core navigation keys instead of the atomic-emacs versions
+
 ## 0.3.7
-* Bind `next-paragraph` and `previous-paragraph` to `M-]` and `M-[` respectively.
+* Bind `next-paragraph` and `previous-paragraph` to `M-}` and `M-{` respectively.
 
 ## 0.3.6
 * Fix `next-line` and `previous-line` skipping bug.
