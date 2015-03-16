@@ -1,3 +1,6 @@
+## 0.4.1
+* Add ctrl-a and ctrl-e keybindings for Linux
+
 ## 0.4
 * Added a setting to use core navigation keys instead of the atomic-emacs versions
 
