@@ -70,7 +70,7 @@ class Mark
       try
         a = @marker.getHeadBufferPosition()
         b = @cursor.getBufferPosition()
-        @cursor.selection.setBufferRange([a, b], isReversed: Point.min(a, b) is b)
+        @cursor.selection.setBufferRange([a, b], reversed: Point.min(a, b) is b)
       finally
         @updating = false
 

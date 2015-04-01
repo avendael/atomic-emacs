@@ -44,7 +44,7 @@ module.exports =
       if tail
         cursor = editor.getCursors()[i]
         reversed = Point.min(head, tail) is head
-        cursor.selection.setBufferRange([head, tail], isReversed: reversed)
+        cursor.selection.setBufferRange([head, tail], reversed: reversed)
 
     editor
 
