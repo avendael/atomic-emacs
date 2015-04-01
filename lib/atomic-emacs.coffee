@@ -151,7 +151,7 @@ class AtomicEmacs
       cursor.moveRight()
 
   backwardChar: (event) ->
-    @editor.moveCursors (cursor) ->
+    @editor().moveCursors (cursor) ->
       mark = Mark.for(cursor)
       if mark?.isActive()
         cursor.selection.selectLeft()
