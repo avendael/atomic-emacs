@@ -8,14 +8,11 @@ rangeCoordinates = (range) ->
     range
 
 describe "CursorTools", ->
-  workspaceElement = null
-
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
     waitsForPromise =>
-      atom.project.open().then (e) => @editor = e
-    runs =>
-        @cursorTools = new CursorTools(@editor.getLastCursor())
+      atom.project.open().then (editor) =>
+          @editor = editor
+          @cursorTools = new CursorTools(editor.getLastCursor())
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->

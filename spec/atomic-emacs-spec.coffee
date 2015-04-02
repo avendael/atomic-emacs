@@ -1,18 +1,15 @@
-AtomicEmacs = require '../lib/atomic-emacs'
+{AtomicEmacs} = require '../lib/atomic-emacs'
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
 
 describe "AtomicEmacs", ->
-  workspaceElement = null
-
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
     waitsForPromise =>
-        atom.project.open().then (e) => @editor = e
-    runs =>
+      atom.project.open().then (editor) =>
+        @editor = editor
         @event = targetView: => {editor: @editor}
-        @atomicEmacs = AtomicEmacs.attachInstance(@editor)
-        AtomicEmacs.activate()
+        @atomicEmacs = new AtomicEmacs()
+        @atomicEmacs.editor = (_) => @editor
 
   describe "atomic-emacs:transpose-words", ->
     it "transposes the current word with the one after it", ->

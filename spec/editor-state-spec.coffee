@@ -1,8 +1,6 @@
 EditorState = require './editor-state'
 
 describe "EditorState", ->
-  workspaceElement = null
-
   cursorPosition = (editor, i) ->
     cursor = editor.getCursors()[i]
     point = cursor?.getBufferPosition()
@@ -17,9 +15,9 @@ describe "EditorState", ->
     [head?.row, head?.column, tail?.row, tail?.column]
 
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
     waitsForPromise =>
-      atom.project.open().then (e) => @editor = e
+      atom.project.open().then (editor) =>
+        @editor = editor
 
   describe ".set", ->
     it "sets the buffer text", ->
@@ -56,5 +54,5 @@ describe "EditorState", ->
       @editor.setText('abcde')
       @editor.getLastCursor().selection.setBufferRange([[0, 1], [0, 3]])
       cursor = @editor.addCursorAtBufferPosition([0, 0])
-      cursor.selection.setBufferRange([[0, 2], [0, 4]], isReversed: true)
+      cursor.selection.setBufferRange([[0, 2], [0, 4]], reversed: true)
       expect(EditorState.get(@editor)).toEqual('a(0)b[1]c[0]d(1)e')

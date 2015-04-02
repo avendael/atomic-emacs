@@ -2,13 +2,10 @@ EditorState = require './editor-state'
 Mark = require './../lib/mark'
 
 describe "Mark", ->
-  workspaceElement = null
-
   beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
     waitsForPromise =>
-      atom.project.open().then (e) => @editor = e
-    runs =>
+      atom.project.open().then (editor) =>
+        @editor = editor
         @cursor = @editor.getLastCursor()
 
   describe ".for", ->
@@ -104,7 +101,7 @@ describe "Mark", ->
       expect(mark.isActive()).toBe(true)
       expect(EditorState.get(@editor)).toEqual("  .(0).[0].")
       expect(@cursor.selection.isEmpty()).toBe(false)
-      
+
   describe "deactivate", ->
     it "deactivates the mark", ->
       mark = Mark.for(@cursor)
