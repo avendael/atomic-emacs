@@ -21,51 +21,7 @@ deactivateCursors = (editor) ->
   for cursor in editor.getCursors()
     Mark.for(cursor).deactivate()
 
-module.exports =
-  Mark: Mark
-  disposables: new CompositeDisposable
-
-  attachInstance: (_) ->
-    new AtomicEmacs(null, null)
-
-  activate: ->
-    atomicEmacs = new AtomicEmacs(null, null)
-    @disposables.add atom.commands.add 'atom-text-editor',
-      "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
-      "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
-      "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
-      "atomic-emacs:backward-word": (event) -> atomicEmacs.backwardWord(event)
-      "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
-      "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
-      "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
-      "atomic-emacs:downcase-region": (event) -> atomicEmacs.downcaseRegion(event)
-      "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
-      "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
-      "atomic-emacs:forward-char": (event) -> atomicEmacs.forwardChar(event)
-      "atomic-emacs:forward-paragraph": (event) -> atomicEmacs.forwardParagraph(event)
-      "atomic-emacs:forward-word": (event) -> atomicEmacs.forwardWord(event)
-      "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
-      "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
-      "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
-      "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)
-      "atomic-emacs:open-line": (event) -> atomicEmacs.openLine(event)
-      "atomic-emacs:previous-line": (event) -> atomicEmacs.previousLine(event)
-      "atomic-emacs:recenter-top-bottom": (event) -> atomicEmacs.recenterTopBottom(event)
-      "atomic-emacs:scroll-down": (event) -> atomicEmacs.scrollDown(event)
-      "atomic-emacs:scroll-up": (event) -> atomicEmacs.scrollUp(event)
-      "atomic-emacs:set-mark": (event) -> atomicEmacs.setMark(event)
-      "atomic-emacs:transpose-chars": (event) -> atomicEmacs.transposeChars(event)
-      "atomic-emacs:transpose-lines": (event) -> atomicEmacs.transposeLines(event)
-      "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
-      "atomic-emacs:upcase-region": (event) -> atomicEmacs.upcaseRegion(event)
-      "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
-
-  destroy: ->
-    @disposables.dispose()
-
 class AtomicEmacs
-  constructor: (_, __) ->
-
   Mark: Mark
 
   editor: ->
@@ -288,3 +244,43 @@ class AtomicEmacs
     minOffset = editor.pixelPositionForBufferPosition([minRow, 0])
     maxOffset = editor.pixelPositionForBufferPosition([maxRow, 0])
     editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
+
+module.exports =
+  AtomicEmacs: AtomicEmacs
+  Mark: Mark
+  disposables: new CompositeDisposable
+
+  activate: ->
+    atomicEmacs = new AtomicEmacs()
+    @disposables.add atom.commands.add 'atom-text-editor',
+      "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
+      "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
+      "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
+      "atomic-emacs:backward-word": (event) -> atomicEmacs.backwardWord(event)
+      "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
+      "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
+      "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
+      "atomic-emacs:downcase-region": (event) -> atomicEmacs.downcaseRegion(event)
+      "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
+      "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
+      "atomic-emacs:forward-char": (event) -> atomicEmacs.forwardChar(event)
+      "atomic-emacs:forward-paragraph": (event) -> atomicEmacs.forwardParagraph(event)
+      "atomic-emacs:forward-word": (event) -> atomicEmacs.forwardWord(event)
+      "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
+      "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
+      "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
+      "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)
+      "atomic-emacs:open-line": (event) -> atomicEmacs.openLine(event)
+      "atomic-emacs:previous-line": (event) -> atomicEmacs.previousLine(event)
+      "atomic-emacs:recenter-top-bottom": (event) -> atomicEmacs.recenterTopBottom(event)
+      "atomic-emacs:scroll-down": (event) -> atomicEmacs.scrollDown(event)
+      "atomic-emacs:scroll-up": (event) -> atomicEmacs.scrollUp(event)
+      "atomic-emacs:set-mark": (event) -> atomicEmacs.setMark(event)
+      "atomic-emacs:transpose-chars": (event) -> atomicEmacs.transposeChars(event)
+      "atomic-emacs:transpose-lines": (event) -> atomicEmacs.transposeLines(event)
+      "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
+      "atomic-emacs:upcase-region": (event) -> atomicEmacs.upcaseRegion(event)
+      "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
+
+  destroy: ->
+    @disposables.dispose()
