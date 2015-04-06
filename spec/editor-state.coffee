@@ -2,8 +2,8 @@
 
 module.exports =
   open: (state) ->
-    editor = atom.project.openSync()
-    @set(editor, state)
+    atom.project.open().then (editor) =>
+      @set(editor, state)
 
   # Set the state of the editor.
   #
@@ -44,7 +44,7 @@ module.exports =
       if tail
         cursor = editor.getCursors()[i]
         reversed = Point.min(head, tail) is head
-        cursor.selection.setBufferRange([head, tail], isReversed: reversed)
+        cursor.selection.setBufferRange([head, tail], reversed: reversed)
 
     editor
 

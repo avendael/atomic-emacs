@@ -1,4 +1,3 @@
-{WorkspaceView} = require 'atom'
 EditorState = require './editor-state'
 CursorTools = require '../lib/cursor-tools'
 
@@ -10,9 +9,10 @@ rangeCoordinates = (range) ->
 
 describe "CursorTools", ->
   beforeEach ->
-    atom.workspaceView = new WorkspaceView
-    @editor = atom.project.openSync()
-    @cursorTools = new CursorTools(@editor.getCursor())
+    waitsForPromise =>
+      atom.project.open().then (editor) =>
+          @editor = editor
+          @cursorTools = new CursorTools(editor.getLastCursor())
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->

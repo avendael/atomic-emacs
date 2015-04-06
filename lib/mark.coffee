@@ -20,7 +20,7 @@ class Mark
     @updating = false
 
     @cursorDestroyedCallback = (event) => @_destroy()
-    @cursor.on 'destroyed', @cursorDestroyedCallback
+    @cursor.onDidDestroy @cursorDestroyedCallback
 
   set: ->
     @deactivate()
@@ -36,14 +36,14 @@ class Mark
       @modifiedCallback ?= (event) =>
         return if @_isIndent(event) or @_isOutdent(event)
         @deactivate()
-      @cursor.on 'moved', @movedCallback
-      @editor.getBuffer().on 'changed', @modifiedCallback
+      @cursor.onDidChangePosition @movedCallback
+      @editor.getBuffer().onDidChange @modifiedCallback
       @active = true
 
   deactivate: ->
     if @active
       @cursor.off 'moved', @movedCallback
-      @editor.getBuffer().on 'changed', @modifiedCallback
+      @editor.getBuffer().onDidChange @modifiedCallback
       @active = false
     @cursor.clearSelection()
     @cursor.selection.screenRangeChanged(@marker)  # force redraw of selection
@@ -70,7 +70,7 @@ class Mark
       try
         a = @marker.getHeadBufferPosition()
         b = @cursor.getBufferPosition()
-        @cursor.selection.setBufferRange([a, b], isReversed: Point.min(a, b) is b)
+        @cursor.selection.setBufferRange([a, b], reversed: Point.min(a, b) is b)
       finally
         @updating = false
 
