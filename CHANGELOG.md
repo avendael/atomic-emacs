@@ -1,3 +1,6 @@
+## 0.5.0
+* Move out of using deprecated APIs
+
 ## 0.4.2
 * Do not override keymappings when autocomplete is active
 
