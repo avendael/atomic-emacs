@@ -60,10 +60,6 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'alt-{': 'atomic-emacs:backward-paragraph'
 * 'alt-}': 'atomic-emacs:forward-paragraph'
 
-#### Some things that might not work as expected
-
-There is a known issue that suddenly borks the keybindings. Please check issue [#17](https://github.com/avendael/atomic-emacs/issues/17) for the workaround.
-
 ### Configuration options
 
 You can opt to use native navigation keys for ctrl-n,p,b, and f:
