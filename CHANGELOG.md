@@ -1,3 +1,6 @@
+## 0.5.1
+* Fix remove mark
+
 ## 0.5.0
 * Move out of using deprecated APIs
 
