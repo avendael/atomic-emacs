@@ -36,13 +36,13 @@ class Mark
       @modifiedCallback ?= (event) =>
         return if @_isIndent(event) or @_isOutdent(event)
         @deactivate()
-      @cursor.onDidChangePosition @movedCallback
+      @movedSubscription = @cursor.onDidChangePosition @movedCallback
       @editor.getBuffer().onDidChange @modifiedCallback
       @active = true
 
   deactivate: ->
     if @active
-      @cursor.off 'moved', @movedCallback
+      @movedSubscription.dispose()
       @editor.getBuffer().onDidChange @modifiedCallback
       @active = false
     @cursor.clearSelection()
