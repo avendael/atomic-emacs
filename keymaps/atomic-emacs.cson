@@ -48,6 +48,7 @@
   'alt-m': 'editor:move-to-first-character-of-line'
   'alt-/': 'autocomplete:toggle'
   'alt-.': 'symbols-view:toggle-file-symbols'
+  'alt-^': 'atomic-emacs:delete-indentation'
   'alt-\\': 'atomic-emacs:delete-horizontal-space'
   'alt-backspace': 'atomic-emacs:backward-kill-word'
   'alt-delete': 'atomic-emacs:backward-kill-word'
