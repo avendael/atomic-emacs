@@ -245,6 +245,13 @@ class AtomicEmacs
     maxOffset = editor.pixelPositionForBufferPosition([maxRow, 0])
     editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
 
+  deleteIndentation: =>
+    editor = @editor()
+    return unless editor
+    editor.transact ->
+      editor.moveCursorUp()
+      editor.joinLines()
+
 module.exports =
   AtomicEmacs: AtomicEmacs
   Mark: Mark
@@ -260,6 +267,7 @@ module.exports =
       "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
       "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
       "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
+      "atomic-emacs:delete-indentation": atomicEmacs.deleteIndentation
       "atomic-emacs:downcase-region": (event) -> atomicEmacs.downcaseRegion(event)
       "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
       "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
