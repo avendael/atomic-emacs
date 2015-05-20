@@ -20,7 +20,7 @@ class Mark
     @updating = false
 
     @cursorDestroyedCallback = (event) => @_destroy()
-    @cursor.onDidDestroy @cursorDestroyedCallback
+    @cursorDestroyedSubscription = @cursor.onDidDestroy @cursorDestroyedCallback
 
   set: ->
     @deactivate()
@@ -59,7 +59,7 @@ class Mark
   _destroy: ->
     @deactivate() if @active
     @marker.destroy()
-    @cursor.off 'destroyed', @cursorDestroyedCallback
+    @cursorDestroyedSubscription.dispose()
     delete @cursor._atomicEmacsMark
 
   _updateSelection: (event) ->
