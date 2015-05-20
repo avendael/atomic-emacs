@@ -60,7 +60,7 @@
   'left': 'atomic-emacs:backward-char'
   'right': 'atomic-emacs:forward-char'
 
-'.platform-linux .editor':
+'.platform-linux atom-text-editor':
   'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
