@@ -17,18 +17,18 @@ platforms. Once that time comes, I will gladly include those keybindings in this
 
 It's super incomplete, very alpha stage. Basically, just these:
 
-* 'ctrl-f': 'atomic-emacs:forward-char'
-* 'ctrl-b': 'atomic-emacs:backward-char'
-* 'ctrl-n': 'atomic-emacs:next-line'
-* 'ctrl-p': 'atomic-emacs:previous-line'
+* 'ctrl-f': 'core:move-right'
+* 'ctrl-b': 'core:move-left'
+* 'ctrl-n': 'core:move-down'
+* 'ctrl-p': 'core:move-up'
 * 'ctrl-a': 'atomic-emacs:move-beginning-of-line'
 * 'ctrl-e': 'atomic-emacs:move-end-of-line'
 * 'ctrl-l': 'atomic-emacs:recenter-top-bottom'
-* 'ctrl-g': 'atomic-emacs:remove-mark'
+* 'ctrl-g': 'core:cancel'
 * 'ctrl-k': 'editor:cut-to-end-of-line'
 * 'ctrl-y': 'core:paste'
 * 'ctrl-w': 'atomic-emacs:kill-region'
-* 'ctrl-v': 'atomic-emacs:scroll-up'
+* 'ctrl-v': 'core:page-down'
 * 'ctrl-s': 'find-and-replace:show'
 * 'ctrl-r': 'find-and-replace:show'
 * 'ctrl-j': 'editor:newline'
@@ -41,7 +41,7 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
 * 'ctrl-x ctrl-l': 'atomic-emacs:downcase-region'
 * 'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
-* 'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
+* 'ctrl-x h': 'core:select-all'
 * 'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 * 'alt-f': 'atomic-emacs:forward-word'
 * 'alt-b': 'atomic-emacs:backward-word'
@@ -49,27 +49,16 @@ It's super incomplete, very alpha stage. Basically, just these:
 * 'atl-t': 'atomic-emacs:transpose-words'
 * 'alt-w': 'atomic-emacs:copy'
 * 'alt-;': 'editor:toggle-line-comments'
-* 'alt-v': 'atomic-emacs:scroll-down'
-* 'alt-<': 'atomic-emacs:beginning-of-buffer'
-* 'alt->': 'atomic-emacs:end-of-buffer'
-* 'alt-m': 'atomic-emacs:back-to-indentation'
+* 'alt-v': 'core:page-up'
+* 'alt-<': 'core:move-to-top'
+* 'alt->': 'core:move-to-bottom'
+* 'alt-m': 'editor:move-to-first-character-of-line'
 * 'alt-/': 'autocomplete:toggle'
 * 'alt-.': 'symbols-view:toggle-file-symbols'
 * 'alt-\\': 'atomic-emacs:delete-horizontal-space'
 * 'alt-space': 'atomic-emacs:just-one-space'
 * 'alt-{': 'atomic-emacs:backward-paragraph'
 * 'alt-}': 'atomic-emacs:forward-paragraph'
-
-### Configuration options
-
-You can opt to use native navigation keys for ctrl-n,p,b, and f:
-
-```
-  "atomic-emacs":
-    useNativeNavigationKeys: false
-```
-
-This would cause the marks to not work properly, but it's reportedly the workaround to #37.
 
 ### Future Work
 

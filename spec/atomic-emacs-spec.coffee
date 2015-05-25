@@ -1,4 +1,4 @@
-{AtomicEmacs} = require '../lib/atomic-emacs'
+AtomicEmacs = require '../lib/atomic-emacs'
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
 
@@ -225,77 +225,21 @@ describe "AtomicEmacs", ->
       [cursor0, cursor1] = @editor.getCursors()
       @atomicEmacs.setMark(@event)
 
-      expect(@atomicEmacs.Mark.for(cursor0).isActive()).toBe(true)
-      point = @atomicEmacs.Mark.for(cursor0).getBufferPosition()
+      expect(Mark.for(cursor0).isActive()).toBe(true)
+      point = Mark.for(cursor0).getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 0])
 
-      expect(@atomicEmacs.Mark.for(cursor1).isActive()).toBe(true)
-      point = @atomicEmacs.Mark.for(cursor1).getBufferPosition()
+      expect(Mark.for(cursor1).isActive()).toBe(true)
+      point = Mark.for(cursor1).getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 1])
 
   describe "atomic-emacs:keyboard-quit", ->
     it "deactivates all marks", ->
       EditorState.set(@editor, "[0].[1]")
-      [mark0, mark1] = (@atomicEmacs.Mark.for(c) for c in @editor.getCursors())
+      [mark0, mark1] = (Mark.for(c) for c in @editor.getCursors())
       m.activate() for m in [mark0, mark1]
       @atomicEmacs.keyboardQuit(@event)
       expect(mark0.isActive()).toBe(false)
-
-  describe "atomic-emacs:backward-char", ->
-    it "moves the cursor backward one character", ->
-      EditorState.set(@editor, "x[0]")
-      @atomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "does nothing at the start of the buffer", ->
-      EditorState.set(@editor, "[0]x")
-      @atomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "ab[0]c")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b(0)c")
-      @atomicEmacs.backwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]ab(0)c")
-
-    it "aborts key binding if flag is set", ->
-      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
-      EditorState.set(@editor, "x[0]")
-      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
-      @atomicEmacs.backwardChar(event)
-
-      expect(event.abortKeyBinding).toHaveBeenCalled()
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-  describe "atomic-emacs:forward-char", ->
-    it "moves the cursor forward one character", ->
-      EditorState.set(@editor, "[0]x")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "does nothing at the end of the buffer", ->
-      EditorState.set(@editor, "x[0]")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "a[0]bc")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b[0]c")
-      @atomicEmacs.forwardChar(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)bc[0]")
-
-    it "aborts key binding if flag is set", ->
-      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
-      EditorState.set(@editor, "x[0]")
-      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
-      @atomicEmacs.forwardChar(event)
-
-      expect(event.abortKeyBinding).toHaveBeenCalled()
-      expect(EditorState.get(@editor)).toEqual("x[0]")
 
   describe "atomic-emacs:backward-word", ->
     it "moves all cursors to the beginning of the current word if in a word", ->
@@ -348,62 +292,6 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "aa bb [0] ")
       @atomicEmacs.forwardWord(@event)
       expect(EditorState.get(@editor)).toEqual("aa bb  [0]")
-
-  describe "atomic-emacs:previous-line", ->
-    it "moves the cursor up one line", ->
-      EditorState.set(@editor, "ab\na[0]b\n")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\n")
-
-    it "goes to the start of the line if already at the top of the buffer", ->
-      EditorState.set(@editor, "x[0]")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "ab\nab\na[0]b\n")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\na(0)b\n")
-      @atomicEmacs.previousLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\na(0)b\n")
-
-    it "aborts key binding if flag is set", ->
-      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
-      EditorState.set(@editor, "x[0]")
-      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
-      @atomicEmacs.previousLine(event)
-
-      expect(event.abortKeyBinding).toHaveBeenCalled()
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-  describe "atomic-emacs:next-line", ->
-    it "moves the cursor down one line", ->
-      EditorState.set(@editor, "a[0]b\nab\n")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("ab\na[0]b\n")
-
-    it "goes to the end of the line if already at the bottom of the buffer", ->
-      EditorState.set(@editor, "[0]x")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      EditorState.set(@editor, "a[0]b\nab\nab\n")
-      @atomicEmacs.setMark(@event)
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b\na[0]b\nab\n")
-      @atomicEmacs.nextLine(@event)
-      expect(EditorState.get(@editor)).toEqual("a(0)b\nab\na[0]b\n")
-
-    it "aborts key binding if flag is set", ->
-      atom.config.set('atomic-emacs.useNativeNavigationKeys', true)
-      EditorState.set(@editor, "a[0]b\nab\nab\n")
-      event = jasmine.createSpyObj 'event', ['abortKeyBinding']
-      @atomicEmacs.nextLine(event)
-
-      expect(event.abortKeyBinding).toHaveBeenCalled()
-      expect(EditorState.get(@editor)).toEqual("a[0]b\nab\nab\n")
 
   describe "atomic-emacs:backward-paragraph", ->
     it "moves the cursor backwards to an empty line", ->

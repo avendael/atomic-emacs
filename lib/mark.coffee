@@ -1,4 +1,4 @@
-{Point} = require('atom')
+{Point, CompositeDisposable} = require('atom')
 
 # Represents an Emacs-style mark.
 #
@@ -12,41 +12,54 @@
 # cursor is moved. If the buffer is edited, the mark is automatically
 # deactivated.
 class Mark
-  constructor: (cursor) ->
-    @cursor = cursor
+  MARK_MODE_CLASS = 'atomic-emacs-mark-mode'
+
+  _marks = new WeakMap
+
+  @for: (cursor) ->
+    mark = _marks.get(cursor)
+    unless mark
+      mark = new Mark(cursor)
+      _marks.set(cursor, mark)
+    mark
+
+  constructor: (@cursor) ->
     @editor = cursor.editor
     @marker = @editor.markBufferPosition(cursor.getBufferPosition())
     @active = false
     @updating = false
+    @subscriptions = new CompositeDisposable()
+    @subscriptions.add(@cursor.onDidDestroy(@_destroy))
 
-    @cursorDestroyedCallback = (event) => @_destroy()
-    @cursorDestroyedSubscription = @cursor.onDidDestroy @cursorDestroyedCallback
-
-  set: ->
+  set: ()->
     @deactivate()
     @marker.setHeadBufferPosition(@cursor.getBufferPosition())
     @
+
+  setBufferRange: (range) ->
+    @deactivate()
+    @activate()
+    @marker.setHeadBufferPosition(range.start)
+    @_updateSelection(newBufferPosition: range.end)
 
   getBufferPosition: ->
     @marker.getHeadBufferPosition()
 
   activate: ->
-    if not @active
-      @movedCallback ?= (event) => @_updateSelection(event)
-      @modifiedCallback ?= (event) =>
-        return if @_isIndent(event) or @_isOutdent(event)
-        @deactivate()
-      @movedSubscription = @cursor.onDidChangePosition @movedCallback
-      @editor.getBuffer().onDidChange @modifiedCallback
-      @active = true
+    return if @active
+    @markerSubscriptions = new CompositeDisposable()
+    @markerSubscriptions.add(@cursor.onDidChangePosition(@_updateSelection))
+    @markerSubscriptions.add(@editor.getBuffer().onDidChange(@_onModified))
+    atom.views.getView(@editor).classList.add(MARK_MODE_CLASS)
+    @active = true
 
   deactivate: ->
     if @active
-      @movedSubscription.dispose()
-      @editor.getBuffer().onDidChange @modifiedCallback
+      @markerSubscriptions?.dispose()
+      @markerSubscriptions = null
+      atom.views.getView(@editor).classList.remove(MARK_MODE_CLASS)
       @active = false
     @cursor.clearSelection()
-    @cursor.selection.screenRangeChanged(@marker)  # force redraw of selection
 
   isActive: ->
     @active
@@ -56,26 +69,31 @@ class Mark
     @set().activate()
     @cursor.setBufferPosition(position)
 
-  _destroy: ->
+  _destroy: =>
     @deactivate() if @active
     @marker.destroy()
-    @cursorDestroyedSubscription.dispose()
-    delete @cursor._atomicEmacsMark
+    @subscriptions?.dispose()
+    @subscriptions = null
 
-  _updateSelection: (event) ->
+  _updateSelection: ({newBufferPosition}) =>
     # Updating the selection updates the cursor marker, so guard against the
     # nested invocation.
-    if !@updating
-      @updating = true
-      try
+    return if @updating
+    @updating = true
+    try
+      if @cursor.selection.isEmpty()
         a = @marker.getHeadBufferPosition()
-        b = @cursor.getBufferPosition()
-        @cursor.selection.setBufferRange([a, b], reversed: Point.min(a, b) is b)
-      finally
-        @updating = false
+      else
+        a = @cursor.selection.getTailBufferPosition()
 
-  Mark.for = (cursor) ->
-   cursor._atomicEmacsMark ?= new Mark(cursor)
+      b = newBufferPosition
+      @cursor.selection.setBufferRange([a, b], reversed: Point.min(a, b) is b)
+    finally
+      @updating = false
+
+  _onModified: (event) =>
+    return if @_isIndent(event) or @_isOutdent(event)
+    @deactivate()
 
   _isIndent: (event)->
     @_isIndentOutdent(event.newRange, event.newText)
