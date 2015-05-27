@@ -135,6 +135,19 @@ class CursorTools
     @editor.setTextInBufferRange(wordRange, '')
     word
 
+  horizontalSpaceRange: ->
+    @skipCharactersBackward(' \t')
+    start = @cursor.getBufferPosition()
+    @skipCharactersForward(' \t')
+    end = @cursor.getBufferPosition()
+    [start, end]
+
+  endLineIfNecessary: ->
+    row = @cursor.getBufferPosition().row
+    if row == @editor.getLineCount() - 1
+      length = @cursor.getCurrentBufferLine().length
+      @editor.setTextInBufferRange([[row, length], [row, length]], "\n")
+
   _getWordCharacterRegExp: ->
     nonWordCharacters = atom.config.get('editor.nonWordCharacters')
     new RegExp('[^\\s' + escapeRegExp(nonWordCharacters) + ']')
