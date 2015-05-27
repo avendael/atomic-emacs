@@ -17,7 +17,7 @@ module.exports =
         @emacsStates.set(editor, emacsState)
 
   registerCommands: ->
-    @subscriptions.add atom.commands.add 'atom-text-editor',
+    @subscriptions.add atom.commands.add 'atom-text-editor:not(.mini)',
       "atomic-emacs:backward-kill-word": (event) => @atomicEmacs.backwardKillWord(event)
       "atomic-emacs:backward-paragraph": (event) => @atomicEmacs.backwardParagraph(event)
       "atomic-emacs:backward-word": (event) => @atomicEmacs.backwardWord(event)
