@@ -64,6 +64,10 @@
   'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
+'.platform-win32 .editor':
+  'ctrl-a': 'editor:move-to-first-character-of-line'
+  'ctrl-e': 'editor:move-to-end-of-screen-line'
+
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'
   'ctrl-r': 'find-and-replace:find-previous'
