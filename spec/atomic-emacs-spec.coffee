@@ -1,5 +1,6 @@
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
+{keydown, getEditorElement} = require './spec-helper'
 
 describe 'AtomicEmacs', ->
   [workspaceElement, activationPromise, editor, editorElement] = []
@@ -8,15 +9,10 @@ describe 'AtomicEmacs', ->
     workspaceElement = atom.views.getView(atom.workspace)
     jasmine.attachToDOM(workspaceElement)
 
-    activationPromise = atom.packages.activatePackage('atomic-emacs')
-
-    waitsForPromise ->
-      activationPromise
-
-    waitsForPromise ->
-      atom.workspace.open().then (_editor) ->
-        editor = _editor
-        editorElement = atom.views.getView(editor)
+    runs ->
+      getEditorElement (element) ->
+        editorElement = element
+        editor = editorElement.getModel()
 
   describe 'atomic-emacs:transpose-words', ->
     it 'transposes the current word with the one after it', ->
