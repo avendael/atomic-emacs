@@ -239,10 +239,12 @@ class AtomicEmacs
 
   recenterTopBottom: (event) ->
     editor = @editor()
+    return unless editor
+    editorElement = atom.views.getView(editor)
     minRow = Math.min((c.getBufferRow() for c in editor.getCursors())...)
     maxRow = Math.max((c.getBufferRow() for c in editor.getCursors())...)
-    minOffset = editor.pixelPositionForBufferPosition([minRow, 0])
-    maxOffset = editor.pixelPositionForBufferPosition([maxRow, 0])
+    minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
     editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
 
   deleteIndentation: =>
