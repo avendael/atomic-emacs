@@ -1,46 +1,14 @@
 {
   "name": "atomic-emacs",
-  "main": "./lib/atomic-emacs",
+  "main": "./lib/main",
   "version": "0.6.0",
   "description": "An atomic implementation of emacs keybindings",
-  "activationCommands": {
-    "atom-text-editor": [
-      "atomic-emacs:beginning-of-buffer",
-      "atomic-emacs:end-of-buffer",
-      "atomic-emacs:back-to-indentation",
-      "atomic-emacs:upcase-region",
-      "atomic-emacs:downcase-region",
-      "atomic-emacs:open-line",
-      "atomic-emacs:transpose-chars",
-      "atomic-emacs:transpose-words",
-      "atomic-emacs:transpose-lines",
-      "atomic-emacs:set-mark",
-      "atomic-emacs:remove-mark",
-      "atomic-emacs:mark-whole-buffer",
-      "atomic-emacs:exchange-point-and-mark",
-      "atomic-emacs:copy",
-      "atomic-emacs:kill-region",
-      "atomic-emacs:forward-char",
-      "atomic-emacs:backward-char",
-      "atomic-emacs:forward-word",
-      "atomic-emacs:backward-word",
-      "atomic-emacs:next-line",
-      "atomic-emacs:previous-line",
-      "atomic-emacs:move-beginning-of-line",
-      "atomic-emacs:move-end-of-line",
-      "atomic-emacs:scroll-up",
-      "atomic-emacs:scroll-down",
-      "atomic-emacs:recenter-top-bottom",
-      "atomic-emacs:just-one-space",
-      "atomic-emacs:delete-horizontal-space",
-      "atomic-emacs:backward-paragraph",
-      "atomic-emacs:forward-paragraph"
-    ]
-  },
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
   "engines": {
     "atom": ">0.50.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "underscore-plus": "1.x"
+  }
 }

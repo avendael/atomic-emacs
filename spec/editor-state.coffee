@@ -1,4 +1,5 @@
 {Point} = require 'atom'
+Mark = require '../lib/mark'
 
 module.exports =
   open: (state) ->
@@ -31,7 +32,7 @@ module.exports =
     for descriptor, i in descriptors
       {head} = descriptor or {}
       if not head
-        throw "missing head of cursor #{i}"
+        throw new Error("missing head of cursor #{i}")
 
       cursor = editor.getCursors()[i]
       if not cursor
@@ -43,8 +44,7 @@ module.exports =
       {head, tail} = descriptor or {}
       if tail
         cursor = editor.getCursors()[i]
-        reversed = Point.min(head, tail) is head
-        cursor.selection.setBufferRange([head, tail], reversed: reversed)
+        Mark.for(cursor).setBufferRange(start: tail, end: head)
 
     editor
 
