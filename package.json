@@ -1,7 +1,7 @@
 {
   "name": "atomic-emacs",
   "main": "./lib/main",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "An atomic implementation of emacs keybindings",
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
