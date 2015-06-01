@@ -366,3 +366,18 @@ describe 'AtomicEmacs', ->
         cursor.moveRight()
       atom.commands.dispatch(editorElement, 'atomic-emacs:exchange-point-and-mark')
       expect(EditorState.get(editor)).toEqual("[0].(0).[1].(1)")
+
+  describe 'atomic-emacs:kill-whole-line', ->
+    it 'kill an entire line at once', ->
+      EditorState.set(editor, "aa\nb[0]b\ncc")
+      atom.commands.dispatch(editorElement, 'atomic-emacs:kill-whole-line')
+      expect(EditorState.get(editor)).toEqual("aa\n[0]cc")
+
+    it 'ignore the selection', ->
+      EditorState.set(editor, "a(0)aa[0]\nbbb\nccc")
+      atom.commands.dispatch(editorElement, 'atomic-emacs:kill-whole-line')
+      expect(EditorState.get(editor)).toEqual("[0]bbb\nccc")
+
+      EditorState.set(editor, "a(0)aa\nbb[0]b\nccc")
+      atom.commands.dispatch(editorElement, 'atomic-emacs:kill-whole-line')
+      expect(EditorState.get(editor)).toEqual("aaa\n[0]ccc")

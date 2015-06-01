@@ -35,6 +35,7 @@
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x h': 'core:select-all'
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
+  'ctrl-shift-backspace': 'atomic-emacs:kill-whole-line'
   'alt-f': 'atomic-emacs:forward-word'
   'alt-b': 'atomic-emacs:backward-word'
   'alt-d': 'atomic-emacs:kill-word'

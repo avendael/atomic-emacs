@@ -45,6 +45,7 @@ class AtomicEmacs
       'atomic-emacs:forward-paragraph': @forwardParagraph
       'atomic-emacs:forward-word': @forwardWord
       'atomic-emacs:just-one-space': @justOneSpace
+      'atomic-emacs:kill-whole-line': @killWholeLine
       'atomic-emacs:kill-word': @killWord
       'atomic-emacs:open-line': @openLine
       'atomic-emacs:recenter-top-bottom': @recenterTopBottom
@@ -104,6 +105,14 @@ class AtomicEmacs
       tools = new CursorTools(cursor)
       range = tools.horizontalSpaceRange()
       @editor.setTextInBufferRange(range, ' ')
+
+  killWholeLine: =>
+    maintainClipboard = false
+    @editor.mutateSelectedText (selection) ->
+      selection.clear()
+      selection.selectLine()
+      selection.cut(maintainClipboard, true)
+      maintainClipboard = true
 
   killWord: =>
     @editor.transact =>
