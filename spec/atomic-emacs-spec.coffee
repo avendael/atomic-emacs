@@ -349,6 +349,32 @@ describe "AtomicEmacs", ->
       @atomicEmacs.forwardWord(@event)
       expect(EditorState.get(@editor)).toEqual("aa bb  [0]")
 
+  describe "atomic-emacs:back-to-indentation", ->
+    it "moves cursors forward to the first character if in leading space", ->
+      EditorState.set(@editor, "[0]  aa\n [1] bb\n")
+      @atomicEmacs.backToIndentation(@event)
+      expect(EditorState.get(@editor)).toEqual("  [0]aa\n  [1]bb\n")
+
+    it "moves cursors back to the first character if past it", ->
+      EditorState.set(@editor, "  a[0]a\n  bb[1]\n")
+      @atomicEmacs.backToIndentation(@event)
+      expect(EditorState.get(@editor)).toEqual("  [0]aa\n  [1]bb\n")
+
+    it "leaves cursors alone if already there", ->
+      EditorState.set(@editor, "  [0]aa\n[1]  bb\n")
+      @atomicEmacs.backToIndentation(@event)
+      expect(EditorState.get(@editor)).toEqual("  [0]aa\n  [1]bb\n")
+
+    it "moves cursors to the end of their lines if they only contain spaces", ->
+      EditorState.set(@editor, " [0] \n  [1]\n")
+      @atomicEmacs.backToIndentation(@event)
+      expect(EditorState.get(@editor)).toEqual("  [0]\n  [1]\n")
+
+    it "merges cursors after moving", ->
+      EditorState.set(@editor, "  a[0]a[1]\n")
+      @atomicEmacs.backToIndentation(@event)
+      expect(EditorState.get(@editor)).toEqual("  [0]aa\n")
+
   describe "atomic-emacs:previous-line", ->
     it "moves the cursor up one line", ->
       EditorState.set(@editor, "ab\na[0]b\n")

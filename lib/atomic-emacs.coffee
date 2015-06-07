@@ -129,6 +129,17 @@ class AtomicEmacs
       tools.skipNonWordCharactersBackward()
       tools.skipWordCharactersBackward()
 
+  backToIndentation: (event) ->
+    editor = @editor()
+    editor.moveCursors (cursor) ->
+      position = cursor.getBufferPosition()
+      line = editor.lineTextForBufferRow(position.row)
+      targetColumn = line.search(/\S/)
+      targetColumn = line.length if targetColumn == -1
+
+      if position.column != targetColumn
+        cursor.setBufferPosition([position.row, targetColumn])
+
   nextLine: (event) ->
     if atom.config.get('atomic-emacs.useNativeNavigationKeys')
       event.abortKeyBinding()
@@ -279,6 +290,7 @@ module.exports =
       "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
       "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
       "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
+      "atomic-emacs:back-to-indentation": (event) -> atomicEmacs.backToIndentation(event)
       "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)
       "atomic-emacs:open-line": (event) -> atomicEmacs.openLine(event)
       "atomic-emacs:previous-line": (event) -> atomicEmacs.previousLine(event)
