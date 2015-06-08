@@ -11,6 +11,7 @@
   'ctrl-x o': 'window:focus-next-pane'
 
 'atom-text-editor:not([mini])':
+  'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
   'ctrl-n': 'atomic-emacs:next-line'
@@ -45,7 +46,7 @@
   'alt-v': 'atomic-emacs:scroll-down'
   'alt-<': 'core:move-to-top'
   'alt->': 'core:move-to-bottom'
-  'alt-m': 'editor:move-to-first-character-of-line'
+  'alt-m': 'atomic-emacs:back-to-indentation'
   'alt-/': 'autocomplete:toggle'
   'alt-.': 'symbols-view:toggle-file-symbols'
   'alt-^': 'atomic-emacs:delete-indentation'
@@ -61,7 +62,6 @@
   'right': 'atomic-emacs:forward-char'
 
 '.platform-linux atom-text-editor':
-  'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
 '.find-and-replace':
