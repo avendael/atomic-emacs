@@ -265,7 +265,7 @@ class AtomicEmacs
     editor = @editor(event)
     return unless editor
     editor.transact ->
-      editor.moveCursorUp()
+      editor.moveUp()
       editor.joinLines()
 
 module.exports =

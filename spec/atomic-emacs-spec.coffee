@@ -501,3 +501,19 @@ describe "AtomicEmacs", ->
         cursor.moveRight()
       @atomicEmacs.exchangePointAndMark(@event)
       expect(EditorState.get(@editor)).toEqual("[0].(0).[1].(1)")
+
+  describe "atomic-emacs:delete-indentation", ->
+    it "joins the current line with the previous one if at the start of the line", ->
+      EditorState.set(@editor, "aa \n[0] bb\ncc")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa[0] bb\ncc")
+
+    it "does exactly the same thing if at the end of the line", ->
+      EditorState.set(@editor, "aa \n bb[0]\ncc")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa[0] bb\ncc")
+
+    it "joins the two empty lines if they're both blank", ->
+      EditorState.set(@editor, "aa\n\n[0]\nbb")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa\n[0]\nbb")
