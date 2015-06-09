@@ -10,7 +10,7 @@
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x o': 'window:focus-next-pane'
 
-'atom-text-editor:not([mini])':
+'atom-text-editor':
   'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
@@ -59,7 +59,7 @@
   'left': 'atomic-emacs:backward-char'
   'right': 'atomic-emacs:forward-char'
 
-'atom-text-editor:not([mini]):not(.autocomplete-active)':
+'atom-text-editor:not(.autocomplete-active)':
   'up': 'atomic-emacs:previous-line'
   'down': 'atomic-emacs:next-line'
 
