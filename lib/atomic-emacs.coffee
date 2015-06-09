@@ -43,8 +43,22 @@ class AtomicEmacs
 
   transposeChars: (event) ->
     editor = @editor(event)
+    bob_cursor_ids = {}
+
+    editor.moveCursors (cursor) ->
+      {row, column} = cursor.getBufferPosition()
+      if row == 0 and column == 0
+        bob_cursor_ids[cursor.id] = 1
+      line = editor.lineTextForBufferRow(row)
+      cursor.moveLeft() if column == line.length
+
     editor.transpose()
-    editor.moveCursorRight()
+
+    editor.moveCursors (cursor) ->
+      if bob_cursor_ids.hasOwnProperty(cursor.id)
+        cursor.moveLeft()
+      else if cursor.getBufferColumn() > 0
+        cursor.moveRight()
 
   transposeWords: (event) ->
     editor = @editor(event)

@@ -11,6 +11,32 @@ describe "AtomicEmacs", ->
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
 
+  describe "atomic-emacs:transpose-chars", ->
+    it "transposes the current character with the one after it", ->
+      EditorState.set(@editor, "ab[0]cd")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("acb[0]d")
+
+    it "transposes the last two characters of the line at the end of a line", ->
+      EditorState.set(@editor, "abc[0]\ndef")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("acb[0]\ndef")
+
+    it "transposes the first character with the newline at the start of a line", ->
+      EditorState.set(@editor, "abc\n[0]def")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("abcd\n[0]ef")
+
+    it "does nothing at the beginning of the buffer", ->
+      EditorState.set(@editor, "[0]abcd")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]abcd")
+
+    it "transposes the last two characters at the end of the buffer", ->
+      EditorState.set(@editor, "abcd[0]")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("abdc[0]")
+
   describe "atomic-emacs:transpose-words", ->
     it "transposes the current word with the one after it", ->
       EditorState.set(@editor, "aaa b[0]bb .\tccc ddd")
