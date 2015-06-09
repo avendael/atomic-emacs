@@ -32,9 +32,12 @@
       "atomic-emacs:scroll-down",
       "atomic-emacs:recenter-top-bottom",
       "atomic-emacs:just-one-space",
+      "atomic-emacs:delete-indentation",
       "atomic-emacs:delete-horizontal-space",
       "atomic-emacs:backward-paragraph",
-      "atomic-emacs:forward-paragraph"
+      "atomic-emacs:forward-paragraph",
+      "atomic-emacs:kill-word",
+      "atomic-emacs:backward-kill-word"
     ]
   },
   "repository": "https://github.com/avendael/atomic-emacs",
