@@ -7,7 +7,7 @@ describe "AtomicEmacs", ->
     waitsForPromise =>
       atom.project.open().then (editor) =>
         @editor = editor
-        @event = targetView: => {editor: @editor}
+        @event = target: => {getModel: => @editor}
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
 
