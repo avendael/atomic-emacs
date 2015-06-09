@@ -56,10 +56,12 @@
   'alt-space': 'atomic-emacs:just-one-space'
   'alt-{': 'atomic-emacs:backward-paragraph'
   'alt-}': 'atomic-emacs:forward-paragraph'
-  'up': 'atomic-emacs:previous-line'
-  'down': 'atomic-emacs:next-line'
   'left': 'atomic-emacs:backward-char'
   'right': 'atomic-emacs:forward-char'
+
+'atom-text-editor:not([mini]):not(.autocomplete-active)':
+  'up': 'atomic-emacs:previous-line'
+  'down': 'atomic-emacs:next-line'
 
 '.platform-linux atom-text-editor':
   'ctrl-e': 'editor:move-to-end-of-screen-line'
