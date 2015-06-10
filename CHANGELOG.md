@@ -1,3 +1,11 @@
+## 0.7.0
+* Fix behavior of ctrl-a and alt-m
+* Fix behavior of keybindings when autocomplete menu is active
+* Make commands work in mini editors
+* Fix deprecation in delete-indentation
+* Fix transpose-chars
+* Add missing activation commands
+
 ## 0.6.0
 * Remove usage of deprecated APIs
 * Add delete indentation
