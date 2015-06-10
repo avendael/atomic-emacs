@@ -10,7 +10,7 @@
   'ctrl-x 1': 'pane:close-other-items'
   'ctrl-x o': 'window:focus-next-pane'
 
-'atom-text-editor':
+'atom-workspace atom-text-editor':
   'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
