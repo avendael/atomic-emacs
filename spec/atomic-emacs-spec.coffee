@@ -7,9 +7,35 @@ describe "AtomicEmacs", ->
     waitsForPromise =>
       atom.project.open().then (editor) =>
         @editor = editor
-        @event = targetView: => {editor: @editor}
+        @event = target: => {getModel: => @editor}
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
+
+  describe "atomic-emacs:transpose-chars", ->
+    it "transposes the current character with the one after it", ->
+      EditorState.set(@editor, "ab[0]cd")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("acb[0]d")
+
+    it "transposes the last two characters of the line at the end of a line", ->
+      EditorState.set(@editor, "abc[0]\ndef")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("acb[0]\ndef")
+
+    it "transposes the first character with the newline at the start of a line", ->
+      EditorState.set(@editor, "abc\n[0]def")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("abcd\n[0]ef")
+
+    it "does nothing at the beginning of the buffer", ->
+      EditorState.set(@editor, "[0]abcd")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]abcd")
+
+    it "transposes the last two characters at the end of the buffer", ->
+      EditorState.set(@editor, "abcd[0]")
+      @atomicEmacs.transposeChars(@event)
+      expect(EditorState.get(@editor)).toEqual("abdc[0]")
 
   describe "atomic-emacs:transpose-words", ->
     it "transposes the current word with the one after it", ->
@@ -501,3 +527,19 @@ describe "AtomicEmacs", ->
         cursor.moveRight()
       @atomicEmacs.exchangePointAndMark(@event)
       expect(EditorState.get(@editor)).toEqual("[0].(0).[1].(1)")
+
+  describe "atomic-emacs:delete-indentation", ->
+    it "joins the current line with the previous one if at the start of the line", ->
+      EditorState.set(@editor, "aa \n[0] bb\ncc")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa[0] bb\ncc")
+
+    it "does exactly the same thing if at the end of the line", ->
+      EditorState.set(@editor, "aa \n bb[0]\ncc")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa[0] bb\ncc")
+
+    it "joins the two empty lines if they're both blank", ->
+      EditorState.set(@editor, "aa\n\n[0]\nbb")
+      @atomicEmacs.deleteIndentation()
+      expect(EditorState.get(@editor)).toEqual("aa\n[0]\nbb")
