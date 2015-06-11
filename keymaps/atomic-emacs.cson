@@ -51,6 +51,8 @@
   'alt-.': 'symbols-view:toggle-file-symbols'
   'alt-^': 'atomic-emacs:delete-indentation'
   'alt-\\': 'atomic-emacs:delete-horizontal-space'
+  'alt-left': 'atomic-emacs:backward-word'
+  'alt-right': 'atomic-emacs:forward-word'
   'alt-backspace': 'atomic-emacs:backward-kill-word'
   'alt-delete': 'atomic-emacs:backward-kill-word'
   'alt-space': 'atomic-emacs:just-one-space'
