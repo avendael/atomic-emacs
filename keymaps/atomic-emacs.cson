@@ -14,14 +14,11 @@
   'ctrl-a': 'editor:move-to-beginning-of-line'
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
-  'ctrl-n': 'atomic-emacs:next-line'
-  'ctrl-p': 'atomic-emacs:previous-line'
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-k': 'editor:cut-to-end-of-line'
   'ctrl-g': 'core:cancel'
   'ctrl-y': 'core:paste'
   'ctrl-w': 'core:cut'
-  'ctrl-v': 'atomic-emacs:scroll-up'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-r': 'find-and-replace:show'
   'ctrl-j': 'editor:newline'
@@ -43,7 +40,6 @@
   'alt-t': 'atomic-emacs:transpose-words'
   'alt-w': 'atomic-emacs:copy'
   'alt-;': 'editor:toggle-line-comments'
-  'alt-v': 'atomic-emacs:scroll-down'
   'alt-<': 'core:move-to-top'
   'alt->': 'core:move-to-bottom'
   'alt-m': 'atomic-emacs:back-to-indentation'
@@ -61,9 +57,13 @@
   'left': 'atomic-emacs:backward-char'
   'right': 'atomic-emacs:forward-char'
 
-'atom-text-editor:not(.autocomplete-active)':
+'atom-text-editor:not(.autocomplete-active):not(.mini)':
+  'ctrl-n': 'atomic-emacs:next-line'
+  'ctrl-p': 'atomic-emacs:previous-line'
   'up': 'atomic-emacs:previous-line'
   'down': 'atomic-emacs:next-line'
+  'ctrl-v': 'atomic-emacs:scroll-up'
+  'alt-v': 'atomic-emacs:scroll-down'
 
 '.platform-linux atom-text-editor':
   'ctrl-e': 'editor:move-to-end-of-screen-line'
