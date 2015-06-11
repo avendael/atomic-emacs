@@ -47,7 +47,7 @@
   'alt-<': 'core:move-to-top'
   'alt->': 'core:move-to-bottom'
   'alt-m': 'atomic-emacs:back-to-indentation'
-  'alt-/': 'autocomplete:toggle'
+  'alt-/': 'autocomplete-plus:activate'
   'alt-.': 'symbols-view:toggle-file-symbols'
   'alt-^': 'atomic-emacs:delete-indentation'
   'alt-\\': 'atomic-emacs:delete-horizontal-space'
