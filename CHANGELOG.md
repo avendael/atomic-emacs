@@ -1,3 +1,8 @@
+## 0.7.1
+* Remove keybindings that don't make sense in mini-editors
+* Replace autocomplete keybindings with autocomplete-plus
+* Make alt-{left,right} the same as alt-{b,f}.
+
 ## 0.7.0
 * Fix behavior of ctrl-a and alt-m
 * Fix behavior of keybindings when autocomplete menu is active
