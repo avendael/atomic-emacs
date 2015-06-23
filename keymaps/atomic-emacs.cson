@@ -7,7 +7,7 @@
   'ctrl-x 3': 'pane:split-right'
   'ctrl-x 2': 'pane:split-down'
   'ctrl-x 0': 'pane:close'
-  'ctrl-x 1': 'pane:close-other-items'
+  'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
 
 'atom-workspace atom-text-editor':

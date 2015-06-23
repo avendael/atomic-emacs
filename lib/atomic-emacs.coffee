@@ -116,6 +116,13 @@ class AtomicEmacs
     editor.copySelectedText()
     deactivateCursors(editor)
 
+  closeOtherPanes: (event) ->
+    activePane = atom.workspace.getActivePane()
+    return if not activePane
+    for pane in atom.workspace.getPanes()
+      unless pane is activePane
+        pane.close()
+
   forwardChar: (event) ->
     if atom.config.get('atomic-emacs.useNativeNavigationKeys')
       event.abortKeyBinding()
@@ -295,6 +302,7 @@ module.exports =
       "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
       "atomic-emacs:backward-word": (event) -> atomicEmacs.backwardWord(event)
       "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
+      "atomic-emacs:close-other-panes": (event) -> atomicEmacs.closeOtherPanes(event)
       "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
       "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
       "atomic-emacs:delete-indentation": atomicEmacs.deleteIndentation

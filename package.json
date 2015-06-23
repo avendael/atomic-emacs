@@ -19,6 +19,7 @@
       "atomic-emacs:mark-whole-buffer",
       "atomic-emacs:exchange-point-and-mark",
       "atomic-emacs:copy",
+      "atomic-emacs:close-other-panes",
       "atomic-emacs:kill-region",
       "atomic-emacs:forward-char",
       "atomic-emacs:backward-char",
