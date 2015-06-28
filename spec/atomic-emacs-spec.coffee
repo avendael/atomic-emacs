@@ -295,6 +295,17 @@ describe "AtomicEmacs", ->
       expect(event.abortKeyBinding).toHaveBeenCalled()
       expect(EditorState.get(@editor)).toEqual("x[0]")
 
+  describe "atomic-emacs:close-other-panes", ->
+    it "should close all inactive panes", ->
+      pane1 = atom.workspace.getActivePane()
+      pane2 = pane1.splitRight()
+      pane3 = pane2.splitRight()
+      pane2.activate()
+      @atomicEmacs.closeOtherPanes()
+      expect(pane1.isDestroyed()).toEqual(true)
+      expect(pane2.isDestroyed()).toEqual(false)
+      expect(pane3.isDestroyed()).toEqual(true)
+
   describe "atomic-emacs:forward-char", ->
     it "moves the cursor forward one character", ->
       EditorState.set(@editor, "[0]x")
