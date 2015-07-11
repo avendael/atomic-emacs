@@ -11,6 +11,60 @@ describe "AtomicEmacs", ->
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
 
+  describe "atomic-emacs:upcase-word-or-region", ->
+    describe "when there is no selection", ->
+      it "upcases the word after each cursor (if any)", ->
+        EditorState.set(@editor, "[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
+        @atomicEmacs.upcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("AA[0] bb\ncc DD[1] ee\nFF[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        EditorState.set(@editor, "[0]aa[1]")
+        @atomicEmacs.upcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("AA[0]")
+
+    describe "when there are selections", ->
+      it "upcases each word in each selection", ->
+        EditorState.set(@editor, "aa (0)bb cc[0] dd\nee f[1]ffgg(1)g")
+        @atomicEmacs.upcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("aa (0)BB CC[0] dd\nee f[1]FFGG(1)g")
+
+  describe "atomic-emacs:downcase-word-or-region", ->
+    describe "when there is no selection", ->
+      it "downcases the word after each cursor (if any)", ->
+        EditorState.set(@editor, "[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
+        @atomicEmacs.downcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("aa[0] BB\nCC dd[1] EE\nff[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        EditorState.set(@editor, "[0]AA[1]")
+        @atomicEmacs.downcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("aa[0]")
+
+    describe "when there are selections", ->
+      it "downcases each word in each selection", ->
+        EditorState.set(@editor, "AA (0)BB CC[0] DD\nEE F[1]FFGG(1)G")
+        @atomicEmacs.downcaseWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("AA (0)bb cc[0] DD\nEE F[1]ffgg(1)G")
+
+  describe "atomic-emacs:capitalize-word-or-region", ->
+    describe "when there is no selection", ->
+      it "capitalizes the word after each cursor (if any)", ->
+        EditorState.set(@editor, "[0]aA bb\ncc[1] dd ee[2]\nff [3]")
+        @atomicEmacs.capitalizeWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("Aa[0] bb\ncc Dd[1] ee\nFf[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        EditorState.set(@editor, "[0]aa[1]")
+        @atomicEmacs.capitalizeWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("Aa[0]")
+
+    describe "when there are selections", ->
+      it "capitalizes each word in each selection", ->
+        EditorState.set(@editor, "aa (0)bb CC[0] dd\nee f[1]FFGG(1)G")
+        @atomicEmacs.capitalizeWordOrRegion(@event)
+        expect(EditorState.get(@editor)).toEqual("aa (0)Bb Cc[0] dd\nee f[1]Ffgg(1)G")
+
   describe "atomic-emacs:transpose-chars", ->
     it "transposes the current character with the one after it", ->
       EditorState.set(@editor, "ab[0]cd")

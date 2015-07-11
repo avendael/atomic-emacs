@@ -21,6 +21,20 @@ deactivateCursors = (editor) ->
   for cursor in editor.getCursors()
     Mark.for(cursor).deactivate()
 
+transformNextWord = (editor, transformation) ->
+  editor.moveCursors (cursor) ->
+    tools = new CursorTools(cursor)
+    tools.skipNonWordCharactersForward()
+    start = cursor.getBufferPosition()
+    tools.skipWordCharactersForward()
+    end = cursor.getBufferPosition()
+    range = [start, end]
+    text = editor.getTextInBufferRange(range)
+    editor.setTextInBufferRange(range, transformation(text))
+
+capitalize = (string) ->
+  string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
+
 class AtomicEmacs
   Mark: Mark
 
@@ -30,11 +44,36 @@ class AtomicEmacs
     else
       atom.workspace.getActiveTextEditor()
 
-  upcaseRegion: (event) ->
-    @editor(event).upperCase()
+  upcaseWordOrRegion: (event) ->
+    editor = @editor(event)
+    if editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
+      # Atom bug: editor.upperCase() flips reversed ranges.
+      editor.mutateSelectedText (selection) ->
+        range = selection.getBufferRange()
+        editor.setTextInBufferRange(range, selection.getText().toUpperCase())
+    else
+      transformNextWord editor, (word) -> word.toUpperCase()
 
-  downcaseRegion: (event) ->
-    @editor(event).lowerCase()
+  downcaseWordOrRegion: (event) ->
+    editor = @editor(event)
+    if editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
+      # Atom bug: editor.lowerCase() flips reversed ranges.
+      editor.mutateSelectedText (selection) ->
+        range = selection.getBufferRange()
+        editor.setTextInBufferRange(range, selection.getText().toLowerCase())
+    else
+      transformNextWord editor, (word) -> word.toLowerCase()
+
+  capitalizeWordOrRegion: (event) ->
+    editor = @editor(event)
+    if editor.getSelections().filter((selection) -> not selection.isEmpty()).length > 0
+      editor.mutateSelectedText (selection) ->
+        if not selection.isEmpty()
+          selectionRange = selection.getBufferRange()
+          editor.scanInBufferRange /\w+/g, selectionRange, (hit) ->
+            hit.replace(capitalize(hit.matchText))
+    else
+      transformNextWord editor, capitalize
 
   openLine: (event) ->
     editor = @editor(event)
@@ -302,11 +341,12 @@ module.exports =
       "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
       "atomic-emacs:backward-word": (event) -> atomicEmacs.backwardWord(event)
       "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
+      "atomic-emacs:capitalize-word-or-region": (event) -> atomicEmacs.capitalizeWordOrRegion(event)
       "atomic-emacs:close-other-panes": (event) -> atomicEmacs.closeOtherPanes(event)
       "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
       "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
       "atomic-emacs:delete-indentation": atomicEmacs.deleteIndentation
-      "atomic-emacs:downcase-region": (event) -> atomicEmacs.downcaseRegion(event)
+      "atomic-emacs:downcase-word-or-region": (event) -> atomicEmacs.downcaseWordOrRegion(event)
       "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
       "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
       "atomic-emacs:forward-char": (event) -> atomicEmacs.forwardChar(event)
@@ -326,7 +366,7 @@ module.exports =
       "atomic-emacs:transpose-chars": (event) -> atomicEmacs.transposeChars(event)
       "atomic-emacs:transpose-lines": (event) -> atomicEmacs.transposeLines(event)
       "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
-      "atomic-emacs:upcase-region": (event) -> atomicEmacs.upcaseRegion(event)
+      "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.upcaseWordOrRegion(event)
       "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
 
   destroy: ->
