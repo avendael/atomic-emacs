@@ -74,6 +74,7 @@
 '.platform-win32 .editor':
   'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
+  'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'
 
 '.find-and-replace':
   'ctrl-s': 'find-and-replace:find-next'
