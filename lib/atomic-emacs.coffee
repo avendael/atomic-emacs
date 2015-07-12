@@ -236,46 +236,26 @@ class AtomicEmacs
     editor.moveUp(rowCount)
 
   backwardParagraph: (event) ->
-    editor = @editor(event)
-    for cursor in editor.getCursors()
-      currentRow = editor.getCursorBufferPosition().row
-
-      break if currentRow <= 0
+    @editor(event).moveCursors (cursor) ->
+      position = cursor.getBufferPosition()
+      unless position.row == 0
+        cursor.setBufferPosition([position.row - 1, 0])
 
       cursorTools = new CursorTools(cursor)
-      blankRow = cursorTools.locateBackward(/^\s+$|^\s*$/).start.row
-
-      while currentRow == blankRow
-        break if currentRow <= 0
-
-        editor.moveUp()
-
-        currentRow = editor.getCursorBufferPosition().row
-        blankRange = cursorTools.locateBackward(/^\s+$|^\s*$/)
-        blankRow = if blankRange then blankRange.start.row else 0
-
-      rowCount = currentRow - blankRow
-      editor.moveUp(rowCount)
+      cursorTools.goToMatchStartBackward(/^\s*$/) or
+        cursor.moveToTop()
 
   forwardParagraph: (event) ->
     editor = @editor(event)
-    lineCount = editor.buffer.getLineCount() - 1
-
-    for cursor in editor.getCursors()
-      currentRow = editor.getCursorBufferPosition().row
-      break if currentRow >= lineCount
+    lastRow = editor.getLastBufferRow()
+    editor.moveCursors (cursor) ->
+      position = cursor.getBufferPosition()
+      unless position.row == lastRow
+        cursor.setBufferPosition([position.row + 1, 0])
 
       cursorTools = new CursorTools(cursor)
-      blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
-
-      while currentRow == blankRow
-        editor.moveDown()
-
-        currentRow = editor.getCursorBufferPosition().row
-        blankRow = cursorTools.locateForward(/^\s+$|^\s*$/).start.row
-
-      rowCount = blankRow - currentRow
-      editor.moveDown(rowCount)
+      cursorTools.goToMatchStartForward(/^\s*$/) or
+        cursor.moveToBottom()
 
   backwardKillWord: (event) ->
     editor = @editor(event)

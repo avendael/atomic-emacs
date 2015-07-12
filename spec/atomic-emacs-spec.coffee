@@ -523,66 +523,66 @@ describe "AtomicEmacs", ->
       expect(EditorState.get(@editor)).toEqual("a[0]b\nab\nab\n")
 
   describe "atomic-emacs:backward-paragraph", ->
-    it "moves the cursor backwards to an empty line", ->
-      EditorState.set(@editor, "aaaaa\n\nbbbbbb")
-      @editor.moveToBottom()
+    it "moves back to an empty line", ->
+      EditorState.set(@editor, "a\n\nb\nc\n[0]d")
       @atomicEmacs.backwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\n[0]\nb\nc\nd")
 
-    it "moves the cursor backwards to a line that only contains spaces", ->
-      EditorState.set(@editor, "aaaaa\n                    \nbbbbbb")
-      @editor.moveToBottom()
+    it "moves back to the beginning of a line with only whitespace", ->
+      EditorState.set(@editor, "a\n \t\nb\nc\nd[0]")
       @atomicEmacs.backwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\n[0] \t\nb\nc\nd")
 
-    it "moves the cursor backwards to a line that only contains tabs", ->
-      EditorState.set(@editor, "aaaaa\n\t\t\t\nbbbbbb")
-      @editor.moveToBottom()
+    it "stops if it reaches the beginning of the buffer", ->
+      EditorState.set(@editor, "a\nb\n[0]c")
       @atomicEmacs.backwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("[0]a\nb\nc")
 
-    it "moves the cursor backwards to a line that only contains whitespaces", ->
-      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
-      @editor.moveToBottom()
+    it "does not stop on its own line", ->
+      EditorState.set(@editor, "a\n\nb\nc\n[0]\n")
       @atomicEmacs.backwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\n[0]\nb\nc\n\n")
 
-    it "does nothing when the cursor is at the first line of the buffer", ->
-      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
-      @editor.moveToTop()
+    it "moves to the beginning of the line if on the first line", ->
+      EditorState.set(@editor, "a[0]a\n")
       @atomicEmacs.backwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(0)
+      expect(EditorState.get(@editor)).toEqual("[0]aa\n")
+
+    it "moves all cursors, and merges cursors that coincide", ->
+      EditorState.set(@editor, "a\n\nb\nc\n[0]\nd\n[1]e\n[2]")
+      @atomicEmacs.backwardParagraph(@event)
+      expect(EditorState.get(@editor)).toEqual("a\n[0]\nb\nc\n[1]\nd\ne\n")
 
   describe "atomic-emacs:forward-paragraph", ->
-    it "moves the cursor forward to an empty line", ->
-      EditorState.set(@editor, "aaaaa\n\nbbbbbb")
-      @editor.moveToTop()
+    it "moves forward to an empty line", ->
+      EditorState.set(@editor, "a\n[0]b\nc\n\nd")
       @atomicEmacs.forwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\nb\nc\n[0]\nd")
 
-    it "moves the cursor forward to a line that only contains spaces", ->
-      EditorState.set(@editor, "aaaaa\n                    \nbbbbbb")
-      @editor.moveToTop()
+    it "moves forward to the beginning of a line with only whitespace", ->
+      EditorState.set(@editor, "a\n[0]b\nc\n \t\nd")
       @atomicEmacs.forwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\nb\nc\n[0] \t\nd")
 
-    it "moves the cursor forward to a line that only contains tabs", ->
-      EditorState.set(@editor, "aaaaa\n\t\t\t\nbbbbbb")
-      @editor.moveToTop()
+    it "stops if it reaches the end of the buffer", ->
+      EditorState.set(@editor, "a\n[0]b\nc")
       @atomicEmacs.forwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\nb\nc[0]")
 
-    it "moves the cursor forward to a line that only contains whitespaces", ->
-      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
-      @editor.moveToTop()
+    it "does not stop on its own line", ->
+      EditorState.set(@editor, "a\n[0]\nb\nc\n\nd")
       @atomicEmacs.forwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a\n\nb\nc\n[0]\nd")
 
-    it "does nothing when the cursor is at the last line of the buffer", ->
-      EditorState.set(@editor, "aaaaa\n\t  \t\t    \nbbbbbb")
-      @editor.moveToBottom()
+    it "moves to the end of the line if on the last line", ->
+      EditorState.set(@editor, "a[0]a")
       @atomicEmacs.forwardParagraph(@event)
-      expect(@editor.getCursorBufferPosition().row).toEqual(2)
+      expect(EditorState.get(@editor)).toEqual("aa[0]")
+
+    it "moves all cursors, and merges cursors that coincide", ->
+      EditorState.set(@editor, "a\n[0]\nb\nc\n[1]\nd\n[2]e\n")
+      @atomicEmacs.forwardParagraph(@event)
+      expect(EditorState.get(@editor)).toEqual("a\n\nb\nc\n[0]\nd\ne\n[1]")
 
   describe "atomic-emacs:exchange-point-and-mark", ->
     it "exchanges all cursors with their marks", ->
