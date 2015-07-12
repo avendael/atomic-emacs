@@ -72,7 +72,6 @@
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
 '.platform-win32 .editor':
-  'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
   'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'
 
