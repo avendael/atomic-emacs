@@ -71,7 +71,7 @@
 '.platform-linux atom-text-editor':
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
-'.platform-win32 .editor':
+'.platform-win32 atom-text-editor':
   'ctrl-e': 'editor:move-to-end-of-screen-line'
   'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'
 
