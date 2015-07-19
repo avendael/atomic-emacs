@@ -1,3 +1,12 @@
+## 0.7.2
+* Remove deprecated .editor selector
+* Fix paragraph movement commands
+* Fix upcasing & downcasing, add capitalizing, work on words or selections.
+* C-x 1 now closes other panes, not other tabs.
+* Add start/end of line key bindings for Windows
+* Don't override ctrl-a on win32.
+* Bind "ctrl-k ctrl-k" to cut-to-end-of-line on win32.
+
 ## 0.7.1
 * Remove keybindings that don't make sense in mini-editors
 * Replace autocomplete keybindings with autocomplete-plus
