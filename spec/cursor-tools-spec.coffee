@@ -304,10 +304,10 @@ describe "CursorTools", ->
       @cursorTools.skipSexpForward()
       expect(EditorState.get(@editor)).toEqual("abc[0] de")
 
-    it "includes underscores in the symbol", ->
-      EditorState.set(@editor, "a[0]b_c de")
+    it "includes all symbol characters in the symbol", ->
+      EditorState.set(@editor, "a[0]b_1c de")
       @cursorTools.skipSexpForward()
-      expect(EditorState.get(@editor)).toEqual("ab_c[0] de")
+      expect(EditorState.get(@editor)).toEqual("ab_1c[0] de")
 
     it "moves over any non-sexp chars before the symbol", ->
       EditorState.set(@editor, "[0] .-! ab")
@@ -375,10 +375,10 @@ describe "CursorTools", ->
       @cursorTools.skipSexpBackward()
       expect(EditorState.get(@editor)).toEqual("ab [0]cde")
 
-    it "includes underscores in the symbol", ->
-      EditorState.set(@editor, "ab c_d[0]e")
+    it "includes all symbol characters in the symbol", ->
+      EditorState.set(@editor, "ab c_1d[0]e")
       @cursorTools.skipSexpBackward()
-      expect(EditorState.get(@editor)).toEqual("ab [0]c_de")
+      expect(EditorState.get(@editor)).toEqual("ab [0]c_1de")
 
     it "moves over any non-sexp chars after the symbol", ->
       EditorState.set(@editor, "ab .-! [0]")

@@ -151,7 +151,7 @@ class CursorTools
 
   # Skip to the end of the current or next symbolic expression.
   skipSexpForward: ->
-    @skipForwardUntil(/[a-z(\[{'"]/i)
+    @skipForwardUntil(/[\w(\[{'"]/i)
     if OPENERS.hasOwnProperty(@nextCharacter())
       stack = []
       quotes = 0
@@ -171,11 +171,11 @@ class CursorTools
             stack.push(closer)
             quotes += 1 if /^["'`]$/.test(closer)
     else
-      @skipForwardUntil(/[^a-z_]/i)
+      @skipForwardUntil(/\W/i)
 
   # Skip to the beginning of the current or previous symbolic expression.
   skipSexpBackward: ->
-    @skipBackwardUntil(/[a-z)\]}'"]/i)
+    @skipBackwardUntil(/[\w)\]}'"]/i)
     nesting = 0
     if CLOSERS.hasOwnProperty(@previousCharacter())
       stack = []
@@ -196,7 +196,7 @@ class CursorTools
             stack.push(opener)
             quotes += 1 if /^["'`]$/.test(opener)
     else
-      @skipBackwardUntil(/[^a-z_]/i)
+      @skipBackwardUntil(/\W/i)
 
   # Delete and return the word at the cursor.
   #
