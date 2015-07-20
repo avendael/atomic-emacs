@@ -57,6 +57,8 @@
   'alt-c': 'atomic-emacs:capitalize-word-or-region'
   'alt-l': 'atomic-emacs:downcase-word-or-region'
   'alt-u': 'atomic-emacs:upcase-word-or-region'
+  'ctrl-alt-b': 'atomic-emacs:backward-sexp'
+  'ctrl-alt-f': 'atomic-emacs:forward-sexp'
   'left': 'atomic-emacs:backward-char'
   'right': 'atomic-emacs:forward-char'
 

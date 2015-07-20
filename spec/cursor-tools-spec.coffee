@@ -272,6 +272,174 @@ describe "CursorTools", ->
       @cursorTools.skipForwardUntil(/[^\.]/)
       expect(EditorState.get(@editor)).toEqual("..[0]")
 
+  describe "nextCharacter", ->
+    it "returns the line separator if at the end of a line", ->
+      EditorState.set(@editor, "ab[0]\ncd")
+      expect(@cursorTools.nextCharacter()).toEqual('\n')
+
+    it "return null if at the end of the buffer", ->
+      EditorState.set(@editor, "ab[0]")
+      expect(@cursorTools.nextCharacter()).toBe(null)
+
+    it "returns the character to the right of the cursor otherwise", ->
+      EditorState.set(@editor, "a[0]b\ncd")
+      expect(@cursorTools.nextCharacter()).toEqual('b')
+
+  describe "previousCharacter", ->
+    it "returns the line separator if at the end of a line", ->
+      EditorState.set(@editor, "ab[0]\ncd")
+      expect(@cursorTools.nextCharacter()).toEqual('\n')
+
+    it "return null if at the end of the buffer", ->
+      EditorState.set(@editor, "ab[0]")
+      expect(@cursorTools.nextCharacter()).toBe(null)
+
+    it "returns the character to the right of the cursor otherwise", ->
+      EditorState.set(@editor, "a[0]b\ncd")
+      expect(@cursorTools.nextCharacter()).toEqual('b')
+
+  describe "skipSexpForward", ->
+    it "skips over the current symbol when inside one", ->
+      EditorState.set(@editor, "a[0]bc de")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("abc[0] de")
+
+    it "includes underscores in the symbol", ->
+      EditorState.set(@editor, "a[0]b_c de")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("ab_c[0] de")
+
+    it "moves over any non-sexp chars before the symbol", ->
+      EditorState.set(@editor, "[0] .-! ab")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual(" .-! ab[0]")
+
+    it "moves to the end of the buffer if there is nothing after the symbol", ->
+      EditorState.set(@editor, "a[0]bc")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("abc[0]")
+
+    it "skips over balanced parentheses if before an open parenthesis", ->
+      EditorState.set(@editor, "a[0](b)c")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a(b)[0]c")
+
+    it "moves over any non-sexp chars before the opening parenthesis", ->
+      EditorState.set(@editor, "[0] .-! (x)")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual(" .-! (x)[0]")
+
+    it "is not tricked by nested parentheses", ->
+      EditorState.set(@editor, "a[0]((b c)(\n))d")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a((b c)(\n))[0]d")
+
+    it "is not tricked by backslash-escaped parentheses", ->
+      EditorState.set(@editor, "a[0](b\\)c)d")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a(b\\)c)[0]d")
+
+    it "is not tricked by unmatched parentheses", ->
+      EditorState.set(@editor, "a[0](b]c)d")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a(b]c)[0]d")
+
+    it "skips over balanced quotes (assuming it starts outside the quotes)", ->
+      EditorState.set(@editor, 'a[0]"b c"d')
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual('a"b c"[0]d')
+
+    it "moves over any non-sexp chars before the opening quote", ->
+      EditorState.set(@editor, "[0] .-! 'x'")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual(" .-! 'x'[0]")
+
+    it "is not tricked by nested quotes of another type", ->
+      EditorState.set(@editor, "a[0]'b\"c'd")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a'b\"c'[0]d")
+
+    it "does not move if it can't find a matching parenthesis", ->
+      EditorState.set(@editor, "a[0](b")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a[0](b")
+
+    it "does not move if at the end of the buffer", ->
+      EditorState.set(@editor, "a[0]")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("a[0]")
+
+  describe "skipSexpBackward", ->
+    it "skips over the current symbol when inside one", ->
+      EditorState.set(@editor, "ab cd[0]e")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("ab [0]cde")
+
+    it "includes underscores in the symbol", ->
+      EditorState.set(@editor, "ab c_d[0]e")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("ab [0]c_de")
+
+    it "moves over any non-sexp chars after the symbol", ->
+      EditorState.set(@editor, "ab .-! [0]")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("[0]ab .-! ")
+
+    it "moves to the beginning of the buffer if there is nothing before the symbol", ->
+      EditorState.set(@editor, "ab[0]c")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("[0]abc")
+
+    it "skips over balanced parentheses if before an open parenthesis", ->
+      EditorState.set(@editor, "a(b)[0]c")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a[0](b)c")
+
+    it "moves over any non-sexp chars after the closing parenthesis", ->
+      EditorState.set(@editor, "(x) .-! [0]")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("[0](x) .-! ")
+
+    it "is not tricked by nested parentheses", ->
+      EditorState.set(@editor, "a((b c)(\n))[0]d")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a[0]((b c)(\n))d")
+
+    it "is not tricked by backslash-escaped parentheses", ->
+      EditorState.set(@editor, "a(b\\)c)[0]d")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a[0](b\\)c)d")
+
+    it "is not tricked by unmatched parentheses", ->
+      EditorState.set(@editor, "a(b[c)[0]d")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a[0](b[c)d")
+
+    it "skips over balanced quotes (assuming it starts outside the quotes)", ->
+      EditorState.set(@editor, 'a"b c"[0]d')
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual('a[0]"b c"d')
+
+    it "moves over any non-sexp chars after the closing quote", ->
+      EditorState.set(@editor, "'x' .-! [0]")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("[0]'x' .-! ")
+
+    it "is not tricked by nested quotes of another type", ->
+      EditorState.set(@editor, "a'b\"c'[0]d")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a[0]'b\"c'd")
+
+    it "does not move if it can't find a matching parenthesis", ->
+      EditorState.set(@editor, "a)[0]b")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a)[0]b")
+
+    it "does not move if at the beginning of the buffer", ->
+      EditorState.set(@editor, "[0]a")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("[0]a")
+
   describe "extractWord", ->
     it "removes and returns the word the cursor is in", ->
       EditorState.set(@editor, "aa bb[0]cc dd")

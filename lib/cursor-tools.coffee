@@ -1,3 +1,6 @@
+OPENERS = {'(': ')', '[': ']', '{': '}', '\'': '\'', '"': '"', '`': '`'}
+CLOSERS = {')': '(', ']': '[', '}': '{', '\'': '\'', '"': '"', '`': '`'}
+
 # Wraps a Cursor to provide a nicer API for common operations.
 class CursorTools
   constructor: (@cursor) ->
@@ -121,6 +124,79 @@ class CursorTools
   skipForwardUntil: (regexp) ->
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
+
+  # Return the character after the cursor.
+  nextCharacter: ->
+    position = @cursor.getBufferPosition()
+    lineLength = @editor.lineTextForBufferRow(position.row).length
+    if position.column == lineLength
+      if position.row == @editor.getLastBufferRow()
+        null
+      else
+        @editor.getTextInBufferRange([position, [position.row + 1, 0]])
+    else
+      @editor.getTextInBufferRange([position, position.translate([0, 1])])
+
+  # Return the character before the cursor.
+  previousCharacter: ->
+    position = @cursor.getBufferPosition()
+    if position.column == 0
+      if position.row == 0
+        null
+      else
+        column = @editor.lineTextForBufferRow(position.row - 1).length
+        @editor.getTextInBufferRange([[position.row - 1, column], position])
+    else
+      @editor.getTextInBufferRange([position.translate([0, -1]), position])
+
+  # Skip to the end of the current or next symbolic expression.
+  skipSexpForward: ->
+    @skipForwardUntil(/[a-z(\[{'"]/i)
+    if OPENERS.hasOwnProperty(@nextCharacter())
+      stack = []
+      quotes = 0
+      here = @cursor.getBufferPosition()
+      eof = @editor.getEofBufferPosition()
+      re = /[^()[\]{}"'`\\]+|\\.|[()[\]{}"'`]/g
+      @editor.scanInBufferRange re, [here, eof], (hit) =>
+        if hit.matchText == stack[stack.length - 1]
+          stack.pop()
+          if stack.length == 0
+            @cursor.setBufferPosition(hit.range.end)
+            hit.stop()
+          else if /^["'`]$/.test(hit.matchText)
+            quotes -= 1
+        else if (closer = OPENERS[hit.matchText])
+          unless /^["'`]$/.test(closer) and quotes > 0
+            stack.push(closer)
+            quotes += 1 if /^["'`]$/.test(closer)
+    else
+      @skipForwardUntil(/[^a-z_]/i)
+
+  # Skip to the beginning of the current or previous symbolic expression.
+  skipSexpBackward: ->
+    @skipBackwardUntil(/[a-z)\]}'"]/i)
+    nesting = 0
+    if CLOSERS.hasOwnProperty(@previousCharacter())
+      stack = []
+      quotes = 0
+      here = @cursor.getBufferPosition()
+      bof = [0, 0]
+      re = /[^()[\]{}"'`\\]+|\\.|[()[\]{}"'`]/g
+      @editor.backwardsScanInBufferRange re, [bof, here], (hit) =>
+        if hit.matchText == stack[stack.length - 1]
+          stack.pop()
+          if stack.length == 0
+            @cursor.setBufferPosition(hit.range.start)
+            hit.stop()
+          else if /^["'`]$/.test(hit.matchText)
+            quotes -= 1
+        else if (opener = CLOSERS[hit.matchText])
+          unless /^["'`]$/.test(opener) and quotes > 0
+            stack.push(opener)
+            quotes += 1 if /^["'`]$/.test(opener)
+    else
+      @skipBackwardUntil(/[^a-z_]/i)
 
   # Delete and return the word at the cursor.
   #

@@ -440,6 +440,28 @@ describe "AtomicEmacs", ->
       @atomicEmacs.forwardWord(@event)
       expect(EditorState.get(@editor)).toEqual("aa bb  [0]")
 
+  describe "atomic-emacs:forward-sexp", ->
+    it "moves all cursors forward one symbolic expression", ->
+      EditorState.set(@editor, "[0]  aa\n[1](bb cc)\n")
+      @atomicEmacs.forwardSexp(@event)
+      expect(EditorState.get(@editor)).toEqual("  aa[0]\n(bb cc)[1]\n")
+
+    it "merges cursors that coincide", ->
+      EditorState.set(@editor, "[0] [1]aa")
+      @atomicEmacs.forwardSexp(@event)
+      expect(EditorState.get(@editor)).toEqual(" aa[0]")
+
+  describe "atomic-emacs:backward-sexp", ->
+    it "moves all cursors backward one symbolic expression", ->
+      EditorState.set(@editor, "aa [0]\n(bb cc)[1]\n")
+      @atomicEmacs.backwardSexp(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]aa \n[1](bb cc)\n")
+
+    it "merges cursors that coincide", ->
+      EditorState.set(@editor, "aa[0] [1]")
+      @atomicEmacs.backwardSexp(@event)
+      expect(EditorState.get(@editor)).toEqual("[0]aa ")
+
   describe "atomic-emacs:back-to-indentation", ->
     it "moves cursors forward to the first character if in leading space", ->
       EditorState.set(@editor, "[0]  aa\n [1] bb\n")

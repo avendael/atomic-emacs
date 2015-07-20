@@ -192,6 +192,14 @@ class AtomicEmacs
       tools.skipNonWordCharactersBackward()
       tools.skipWordCharactersBackward()
 
+  forwardSexp: (event) ->
+    @editor(event).moveCursors (cursor) ->
+      new CursorTools(cursor).skipSexpForward()
+
+  backwardSexp: (event) ->
+    @editor(event).moveCursors (cursor) ->
+      new CursorTools(cursor).skipSexpBackward()
+
   backToIndentation: (event) ->
     editor = @editor(event)
     editor.moveCursors (cursor) ->
@@ -332,6 +340,8 @@ module.exports =
       "atomic-emacs:forward-char": (event) -> atomicEmacs.forwardChar(event)
       "atomic-emacs:forward-paragraph": (event) -> atomicEmacs.forwardParagraph(event)
       "atomic-emacs:forward-word": (event) -> atomicEmacs.forwardWord(event)
+      "atomic-emacs:forward-sexp": (event) -> atomicEmacs.forwardSexp(event)
+      "atomic-emacs:backward-sexp": (event) -> atomicEmacs.backwardSexp(event)
       "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
       "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
       "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
