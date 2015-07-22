@@ -369,6 +369,11 @@ describe "CursorTools", ->
       @cursorTools.skipSexpForward()
       expect(EditorState.get(@editor)).toEqual("a[0]")
 
+    it "does not move if before a closing parenthesis", ->
+      EditorState.set(@editor, "(a [0]) b")
+      @cursorTools.skipSexpForward()
+      expect(EditorState.get(@editor)).toEqual("(a [0]) b")
+
   describe "skipSexpBackward", ->
     it "skips over the current symbol when inside one", ->
       EditorState.set(@editor, "ab cd[0]e")
@@ -439,6 +444,11 @@ describe "CursorTools", ->
       EditorState.set(@editor, "[0]a")
       @cursorTools.skipSexpBackward()
       expect(EditorState.get(@editor)).toEqual("[0]a")
+
+    it "does not move if after an opening parenthesis", ->
+      EditorState.set(@editor, "a ([0] b)")
+      @cursorTools.skipSexpBackward()
+      expect(EditorState.get(@editor)).toEqual("a ([0] b)")
 
   describe "extractWord", ->
     it "removes and returns the word the cursor is in", ->

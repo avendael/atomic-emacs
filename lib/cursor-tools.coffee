@@ -151,8 +151,9 @@ class CursorTools
 
   # Skip to the end of the current or next symbolic expression.
   skipSexpForward: ->
-    @skipForwardUntil(/[\w(\[{'"]/i)
-    if OPENERS.hasOwnProperty(@nextCharacter())
+    @skipForwardUntil(/[\w()[\]{}'"]/i)
+    character = @nextCharacter()
+    if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       stack = []
       quotes = 0
       here = @cursor.getBufferPosition()
@@ -170,14 +171,17 @@ class CursorTools
           unless /^["'`]$/.test(closer) and quotes > 0
             stack.push(closer)
             quotes += 1 if /^["'`]$/.test(closer)
+        else if CLOSERS[hit.matchText]
+          if stack.length == 0
+            hit.stop()
     else
       @skipForwardUntil(/\W/i)
 
   # Skip to the beginning of the current or previous symbolic expression.
   skipSexpBackward: ->
-    @skipBackwardUntil(/[\w)\]}'"]/i)
-    nesting = 0
-    if CLOSERS.hasOwnProperty(@previousCharacter())
+    @skipBackwardUntil(/[\w()[\]{}'"]/i)
+    character = @previousCharacter()
+    if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       stack = []
       quotes = 0
       here = @cursor.getBufferPosition()
@@ -195,6 +199,9 @@ class CursorTools
           unless /^["'`]$/.test(opener) and quotes > 0
             stack.push(opener)
             quotes += 1 if /^["'`]$/.test(opener)
+        else if OPENERS[hit.matchText]
+          if stack.length == 0
+            hit.stop()
     else
       @skipBackwardUntil(/\W/i)
 
