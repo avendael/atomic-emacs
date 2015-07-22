@@ -1,3 +1,5 @@
+Mark = require './mark'
+
 OPENERS = {'(': ')', '[': ']', '{': '}', '\'': '\'', '"': '"', '`': '`'}
 CLOSERS = {')': '(', ']': '[', '}': '{', '\'': '\'', '"': '"', '`': '`'}
 
@@ -155,6 +157,14 @@ class CursorTools
     point = @cursor.getBufferPosition()
     target = @_sexpBackwardFrom(point)
     @cursor.setBufferPosition(target)
+
+  # Add the next sexp to the cursor's selection. Activate if necessary.
+  markSexp: ->
+    mark = Mark.for(@cursor)
+    mark.activate() unless mark.isActive()
+    range = mark.getSelectionRange()
+    newTail = @_sexpForwardFrom(range.end)
+    mark.setSelectionRange(range.start, newTail)
 
   _sexpForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()

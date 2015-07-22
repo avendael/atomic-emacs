@@ -28,6 +28,7 @@
       "atomic-emacs:backward-word",
       "atomic-emacs:forward-sexp",
       "atomic-emacs:backward-sexp",
+      "atomic-emacs:mark-sexp",
       "atomic-emacs:next-line",
       "atomic-emacs:previous-line",
       "atomic-emacs:move-beginning-of-line",

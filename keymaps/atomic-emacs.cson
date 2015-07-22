@@ -33,6 +33,7 @@
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
   'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
+  'ctrl-alt-space': 'atomic-emacs:mark-sexp'
   'alt-f': 'atomic-emacs:forward-word'
   'alt-b': 'atomic-emacs:backward-word'
   'alt-d': 'atomic-emacs:kill-word'

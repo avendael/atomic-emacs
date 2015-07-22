@@ -200,6 +200,10 @@ class AtomicEmacs
     @editor(event).moveCursors (cursor) ->
       new CursorTools(cursor).skipSexpBackward()
 
+  markSexp: (event) ->
+    @editor(event).moveCursors (cursor) ->
+      new CursorTools(cursor).markSexp()
+
   backToIndentation: (event) ->
     editor = @editor(event)
     editor.moveCursors (cursor) ->
@@ -342,6 +346,7 @@ module.exports =
       "atomic-emacs:forward-word": (event) -> atomicEmacs.forwardWord(event)
       "atomic-emacs:forward-sexp": (event) -> atomicEmacs.forwardSexp(event)
       "atomic-emacs:backward-sexp": (event) -> atomicEmacs.backwardSexp(event)
+      "atomic-emacs:mark-sexp": (event) -> atomicEmacs.markSexp(event)
       "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
       "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
       "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)

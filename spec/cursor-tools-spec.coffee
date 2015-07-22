@@ -450,6 +450,27 @@ describe "CursorTools", ->
       @cursorTools.skipSexpBackward()
       expect(EditorState.get(@editor)).toEqual("a ([0] b)")
 
+  describe "markSexp", ->
+    it "selects the next sexp if the selection is not active", ->
+      EditorState.set(@editor, "a[0] (b c) d")
+      @cursorTools.markSexp()
+      expect(EditorState.get(@editor)).toEqual("a[0] (b c)(0) d")
+
+    it "extends the selection over the next sexp if the selection is active", ->
+      EditorState.set(@editor, "a[0] (b c)(0) (d e) f")
+      @cursorTools.markSexp()
+      expect(EditorState.get(@editor)).toEqual("a[0] (b c) (d e)(0) f")
+
+    it "extends to the end of the buffer if there is no following sexp", ->
+      EditorState.set(@editor, "a[0] (b c)(0) ")
+      @cursorTools.markSexp()
+      expect(EditorState.get(@editor)).toEqual("a[0] (b c) (0)")
+
+    it "does nothing if the selection is extended to the end of the buffer", ->
+      EditorState.set(@editor, "a[0] (b c)(0)")
+      @cursorTools.markSexp()
+      expect(EditorState.get(@editor)).toEqual("a[0] (b c)(0)")
+
   describe "extractWord", ->
     it "removes and returns the word the cursor is in", ->
       EditorState.set(@editor, "aa bb[0]cc dd")

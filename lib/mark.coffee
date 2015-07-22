@@ -68,11 +68,18 @@ class Mark
     if !@updating
       @updating = true
       try
-        a = @marker.getHeadBufferPosition()
-        b = @cursor.getBufferPosition()
-        @cursor.selection.setBufferRange([a, b], reversed: Point.min(a, b) is b)
+        head = @cursor.getBufferPosition()
+        tail = @marker.getHeadBufferPosition()
+        @setSelectionRange(head, tail)
       finally
         @updating = false
+
+  getSelectionRange: ->
+    @cursor.selection.getBufferRange()
+
+  setSelectionRange: (head, tail) ->
+    reversed = Point.min(head, tail) is head
+    @cursor.selection.setBufferRange([head, tail], reversed: reversed)
 
   Mark.for = (cursor) ->
    cursor._atomicEmacsMark ?= new Mark(cursor)
