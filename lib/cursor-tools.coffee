@@ -10,20 +10,13 @@ class CursorTools
   #
   # Return a Range if found, null otherwise. This does not move the cursor.
   locateBackward: (regExp) ->
-    result = null
-    @editor.backwardsScanInBufferRange regExp, [BOB, @cursor.getBufferPosition()], (hit) ->
-      result = hit.range
-    result
+    @_locateBackwardFrom(@cursor.getBufferPosition(), regExp)
 
   # Look for the next occurrence of the given regexp.
   #
   # Return a Range if found, null otherwise. This does not move the cursor.
   locateForward: (regExp) ->
-    result = null
-    eof = @editor.getEofBufferPosition()
-    @editor.scanInBufferRange regExp, [@cursor.getBufferPosition(), eof], (hit) ->
-      result = hit.range
-    result
+    @_locateForwardFrom(@cursor.getBufferPosition(), regExp)
 
   # Look for the previous word character.
   #
@@ -125,9 +118,7 @@ class CursorTools
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
 
-  # Return the character after the cursor.
-  nextCharacter: ->
-    position = @cursor.getBufferPosition()
+  _nextCharacterFrom: (position) ->
     lineLength = @editor.lineTextForBufferRow(position.row).length
     if position.column == lineLength
       if position.row == @editor.getLastBufferRow()
@@ -137,9 +128,7 @@ class CursorTools
     else
       @editor.getTextInBufferRange([position, position.translate([0, 1])])
 
-  # Return the character before the cursor.
-  previousCharacter: ->
-    position = @cursor.getBufferPosition()
+  _previousCharacterFrom: (position) ->
     if position.column == 0
       if position.row == 0
         null
@@ -149,21 +138,39 @@ class CursorTools
     else
       @editor.getTextInBufferRange([position.translate([0, -1]), position])
 
+  nextCharacter: ->
+    @_nextCharacterFrom(@cursor.getBufferPosition())
+
+  previousCharacter: ->
+    @_nextCharacterFrom(@cursor.getBufferPosition())
+
   # Skip to the end of the current or next symbolic expression.
   skipSexpForward: ->
-    @skipForwardUntil(/[\w()[\]{}'"]/i)
-    character = @nextCharacter()
+    point = @cursor.getBufferPosition()
+    target = @_sexpForwardFrom(point)
+    @cursor.setBufferPosition(target)
+
+  # Skip to the beginning of the current or previous symbolic expression.
+  skipSexpBackward: ->
+    point = @cursor.getBufferPosition()
+    target = @_sexpBackwardFrom(point)
+    @cursor.setBufferPosition(target)
+
+  _sexpForwardFrom: (point) ->
+    eob = @editor.getEofBufferPosition()
+    point = @_locateForwardFrom(point, /[\w()[\]{}'"]/i)?.start or eob
+    character = @_nextCharacterFrom(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
+      result = null
       stack = []
       quotes = 0
-      here = @cursor.getBufferPosition()
       eof = @editor.getEofBufferPosition()
       re = /[^()[\]{}"'`\\]+|\\.|[()[\]{}"'`]/g
-      @editor.scanInBufferRange re, [here, eof], (hit) =>
+      @editor.scanInBufferRange re, [point, eof], (hit) =>
         if hit.matchText == stack[stack.length - 1]
           stack.pop()
           if stack.length == 0
-            @cursor.setBufferPosition(hit.range.end)
+            result = hit.range.end
             hit.stop()
           else if /^["'`]$/.test(hit.matchText)
             quotes -= 1
@@ -174,24 +181,23 @@ class CursorTools
         else if CLOSERS[hit.matchText]
           if stack.length == 0
             hit.stop()
+      result or point
     else
-      @skipForwardUntil(/\W/i)
+      @_locateForwardFrom(point, /\W/i)?.start or eob
 
-  # Skip to the beginning of the current or previous symbolic expression.
-  skipSexpBackward: ->
-    @skipBackwardUntil(/[\w()[\]{}'"]/i)
-    character = @previousCharacter()
+  _sexpBackwardFrom: (point) ->
+    point = @_locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or BOB
+    character = @_previousCharacterFrom(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
+      result = null
       stack = []
       quotes = 0
-      here = @cursor.getBufferPosition()
-      bof = [0, 0]
       re = /[^()[\]{}"'`\\]+|\\.|[()[\]{}"'`]/g
-      @editor.backwardsScanInBufferRange re, [bof, here], (hit) =>
+      @editor.backwardsScanInBufferRange re, [BOB, point], (hit) =>
         if hit.matchText == stack[stack.length - 1]
           stack.pop()
           if stack.length == 0
-            @cursor.setBufferPosition(hit.range.start)
+            result = hit.range.start
             hit.stop()
           else if /^["'`]$/.test(hit.matchText)
             quotes -= 1
@@ -202,8 +208,9 @@ class CursorTools
         else if OPENERS[hit.matchText]
           if stack.length == 0
             hit.stop()
+      result or point
     else
-      @skipBackwardUntil(/\W/i)
+      @_locateBackwardFrom(point, /\W/i)?.end or BOB
 
   # Delete and return the word at the cursor.
   #
@@ -217,6 +224,19 @@ class CursorTools
     word = @editor.getTextInBufferRange(wordRange)
     @editor.setTextInBufferRange(wordRange, '')
     word
+
+  _locateBackwardFrom: (point, regExp) ->
+    result = null
+    @editor.backwardsScanInBufferRange regExp, [BOB, point], (hit) ->
+      result = hit.range
+    result
+
+  _locateForwardFrom: (point, regExp) ->
+    result = null
+    eof = @editor.getEofBufferPosition()
+    @editor.scanInBufferRange regExp, [point, eof], (hit) ->
+      result = hit.range
+    result
 
   _getWordCharacterRegExp: ->
     nonWordCharacters = atom.config.get('editor.nonWordCharacters')
