@@ -71,11 +71,11 @@
   'ctrl-v': 'atomic-emacs:scroll-up'
   'alt-v': 'atomic-emacs:scroll-down'
 
-'.platform-linux atom-text-editor':
+'.platform-linux atom-workspace.atomic-emacs atom-text-editor':
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
-'.platform-win32 atom-text-editor':
+'.platform-win32 atom-workspace.atomic-emacs atom-text-editor':
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
   'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'

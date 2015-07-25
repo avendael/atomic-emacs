@@ -327,6 +327,7 @@ module.exports =
 
   activate: ->
     atomicEmacs = new AtomicEmacs()
+    document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposables.add atom.commands.add 'atom-text-editor',
       "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
       "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
@@ -365,4 +366,5 @@ module.exports =
       "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
 
   destroy: ->
+    document.getElementsByTagName('atom-workspace')[0]?.classList?.remove('atomic-emacs')
     @disposables.dispose()
