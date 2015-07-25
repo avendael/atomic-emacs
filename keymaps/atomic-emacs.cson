@@ -80,9 +80,9 @@
   'ctrl-e': 'editor:move-to-end-of-screen-line'
   'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'
 
-'.find-and-replace':
-  'ctrl-s': 'find-and-replace:find-next'
-  'ctrl-r': 'find-and-replace:find-previous'
+'atom-workspace .find-and-replace atom-text-editor':
+  'ctrl-s': 'find-and-replace:confirm'
+  'ctrl-r': 'find-and-replace:show-previous'
 
 '.go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
