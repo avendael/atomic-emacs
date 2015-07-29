@@ -322,7 +322,6 @@ class AtomicEmacs
 module.exports =
   AtomicEmacs: AtomicEmacs
   Mark: Mark
-  disposables: null
 
   activate: ->
     atomicEmacs = new AtomicEmacs()
