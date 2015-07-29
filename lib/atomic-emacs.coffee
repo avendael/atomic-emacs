@@ -1,4 +1,3 @@
-{CompositeDisposable} = require 'atom'
 CursorTools = require './cursor-tools'
 Mark = require './mark'
 
@@ -323,12 +322,12 @@ class AtomicEmacs
 module.exports =
   AtomicEmacs: AtomicEmacs
   Mark: Mark
-  disposables: new CompositeDisposable
+  disposables: null
 
   activate: ->
     atomicEmacs = new AtomicEmacs()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
-    @disposables.add atom.commands.add 'atom-text-editor',
+    @disposable = atom.commands.add 'atom-text-editor',
       "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
       "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
       "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
@@ -365,6 +364,7 @@ module.exports =
       "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.upcaseWordOrRegion(event)
       "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
 
-  destroy: ->
+  deactivate: ->
     document.getElementsByTagName('atom-workspace')[0]?.classList?.remove('atomic-emacs')
-    @disposables.dispose()
+    @disposable?.dispose()
+    @disposable = null
