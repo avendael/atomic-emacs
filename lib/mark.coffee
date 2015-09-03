@@ -43,7 +43,6 @@ class Mark
       @activeSubscriptions.dispose()
       @active = false
     @cursor.clearSelection()
-    @cursor.selection.screenRangeChanged(@marker)  # force redraw of selection
 
   isActive: ->
     @active
