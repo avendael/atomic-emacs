@@ -1,3 +1,6 @@
+## 0.7.3
+* Fix crash on latest Atom when clearing the region.
+
 ## 0.7.2
 * Remove deprecated .editor selector
 * Fix paragraph movement commands
