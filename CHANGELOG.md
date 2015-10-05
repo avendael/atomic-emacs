@@ -1,3 +1,6 @@
+## 0.7.4
+* C-g now cancels auto-complete and multiple cursors, like escape.
+
 ## 0.7.3
 * Fix crash on latest Atom when clearing the region.
 
