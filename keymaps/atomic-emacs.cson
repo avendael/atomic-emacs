@@ -109,3 +109,6 @@
 
 'atom-text-editor.autocomplete-active':
   'ctrl-g': 'autocomplete-plus:cancel'
+
+'atom-text-editor !important, atom-text-editor[mini] !important':
+  'ctrl-g': 'editor:consolidate-selections'
