@@ -106,3 +106,6 @@
 
 '.platform-darwin .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
+
+'atom-text-editor.autocomplete-active':
+  'ctrl-g': 'autocomplete-plus:cancel'
