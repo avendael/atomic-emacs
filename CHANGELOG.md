@@ -1,3 +1,6 @@
+## LATEST
+* Make C-v, M-v consistently move 1/2 a screen up/down.
+
 ## 0.7.4 (2015-10-05)
 * C-g now cancels auto-complete and multiple cursors, like escape.
 

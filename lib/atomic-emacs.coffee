@@ -232,18 +232,14 @@ class AtomicEmacs
     editor = @editor(event)
     [firstRow,lastRow] = editor.getVisibleRowRange()
     currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - (currentRow - firstRow)
-
-    editor.scrollToBufferPosition([lastRow * 2, 0])
+    rowCount = (lastRow - firstRow) - 2
     editor.moveDown(rowCount)
 
   scrollDown: (event) ->
     editor = @editor(event)
     [firstRow,lastRow] = editor.getVisibleRowRange()
     currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - (lastRow - currentRow)
-
-    editor.scrollToBufferPosition([Math.floor(firstRow / 2), 0])
+    rowCount = (lastRow - firstRow) - 2
     editor.moveUp(rowCount)
 
   backwardParagraph: (event) ->
