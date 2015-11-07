@@ -38,7 +38,8 @@ class AtomicEmacs
   Mark: Mark
 
   editor: (event) ->
-    if event.target
+    # Get editor from the event if possible so we can target mini-editors.
+    if event.target?.getModel
       event.target.getModel()
     else
       atom.workspace.getActiveTextEditor()
