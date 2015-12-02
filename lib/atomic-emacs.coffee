@@ -1,3 +1,4 @@
+{CompositeDisposable} = require 'atom'
 CursorTools = require './cursor-tools'
 Mark = require './mark'
 
@@ -35,7 +36,12 @@ capitalize = (string) ->
   string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
 
 class AtomicEmacs
-  Mark: Mark
+  constructor: ->
+    @previousCommand = null
+    @recenters = 0
+
+  commandDispatched: (event) ->
+    @previousCommand = event.type
 
   editor: (event) ->
     # Get editor from the event if possible so we can target mini-editors.
@@ -300,6 +306,11 @@ class AtomicEmacs
       editor.setTextInBufferRange(range, '')
 
   recenterTopBottom: (event) ->
+    if @previousCommand == 'atomic-emacs:recenter-top-bottom'
+      @recenters = (@recenters + 1) % 3
+    else
+      @recenters = 0
+
     editor = @editor(event)
     return unless editor
     editorElement = atom.views.getView(editor)
@@ -307,7 +318,15 @@ class AtomicEmacs
     maxRow = Math.max((c.getBufferRow() for c in editor.getCursors())...)
     minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
     maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
-    editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
+
+    switch @recenters
+      when 0
+        editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
+      when 1
+        # Atom applies a (hardcoded) 2-line buffer while scrolling -- do that here.
+        editor.setScrollTop(minOffset.top - 2*editor.getLineHeightInPixels())
+      when 2
+        editor.setScrollTop(maxOffset.top + 3*editor.getLineHeightInPixels() - editor.getHeight())
 
   deleteIndentation: =>
     editor = @editor(event)
@@ -323,7 +342,9 @@ module.exports =
   activate: ->
     atomicEmacs = new AtomicEmacs()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
-    @disposable = atom.commands.add 'atom-text-editor',
+    @disposable = new CompositeDisposable
+    @disposable.add atom.commands.onDidDispatch (event) -> atomicEmacs.commandDispatched(event)
+    @disposable.add atom.commands.add 'atom-text-editor',
       "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
       "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
       "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)

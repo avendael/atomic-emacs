@@ -48,7 +48,7 @@
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
   "engines": {
-    "atom": ">0.50.0"
+    "atom": ">=1.0.8"
   },
   "dependencies": {}
 }
