@@ -17,7 +17,7 @@
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
   'ctrl-k': 'editor:cut-to-end-of-line'
   'ctrl-g': 'core:cancel'
-  'ctrl-y': 'core:paste'
+  'ctrl-y': 'atomic-emacs:yank'
   'ctrl-w': 'core:cut'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-r': 'find-and-replace:show'

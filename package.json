@@ -42,7 +42,8 @@
       "atomic-emacs:backward-paragraph",
       "atomic-emacs:forward-paragraph",
       "atomic-emacs:kill-word",
-      "atomic-emacs:backward-kill-word"
+      "atomic-emacs:backward-kill-word",
+      "atomic-emacs:yank"
     ]
   },
   "repository": "https://github.com/avendael/atomic-emacs",

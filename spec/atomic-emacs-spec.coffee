@@ -10,6 +10,12 @@ describe "AtomicEmacs", ->
         @event = target: => {getModel: => @editor}
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
+        @dispatch = (commandName, functionName) =>
+          @atomicEmacs.beforeCommand({type: commandName})
+          try
+            @atomicEmacs[functionName](@event)
+          finally
+            @atomicEmacs.afterCommand({type: commandName})
 
   describe "atomic-emacs:upcase-word-or-region", ->
     describe "when there is no selection", ->
@@ -232,6 +238,19 @@ describe "AtomicEmacs", ->
       @atomicEmacs.killWord(@event)
       expect(EditorState.get(@editor)).toEqual("aaa b[0] c[1] ddd")
 
+    it "allows the deleted text to be yanked back", ->
+      EditorState.set(@editor, "[0]aaa bbb\n[1]ccc ddd")
+      @dispatch 'atomic-emacs:kill-word', 'killWord'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa[0] bbb\nccc[1] ddd")
+
+    it "combines successive kills into a single kill ring entry", ->
+      EditorState.set(@editor, "[0]aaa bbb ccc")
+      @dispatch 'atomic-emacs:kill-word', 'killWord'
+      @dispatch 'atomic-emacs:kill-word', 'killWord'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa bbb[0] ccc")
+
   describe "atomic-emacs:backward-kill-word", ->
     it "deletes from the cursor to the beginning of the word if inside a word", ->
       EditorState.set(@editor, "aaa bb[0]b ccc")
@@ -272,6 +291,19 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "aaa bb[0]b cc[1]c ddd")
       @atomicEmacs.backwardKillWord(@event)
       expect(EditorState.get(@editor)).toEqual("aaa [0]b [1]c ddd")
+
+    it "allows the deleted text to be yanked back", ->
+      EditorState.set(@editor, "aaa bbb[0]\nccc ddd[1]")
+      @dispatch 'atomic-emacs:backward-kill-word', 'backwardKillWord'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa bbb[0]\nccc ddd[1]")
+
+    it "combines successive kills into a single kill ring entry", ->
+      EditorState.set(@editor, "aaa bbb ccc[0]")
+      @dispatch 'atomic-emacs:backward-kill-word', 'backwardKillWord'
+      @dispatch 'atomic-emacs:backward-kill-word', 'backwardKillWord'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa bbb ccc[0]")
 
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->

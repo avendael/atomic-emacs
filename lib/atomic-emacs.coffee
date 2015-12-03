@@ -1,5 +1,6 @@
 {CompositeDisposable} = require 'atom'
 CursorTools = require './cursor-tools'
+KillRing = require './kill-ring'
 Mark = require './mark'
 
 horizontalSpaceRange = (cursor) ->
@@ -38,10 +39,16 @@ capitalize = (string) ->
 class AtomicEmacs
   constructor: ->
     @previousCommand = null
+    @killing = false
+    @killed = false
     @recenters = 0
 
-  commandDispatched: (event) ->
+  beforeCommand: (event) ->
+    @killed = false
+
+  afterCommand: (event) ->
     @previousCommand = event.type
+    @killing = @killed
 
   editor: (event) ->
     # Get editor from the event if possible so we can target mini-editors.
@@ -275,23 +282,29 @@ class AtomicEmacs
     editor = @editor(event)
     editor.transact =>
       for selection in editor.getSelections()
-        selection.modifySelection ->
+        selection.modifySelection =>
           if selection.isEmpty()
             cursorTools = new CursorTools(selection.cursor)
             cursorTools.skipNonWordCharactersBackward()
             cursorTools.skipWordCharactersBackward()
+          killRing = KillRing.for(selection.cursor)
+          killRing[if @killing then 'prepend' else 'push'](selection.getText())
           selection.deleteSelectedText()
+    @killed = true
 
   killWord: (event) ->
     editor = @editor(event)
     editor.transact =>
       for selection in editor.getSelections()
-        selection.modifySelection ->
+        selection.modifySelection =>
           if selection.isEmpty()
             cursorTools = new CursorTools(selection.cursor)
             cursorTools.skipNonWordCharactersForward()
             cursorTools.skipWordCharactersForward()
+          killRing = KillRing.for(selection.cursor)
+          killRing[if @killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
+    @killed = true
 
   justOneSpace: (event) ->
     editor = @editor(event)
@@ -335,6 +348,15 @@ class AtomicEmacs
       editor.moveUp()
       editor.joinLines()
 
+  yank: (event) ->
+    editor = @editor(event)
+    editor.transact =>
+      for selection in editor.getSelections()
+        cursor = selection.cursor
+        text = KillRing.for(cursor).last()
+        if text
+          selection.insertText(text)
+
 module.exports =
   AtomicEmacs: AtomicEmacs
   Mark: Mark
@@ -343,7 +365,8 @@ module.exports =
     atomicEmacs = new AtomicEmacs()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
-    @disposable.add atom.commands.onDidDispatch (event) -> atomicEmacs.commandDispatched(event)
+    @disposable.add atom.commands.onWillDispatch (event) -> atomicEmacs.beforeCommand(event)
+    @disposable.add atom.commands.onDidDispatch (event) -> atomicEmacs.afterCommand(event)
     @disposable.add atom.commands.add 'atom-text-editor',
       "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
       "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
@@ -379,6 +402,7 @@ module.exports =
       "atomic-emacs:transpose-lines": (event) -> atomicEmacs.transposeLines(event)
       "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
       "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.upcaseWordOrRegion(event)
+      "atomic-emacs:yank": (event) -> atomicEmacs.yank(event)
       "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
 
   deactivate: ->
