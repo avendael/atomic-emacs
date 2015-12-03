@@ -305,18 +305,18 @@ describe "AtomicEmacs", ->
       [cursor0, cursor1] = @editor.getCursors()
       @atomicEmacs.setMark(@event)
 
-      expect(@atomicEmacs.Mark.for(cursor0).isActive()).toBe(true)
-      point = @atomicEmacs.Mark.for(cursor0).getBufferPosition()
+      expect(Mark.for(cursor0).isActive()).toBe(true)
+      point = Mark.for(cursor0).getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 0])
 
-      expect(@atomicEmacs.Mark.for(cursor1).isActive()).toBe(true)
-      point = @atomicEmacs.Mark.for(cursor1).getBufferPosition()
+      expect(Mark.for(cursor1).isActive()).toBe(true)
+      point = Mark.for(cursor1).getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 1])
 
   describe "atomic-emacs:keyboard-quit", ->
     it "deactivates all marks", ->
       EditorState.set(@editor, "[0].[1]")
-      [mark0, mark1] = (@atomicEmacs.Mark.for(c) for c in @editor.getCursors())
+      [mark0, mark1] = (Mark.for(c) for c in @editor.getCursors())
       m.activate() for m in [mark0, mark1]
       @atomicEmacs.keyboardQuit(@event)
       expect(mark0.isActive()).toBe(false)
