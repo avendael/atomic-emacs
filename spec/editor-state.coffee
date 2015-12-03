@@ -2,7 +2,7 @@
 
 module.exports =
   open: (state) ->
-    atom.project.open().then (editor) =>
+    atom.workspace.open().then (editor) =>
       @set(editor, state)
 
   # Set the state of the editor.

@@ -16,7 +16,7 @@ describe "EditorState", ->
 
   beforeEach ->
     waitsForPromise =>
-      atom.project.open().then (editor) =>
+      atom.workspace.open().then (editor) =>
         @editor = editor
 
   describe ".set", ->

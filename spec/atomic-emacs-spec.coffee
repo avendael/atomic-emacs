@@ -5,7 +5,7 @@ EditorState = require './editor-state'
 describe "AtomicEmacs", ->
   beforeEach ->
     waitsForPromise =>
-      atom.project.open().then (editor) =>
+      atom.workspace.open().then (editor) =>
         @editor = editor
         @event = target: => {getModel: => @editor}
         @atomicEmacs = new AtomicEmacs()

@@ -10,7 +10,7 @@ rangeCoordinates = (range) ->
 describe "CursorTools", ->
   beforeEach ->
     waitsForPromise =>
-      atom.project.open().then (editor) =>
+      atom.workspace.open().then (editor) =>
           @editor = editor
           @cursorTools = new CursorTools(editor.getLastCursor())
 

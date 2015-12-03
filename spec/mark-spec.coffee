@@ -4,7 +4,7 @@ Mark = require './../lib/mark'
 describe "Mark", ->
   beforeEach ->
     waitsForPromise =>
-      atom.project.open().then (editor) =>
+      atom.workspace.open().then (editor) =>
         @editor = editor
         @cursor = @editor.getLastCursor()
 
