@@ -44,6 +44,7 @@
       "atomic-emacs:kill-word",
       "atomic-emacs:backward-kill-word",
       "atomic-emacs:kill-line",
+      "atomic-emacs:kill-region",
       "atomic-emacs:yank"
     ]
   },

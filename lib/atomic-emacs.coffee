@@ -322,6 +322,16 @@ class AtomicEmacs
           selection.deleteSelectedText()
     @killed = true
 
+  killRegion: (event) ->
+    editor = @editor(event)
+    editor.transact =>
+      for selection in editor.getSelections()
+        selection.modifySelection =>
+          killRing = KillRing.for(selection.cursor)
+          killRing.push(selection.getText())
+          selection.deleteSelectedText()
+      @killed = true
+
   justOneSpace: (event) ->
     editor = @editor(event)
     for cursor in editor.cursors

@@ -18,7 +18,7 @@
   'ctrl-k': 'atomic-emacs:kill-line'
   'ctrl-g': 'core:cancel'
   'ctrl-y': 'atomic-emacs:yank'
-  'ctrl-w': 'core:cut'
+  'ctrl-w': 'atomic-emacs:kill-region'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-r': 'find-and-replace:show'
   'ctrl-j': 'editor:newline'

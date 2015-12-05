@@ -1,4 +1,5 @@
 {AtomicEmacs} = require '../lib/atomic-emacs'
+KillRing = require '../lib/kill-ring'
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
 
@@ -348,6 +349,37 @@ describe "AtomicEmacs", ->
         @dispatch 'atomic-emacs:kill-line', 'killLine'
       @dispatch 'atomic-emacs:yank', 'yank'
       expect(EditorState.get(@editor)).toEqual("aaa bbb\nccc ddd\neee fff\n[0]ggg")
+
+  describe "atomic-emacs:kill-region", ->
+    it "deletes the selected region", ->
+      EditorState.set(@editor, "aaa b(0)b[0]b ccc")
+      @atomicEmacs.killRegion(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]b ccc")
+
+    it "operates on multiple cursors", ->
+      EditorState.set(@editor, "a(0)a[0]a b[1]b(1)b")
+      @atomicEmacs.killRegion(@event)
+      expect(EditorState.get(@editor)).toEqual("a[0]a b[1]b")
+
+    it "allows the deleted text to be yanked back", ->
+      EditorState.set(@editor, "a(0)b[0]c")
+      @dispatch 'atomic-emacs:kill-region', 'killRegion'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("ab[0]c")
+
+    it "pushes blanks if selections are empty", ->
+      EditorState.set(@editor, "a(0)[0]b")
+      @atomicEmacs.killRegion(@editor)
+      cursor = @editor.getCursors()[0]
+      expect(KillRing.for(cursor).getEntries().length).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a[0]b")
+
+    it "combines successive kills into a single kill ring entry", ->
+      EditorState.set(@editor, "a[0]b(0)c d[1]e(1)f")
+      @dispatch 'atomic-emacs:kill-region', 'killRegion'
+      @dispatch 'atomic-emacs:kill-word', 'killWord'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("abc[0] def[1]")
 
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
