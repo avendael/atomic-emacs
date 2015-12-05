@@ -305,6 +305,50 @@ describe "AtomicEmacs", ->
       @dispatch 'atomic-emacs:yank', 'yank'
       expect(EditorState.get(@editor)).toEqual("aaa bbb ccc[0]")
 
+  describe "atomic-emacs:kill-line", ->
+    it "deletes from the cursor to the end of the line if there is text to the right", ->
+      EditorState.set(@editor, "aaa b[0]bb\nccc")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]\nccc")
+
+    it "deletes the rest of this line if there is only whitespace to the right", ->
+      EditorState.set(@editor, "aaa [0] \t\n bbb")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] bbb")
+
+    it "deletes the next newline if there is nothing to the right", ->
+      EditorState.set(@editor, "aaa [0]\n bbb")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa [0] bbb")
+
+    it "deletes nothing if at the end of the buffer", ->
+      EditorState.set(@editor, "aaa[0]")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa[0]")
+
+    it "deletes any selected text", ->
+      EditorState.set(@editor, "aaa b(0)b[0]b ccc")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]b ccc")
+
+    it "operates on multiple cursors", ->
+      EditorState.set(@editor, "aaa b[0]bb\nc[1]cc ddd")
+      @atomicEmacs.killLine(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa b[0]\nc[1]")
+
+    it "allows the deleted text to be yanked back", ->
+      EditorState.set(@editor, "[0]aaa bbb\n[1]ccc ddd")
+      @dispatch 'atomic-emacs:kill-line', 'killLine'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa bbb[0]\nccc ddd[1]")
+
+    it "combines successive kills into a single kill ring entry", ->
+      EditorState.set(@editor, "aaa[0] bbb\nccc ddd\neee fff\nggg")
+      for i in [1, 2, 3, 4, 5, 6]
+        @dispatch 'atomic-emacs:kill-line', 'killLine'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("aaa bbb\nccc ddd\neee fff\n[0]ggg")
+
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
       EditorState.set(@editor, "a [0]\tb c [1]\td")

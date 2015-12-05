@@ -306,6 +306,22 @@ class AtomicEmacs
           selection.deleteSelectedText()
     @killed = true
 
+  killLine: (event) ->
+    editor = @editor(event)
+    editor.transact =>
+      for selection in editor.getSelections()
+        selection.modifySelection =>
+          if selection.isEmpty()
+            {row, column} = selection.cursor.getBufferPosition()
+            line = editor.lineTextForBufferRow(row)
+            selection.cursor.moveToEndOfLine()
+            if /^\s*$/.test(line.slice(column))
+              selection.cursor.moveRight()
+          killRing = KillRing.for(selection.cursor)
+          killRing[if @killing then 'append' else 'push'](selection.getText())
+          selection.deleteSelectedText()
+    @killed = true
+
   justOneSpace: (event) ->
     editor = @editor(event)
     for cursor in editor.cursors
@@ -389,6 +405,7 @@ module.exports =
       "atomic-emacs:mark-sexp": (event) -> atomicEmacs.markSexp(event)
       "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
       "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
+      "atomic-emacs:kill-line": (event) -> atomicEmacs.killLine(event)
       "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
       "atomic-emacs:back-to-indentation": (event) -> atomicEmacs.backToIndentation(event)
       "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)

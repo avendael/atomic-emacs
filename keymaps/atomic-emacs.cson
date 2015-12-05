@@ -15,7 +15,7 @@
   'ctrl-f': 'atomic-emacs:forward-char'
   'ctrl-b': 'atomic-emacs:backward-char'
   'ctrl-l': 'atomic-emacs:recenter-top-bottom'
-  'ctrl-k': 'editor:cut-to-end-of-line'
+  'ctrl-k': 'atomic-emacs:kill-line'
   'ctrl-g': 'core:cancel'
   'ctrl-y': 'atomic-emacs:yank'
   'ctrl-w': 'core:cut'
