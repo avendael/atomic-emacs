@@ -76,7 +76,7 @@ describe "Mark", ->
       @cursor.setBufferPosition([0, 2])
       expect(EditorState.get(@editor)).toEqual(".(0).[0].")
 
-    it "causes buffer edits to deactivate the mark", ->
+    it "causes buffer edits to deactivate the mark after the current command", ->
       EditorState.set(@editor, ".[0]..")
       mark = Mark.for(@cursor)
 
@@ -85,6 +85,7 @@ describe "Mark", ->
       expect(EditorState.get(@editor)).toEqual(".(0).[0].")
 
       @editor.setTextInBufferRange([[0, 0], [0, 1]], 'x')
+      Mark.deactivatePending()
       expect(mark.isActive()).toBe(false)
       expect(EditorState.get(@editor)).toEqual("x.[0].")
       expect(@cursor.selection.isEmpty()).toBe(true)

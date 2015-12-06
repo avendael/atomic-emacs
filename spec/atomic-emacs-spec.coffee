@@ -11,10 +11,13 @@ describe "AtomicEmacs", ->
         @event = target: => {getModel: => @editor}
         @atomicEmacs = new AtomicEmacs()
         @atomicEmacs.editor = (_) => @editor
-        @dispatch = (commandName, functionName) =>
+        @dispatch = (commandName, functionOrName) =>
           @atomicEmacs.beforeCommand({type: commandName})
           try
-            @atomicEmacs[functionName](@event)
+            if typeof(functionOrName) == 'function'
+              functionOrName()
+            else
+              @atomicEmacs[functionOrName](@event)
           finally
             @atomicEmacs.afterCommand({type: commandName})
 
@@ -453,6 +456,19 @@ describe "AtomicEmacs", ->
       expect(Mark.for(cursor1).isActive()).toBe(true)
       point = Mark.for(cursor1).getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 1])
+
+    it "deactivates marks after all selections are updated", ->
+      EditorState.set(@editor, "a[0]bcd e[1]fgh")
+      @dispatch 'atomic-emacs:set-mark', 'setMark'
+
+      @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+      @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+      expect(EditorState.get(@editor)).toEqual("a(0)bc[0]d e(1)fg[1]h")
+
+      @dispatch 'core:backspace', => @editor.backspace()
+      expect(EditorState.get(@editor)).toEqual("a[0]d e[1]h")
+      result = (Mark.for(c).isActive() for c in @editor.getCursors())
+      expect(result).toEqual([false, false])
 
   describe "atomic-emacs:keyboard-quit", ->
     it "deactivates all marks", ->

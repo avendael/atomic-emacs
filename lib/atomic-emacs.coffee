@@ -47,6 +47,7 @@ class AtomicEmacs
     @killed = false
 
   afterCommand: (event) ->
+    Mark.deactivatePending()
     @previousCommand = event.type
     @killing = @killed
 

@@ -12,6 +12,13 @@
 # cursor is moved. If the buffer is edited, the mark is automatically
 # deactivated.
 class Mark
+  @deactivatable = []
+
+  @deactivatePending: ->
+    for mark in @deactivatable
+      mark.deactivate()
+    @deactivatable.length = 0
+
   constructor: (cursor) ->
     @cursor = cursor
     @editor = cursor.editor
@@ -35,7 +42,7 @@ class Mark
         @_updateSelection(event)
       @activeSubscriptions.add @editor.getBuffer().onDidChange (event) =>
         unless @_isIndent(event) or @_isOutdent(event)
-          @deactivate()
+          Mark.deactivatable.push(this)
       @active = true
 
   deactivate: ->
