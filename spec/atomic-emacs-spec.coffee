@@ -381,6 +381,39 @@ describe "AtomicEmacs", ->
       @dispatch 'atomic-emacs:yank', 'yank'
       expect(EditorState.get(@editor)).toEqual("abc[0] def[1]")
 
+  describe "atomic-emacs:copy-region-as-kill", ->
+    it "clears the selection without deleting text", ->
+      EditorState.set(@editor, "aaa b(0)b[0]b ccc")
+      @atomicEmacs.copyRegionAsKill(@event)
+      expect(EditorState.get(@editor)).toEqual("aaa bb[0]b ccc")
+
+    it "allows the deleted text to be yanked back", ->
+      EditorState.set(@editor, "a(0)b[0]c")
+      @dispatch 'atomic-emacs:copy-region-as-kill', 'copyRegionAsKill'
+      @dispatch 'atomic-emacs:yank', 'yank'
+      expect(EditorState.get(@editor)).toEqual("abb[0]c")
+
+    it "operates on multiple cursors", ->
+      EditorState.set(@editor, "a(0)b[0]c d[1]e(1)f")
+      @atomicEmacs.copyRegionAsKill(@event)
+      expect(EditorState.get(@editor)).toEqual("ab[0]c d[1]ef")
+      entries = (KillRing.for(c).getEntries() for c in @editor.getCursors())
+      expect(entries).toEqual([['b'], ['e']])
+
+    it "pushes blanks if selections are empty", ->
+      EditorState.set(@editor, "a(0)[0]b")
+      @atomicEmacs.copyRegionAsKill(@editor)
+      cursor = @editor.getCursors()[0]
+      expect(KillRing.for(cursor).getEntries().length).toEqual(1)
+      expect(EditorState.get(@editor)).toEqual("a[0]b")
+
+    it "does not combine successive kills into a single kill ring entry", ->
+      EditorState.set(@editor, "a[0]b(0)c")
+      @dispatch 'atomic-emacs:copy-region-as-kill', 'copyRegionAsKill'
+      @dispatch 'atomic-emacs:kill-word', 'killWord'
+      cursor = @editor.getCursors()[0]
+      expect(KillRing.for(cursor).getEntries().length).toEqual(2)
+
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
       EditorState.set(@editor, "a [0]\tb c [1]\td")

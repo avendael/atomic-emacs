@@ -163,11 +163,6 @@ class AtomicEmacs
     @editor(event).moveCursors (cursor) ->
       Mark.for(cursor).exchange()
 
-  copy: (event) ->
-    editor = @editor(event)
-    editor.copySelectedText()
-    deactivateCursors(editor)
-
   closeOtherPanes: (event) ->
     activePane = atom.workspace.getActivePane()
     return if not activePane
@@ -330,7 +325,16 @@ class AtomicEmacs
           killRing = KillRing.for(selection.cursor)
           killRing.push(selection.getText())
           selection.deleteSelectedText()
+          Mark.for(selection.cursor).deactivate()
       @killed = true
+
+  copyRegionAsKill: (event) ->
+    editor = @editor(event)
+    editor.transact =>
+      for selection in editor.getSelections()
+        killRing = KillRing.for(selection.cursor)
+        killRing.push(selection.getText())
+        Mark.for(selection.cursor).deactivate()
 
   justOneSpace: (event) ->
     editor = @editor(event)
@@ -401,7 +405,7 @@ module.exports =
       "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
       "atomic-emacs:capitalize-word-or-region": (event) -> atomicEmacs.capitalizeWordOrRegion(event)
       "atomic-emacs:close-other-panes": (event) -> atomicEmacs.closeOtherPanes(event)
-      "atomic-emacs:copy": (event) -> atomicEmacs.copy(event)
+      "atomic-emacs:copy-region-as-kill": (event) -> atomicEmacs.copyRegionAsKill(event)
       "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
       "atomic-emacs:delete-indentation": atomicEmacs.deleteIndentation
       "atomic-emacs:downcase-word-or-region": (event) -> atomicEmacs.downcaseWordOrRegion(event)
@@ -416,6 +420,7 @@ module.exports =
       "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
       "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
       "atomic-emacs:kill-line": (event) -> atomicEmacs.killLine(event)
+      "atomic-emacs:kill-region": (event) -> atomicEmacs.killRegion(event)
       "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
       "atomic-emacs:back-to-indentation": (event) -> atomicEmacs.backToIndentation(event)
       "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)

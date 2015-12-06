@@ -39,7 +39,7 @@
   'alt-d': 'atomic-emacs:kill-word'
   'alt-q': 'autoflow:reflow-selection'
   'alt-t': 'atomic-emacs:transpose-words'
-  'alt-w': 'atomic-emacs:copy'
+  'alt-w': 'atomic-emacs:copy-region-as-kill'
   'alt-;': 'editor:toggle-line-comments'
   'alt-<': 'core:move-to-top'
   'alt->': 'core:move-to-bottom'
