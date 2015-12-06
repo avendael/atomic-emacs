@@ -179,15 +179,11 @@ class AtomicEmacs
       cursor.moveRight()
 
   backwardChar: (event) ->
+    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
+      event.abortKeyBinding()
+      return
     @editor(event).moveCursors (cursor) ->
-      mark = Mark.for(cursor)
-      if mark?.isActive()
-        cursor.selection.selectLeft()
-        return
-      if atom.config.get('atomic-emacs.useNativeNavigationKeys')
-        event.abortKeyBinding()
-      else
-        cursor.moveLeft()
+      cursor.moveLeft()
 
   forwardWord: (event) ->
     @editor(event).moveCursors (cursor) ->
