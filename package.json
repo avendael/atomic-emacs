@@ -45,7 +45,9 @@
       "atomic-emacs:backward-kill-word",
       "atomic-emacs:kill-line",
       "atomic-emacs:kill-region",
-      "atomic-emacs:yank"
+      "atomic-emacs:yank",
+      "atomic-emacs:yank-pop",
+      "atomic-emacs:yank-shift"
     ]
   },
   "repository": "https://github.com/avendael/atomic-emacs",

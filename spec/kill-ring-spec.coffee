@@ -26,14 +26,6 @@ describe "KillRing", ->
     it "creates an empty kill ring", ->
       expect(@killRing.getEntries()).toEqual([])
 
-  describe "last", ->
-    it "returns null for an empty kill ring", ->
-      expect(@killRing.last()).toBe(null)
-
-    it "returns the most recently pushed entry otherwise", ->
-      @killRing.setEntries(['a', 'b'])
-      expect(@killRing.last()).toEqual('b')
-
   describe "push", ->
     it "appends the given entry to the list", ->
       @killRing.push('a')

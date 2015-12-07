@@ -45,11 +45,18 @@ class AtomicEmacs
 
   beforeCommand: (event) ->
     @killed = false
+    @yanked = false
 
   afterCommand: (event) ->
     Mark.deactivatePending()
     @previousCommand = event.type
     @killing = @killed
+
+    if @yanking and not @yanked
+      editor = @editor(event)
+      for cursor in editor.getCursors()
+        KillRing.for(cursor).yankComplete()
+    @yanking = @yanked
 
   editor: (event) ->
     # Get editor from the event if possible so we can target mini-editors.
@@ -282,6 +289,7 @@ class AtomicEmacs
           killRing = KillRing.for(selection.cursor)
           killRing[if @killing then 'prepend' else 'push'](selection.getText())
           selection.deleteSelectedText()
+        selection.clear()
     @killed = true
 
   killWord: (event) ->
@@ -296,6 +304,7 @@ class AtomicEmacs
           killRing = KillRing.for(selection.cursor)
           killRing[if @killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
+        selection.clear()
     @killed = true
 
   killLine: (event) ->
@@ -312,6 +321,7 @@ class AtomicEmacs
           killRing = KillRing.for(selection.cursor)
           killRing[if @killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
+        selection.clear()
     @killed = true
 
   killRegion: (event) ->
@@ -323,6 +333,7 @@ class AtomicEmacs
           killRing.push(selection.getText())
           selection.deleteSelectedText()
           Mark.for(selection.cursor).deactivate()
+        selection.clear()
       @killed = true
 
   copyRegionAsKill: (event) ->
@@ -380,9 +391,26 @@ class AtomicEmacs
     editor.transact =>
       for selection in editor.getSelections()
         cursor = selection.cursor
-        text = KillRing.for(cursor).last()
-        if text
-          selection.insertText(text)
+        KillRing.for(cursor).yank()
+    @yanked = true
+
+  yankPop: (event) ->
+    editor = @editor(event)
+    return if not @yanking
+    editor.transact =>
+      for cursor in editor.getCursors()
+        killRing = KillRing.for(cursor)
+        killRing.rotate(-1)
+    @yanked = true
+
+  yankShift: (event) ->
+    editor = @editor(event)
+    return if not @yanking
+    editor.transact =>
+      for cursor in editor.getCursors()
+        killRing = KillRing.for(cursor)
+        killRing.rotate(1)
+    @yanked = true
 
 module.exports =
   AtomicEmacs: AtomicEmacs
@@ -432,6 +460,8 @@ module.exports =
       "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
       "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.upcaseWordOrRegion(event)
       "atomic-emacs:yank": (event) -> atomicEmacs.yank(event)
+      "atomic-emacs:yank-pop": (event) -> atomicEmacs.yankPop(event)
+      "atomic-emacs:yank-shift": (event) -> atomicEmacs.yankShift(event)
       "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
 
   deactivate: ->

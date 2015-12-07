@@ -787,3 +787,41 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "aa\n\n[0]\nbb")
       @atomicEmacs.deleteIndentation()
       expect(EditorState.get(@editor)).toEqual("aa\n[0]\nbb")
+
+  describe "atomic-emacs:yank-pop", ->
+    describe "when performed immediately after a yank", ->
+      beforeEach ->
+        EditorState.set(@editor, "[0]ab cd ef")
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:yank', 'yank'
+        expect(EditorState.get(@editor)).toEqual("  ef[0]")
+
+      it "replaces the yanked text with successive kill ring entries", ->
+        @dispatch 'atomic-emacs:yank', 'yankPop'
+        expect(EditorState.get(@editor)).toEqual("  cd[0]")
+
+        @dispatch 'atomic-emacs:yank', 'yankPop'
+        expect(EditorState.get(@editor)).toEqual("  ab[0]")
+
+        @dispatch 'atomic-emacs:yank', 'yankPop'
+        expect(EditorState.get(@editor)).toEqual("  ef[0]")
+
+    describe "when not performed immediately after a yank", ->
+      beforeEach ->
+        EditorState.set(@editor, "[0]ab cd ef")
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:forward-char', 'forwardChar'
+        @dispatch 'atomic-emacs:kill-word', 'killWord'
+        @dispatch 'atomic-emacs:yank', 'yank'
+        @dispatch 'atomic-emacs:backward-char', 'backwardChar'
+        expect(EditorState.get(@editor)).toEqual("  e[0]f")
+
+      it "does nothing", ->
+        @dispatch 'atomic-emacs:yank-pop', 'yankPop'
+        expect(EditorState.get(@editor)).toEqual("  e[0]f")
