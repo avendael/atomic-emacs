@@ -379,7 +379,7 @@ class AtomicEmacs
       when 2
         editor.setScrollTop(maxOffset.top + 3*editor.getLineHeightInPixels() - editor.getHeight())
 
-  deleteIndentation: =>
+  deleteIndentation: (event) ->
     editor = @editor(event)
     return unless editor
     editor.transact ->
@@ -432,7 +432,7 @@ module.exports =
       "atomic-emacs:close-other-panes": (event) -> atomicEmacs.closeOtherPanes(event)
       "atomic-emacs:copy-region-as-kill": (event) -> atomicEmacs.copyRegionAsKill(event)
       "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
-      "atomic-emacs:delete-indentation": atomicEmacs.deleteIndentation
+      "atomic-emacs:delete-indentation": (event) -> atomicEmacs.deleteIndentation(event)
       "atomic-emacs:downcase-word-or-region": (event) -> atomicEmacs.downcaseWordOrRegion(event)
       "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
       "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
