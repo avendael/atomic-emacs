@@ -179,16 +179,10 @@ class AtomicEmacs
         pane.close()
 
   forwardChar: (event) ->
-    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
-      event.abortKeyBinding()
-      return
     @editor(event).moveCursors (cursor) ->
       cursor.moveRight()
 
   backwardChar: (event) ->
-    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
-      event.abortKeyBinding()
-      return
     @editor(event).moveCursors (cursor) ->
       cursor.moveLeft()
 
@@ -228,16 +222,10 @@ class AtomicEmacs
         cursor.setBufferPosition([position.row, targetColumn])
 
   nextLine: (event) ->
-    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
-      event.abortKeyBinding()
-      return
     @editor(event).moveCursors (cursor) ->
       cursor.moveDown()
 
   previousLine: (event) ->
-    if atom.config.get('atomic-emacs.useNativeNavigationKeys')
-      event.abortKeyBinding()
-      return
     @editor(event).moveCursors (cursor) ->
       cursor.moveUp()
 
