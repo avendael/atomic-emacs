@@ -1,10 +1,14 @@
 Mark = require './mark'
+{CompositeDisposable} = require 'atom'
 
 OPENERS = {'(': ')', '[': ']', '{': '}', '\'': '\'', '"': '"', '`': '`'}
 CLOSERS = {')': '(', ']': '[', '}': '{', '\'': '\'', '"': '"', '`': '`'}
 
-# Wraps a Cursor to provide a nicer API for common operations.
-class CursorTools
+module.exports =
+class EmacsCursor
+  @for: (cursor) ->
+    cursor._atomicEmacsCursor ?= new EmacsCursor(cursor)
+
   constructor: (@cursor) ->
     @editor = @cursor.editor
 
@@ -226,7 +230,7 @@ class CursorTools
   #
   # If not in or at the start or end of a word, return the empty string and
   # leave the buffer unmodified.
-  extractWord: (cursorTools) ->
+  extractWord: (emacsCursor) ->
     @skipWordCharactersBackward()
     range = @locateNonWordCharacterForward()
     wordEnd = if range then range.start else @editor.getEofBufferPosition()
@@ -272,5 +276,3 @@ escapeRegExp = (string) ->
     ''
 
 BOB = {row: 0, column: 0}
-
-module.exports = CursorTools

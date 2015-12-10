@@ -1,13 +1,13 @@
 {CompositeDisposable} = require 'atom'
-CursorTools = require './cursor-tools'
+EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
 Mark = require './mark'
 
 horizontalSpaceRange = (cursor) ->
-  cursorTools = new CursorTools(cursor)
-  cursorTools.skipCharactersBackward(' \t')
+  emacsCursor = EmacsCursor.for(cursor)
+  emacsCursor.skipCharactersBackward(' \t')
   start = cursor.getBufferPosition()
-  cursorTools.skipCharactersForward(' \t')
+  emacsCursor.skipCharactersForward(' \t')
   end = cursor.getBufferPosition()
   [start, end]
 
@@ -24,7 +24,7 @@ deactivateCursors = (editor) ->
 
 transformNextWord = (editor, transformation) ->
   editor.moveCursors (cursor) ->
-    tools = new CursorTools(cursor)
+    tools = EmacsCursor.for(cursor)
     tools.skipNonWordCharactersForward()
     start = cursor.getBufferPosition()
     tools.skipWordCharactersForward()
@@ -124,18 +124,18 @@ class AtomicEmacs
     editor = @editor(event)
     editor.transact =>
       for cursor in editor.getCursors()
-        cursorTools = new CursorTools(cursor)
-        cursorTools.skipNonWordCharactersBackward()
+        emacsCursor = EmacsCursor.for(cursor)
+        emacsCursor.skipNonWordCharactersBackward()
 
-        word1 = cursorTools.extractWord()
+        word1 = emacsCursor.extractWord()
         word1Pos = cursor.getBufferPosition()
-        cursorTools.skipNonWordCharactersForward()
+        emacsCursor.skipNonWordCharactersForward()
         if editor.getEofBufferPosition().isEqual(cursor.getBufferPosition())
           # No second word - put the first word back.
           editor.setTextInBufferRange([word1Pos, word1Pos], word1)
-          cursorTools.skipNonWordCharactersBackward()
+          emacsCursor.skipNonWordCharactersBackward()
         else
-          word2 = cursorTools.extractWord()
+          word2 = emacsCursor.extractWord()
           word2Pos = cursor.getBufferPosition()
           editor.setTextInBufferRange([word2Pos, word2Pos], word1)
           editor.setTextInBufferRange([word1Pos, word1Pos], word2)
@@ -188,27 +188,27 @@ class AtomicEmacs
 
   forwardWord: (event) ->
     @editor(event).moveCursors (cursor) ->
-      tools = new CursorTools(cursor)
+      tools = EmacsCursor.for(cursor)
       tools.skipNonWordCharactersForward()
       tools.skipWordCharactersForward()
 
   backwardWord: (event) ->
     @editor(event).moveCursors (cursor) ->
-      tools = new CursorTools(cursor)
+      tools = EmacsCursor.for(cursor)
       tools.skipNonWordCharactersBackward()
       tools.skipWordCharactersBackward()
 
   forwardSexp: (event) ->
     @editor(event).moveCursors (cursor) ->
-      new CursorTools(cursor).skipSexpForward()
+      EmacsCursor.for(cursor).skipSexpForward()
 
   backwardSexp: (event) ->
     @editor(event).moveCursors (cursor) ->
-      new CursorTools(cursor).skipSexpBackward()
+      EmacsCursor.for(cursor).skipSexpBackward()
 
   markSexp: (event) ->
     @editor(event).moveCursors (cursor) ->
-      new CursorTools(cursor).markSexp()
+      EmacsCursor.for(cursor).markSexp()
 
   backToIndentation: (event) ->
     editor = @editor(event)
@@ -249,8 +249,8 @@ class AtomicEmacs
       unless position.row == 0
         cursor.setBufferPosition([position.row - 1, 0])
 
-      cursorTools = new CursorTools(cursor)
-      cursorTools.goToMatchStartBackward(/^\s*$/) or
+      emacsCursor = EmacsCursor.for(cursor)
+      emacsCursor.goToMatchStartBackward(/^\s*$/) or
         cursor.moveToTop()
 
   forwardParagraph: (event) ->
@@ -261,8 +261,8 @@ class AtomicEmacs
       unless position.row == lastRow
         cursor.setBufferPosition([position.row + 1, 0])
 
-      cursorTools = new CursorTools(cursor)
-      cursorTools.goToMatchStartForward(/^\s*$/) or
+      emacsCursor = EmacsCursor.for(cursor)
+      emacsCursor.goToMatchStartForward(/^\s*$/) or
         cursor.moveToBottom()
 
   backwardKillWord: (event) ->
@@ -271,9 +271,9 @@ class AtomicEmacs
       for selection in editor.getSelections()
         selection.modifySelection =>
           if selection.isEmpty()
-            cursorTools = new CursorTools(selection.cursor)
-            cursorTools.skipNonWordCharactersBackward()
-            cursorTools.skipWordCharactersBackward()
+            emacsCursor = EmacsCursor.for(selection.cursor)
+            emacsCursor.skipNonWordCharactersBackward()
+            emacsCursor.skipWordCharactersBackward()
           killRing = KillRing.for(selection.cursor)
           killRing[if @killing then 'prepend' else 'push'](selection.getText())
           selection.deleteSelectedText()
@@ -286,9 +286,9 @@ class AtomicEmacs
       for selection in editor.getSelections()
         selection.modifySelection =>
           if selection.isEmpty()
-            cursorTools = new CursorTools(selection.cursor)
-            cursorTools.skipNonWordCharactersForward()
-            cursorTools.skipWordCharactersForward()
+            emacsCursor = EmacsCursor.for(selection.cursor)
+            emacsCursor.skipNonWordCharactersForward()
+            emacsCursor.skipWordCharactersForward()
           killRing = KillRing.for(selection.cursor)
           killRing[if @killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
