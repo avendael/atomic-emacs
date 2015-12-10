@@ -11,8 +11,20 @@ describe "EmacsCursor", ->
   beforeEach ->
     waitsForPromise =>
       atom.workspace.open().then (editor) =>
-          @editor = editor
-          @emacsCursor = EmacsCursor.for(editor.getLastCursor())
+        @editor = editor
+        @emacsCursor = EmacsCursor.for(editor.getLastCursor())
+
+  describe "mark", ->
+    it "returns a mark for the given cursor", ->
+      EditorState.set(@editor, "a[0]b[1]c")
+      [emacsCursor0, emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
+      expect(emacsCursor0.mark().cursor).toBe(emacsCursor0.cursor)
+      expect(emacsCursor1.mark().cursor).toBe(emacsCursor1.cursor)
+
+    it "returns the same Mark each time for a cursor", ->
+      a = @emacsCursor.mark()
+      b = @emacsCursor.mark()
+      expect(a).toBe(b)
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->

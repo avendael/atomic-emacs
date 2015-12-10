@@ -5,8 +5,6 @@
   "description": "An atomic implementation of emacs keybindings",
   "activationCommands": {
     "atom-text-editor": [
-      "atomic-emacs:beginning-of-buffer",
-      "atomic-emacs:end-of-buffer",
       "atomic-emacs:back-to-indentation",
       "atomic-emacs:upcase-word-or-region",
       "atomic-emacs:downcase-word-or-region",

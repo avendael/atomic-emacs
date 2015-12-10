@@ -2,8 +2,8 @@
 
 # Represents an Emacs-style mark.
 #
-# Get the mark for a cursor with Mark.for(cursor). If the cursor has no mark
-# yet, one will be created, and set to the cursor's position.
+# Each cursor may have a Mark. On construction, the mark is at the cursor's
+# position.
 #
 # The can then be set() at any time, which will move to where the cursor is.
 #
@@ -83,9 +83,6 @@ class Mark
   setSelectionRange: (head, tail) ->
     reversed = Point.min(head, tail) is head
     @cursor.selection.setBufferRange([head, tail], reversed: reversed)
-
-  Mark.for = (cursor) ->
-   cursor._atomicEmacsMark ?= new Mark(cursor)
 
   _isIndent: (event)->
     @_isIndentOutdent(event.newRange, event.newText)

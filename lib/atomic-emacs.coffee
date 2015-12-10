@@ -1,40 +1,8 @@
 {CompositeDisposable} = require 'atom'
 EmacsCursor = require './emacs-cursor'
+EmacsEditor = require './emacs-editor'
 KillRing = require './kill-ring'
 Mark = require './mark'
-
-horizontalSpaceRange = (cursor) ->
-  emacsCursor = EmacsCursor.for(cursor)
-  emacsCursor.skipCharactersBackward(' \t')
-  start = cursor.getBufferPosition()
-  emacsCursor.skipCharactersForward(' \t')
-  end = cursor.getBufferPosition()
-  [start, end]
-
-endLineIfNecessary = (cursor) ->
-  row = cursor.getBufferPosition().row
-  editor = cursor.editor
-  if row == editor.getLineCount() - 1
-    length = cursor.getCurrentBufferLine().length
-    editor.setTextInBufferRange([[row, length], [row, length]], "\n")
-
-deactivateCursors = (editor) ->
-  for cursor in editor.getCursors()
-    Mark.for(cursor).deactivate()
-
-transformNextWord = (editor, transformation) ->
-  editor.moveCursors (cursor) ->
-    tools = EmacsCursor.for(cursor)
-    tools.skipNonWordCharactersForward()
-    start = cursor.getBufferPosition()
-    tools.skipWordCharactersForward()
-    end = cursor.getBufferPosition()
-    range = [start, end]
-    text = editor.getTextInBufferRange(range)
-    editor.setTextInBufferRange(range, transformation(text))
-
-capitalize = (string) ->
-  string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
 
 class AtomicEmacs
   constructor: ->
@@ -61,115 +29,10 @@ class AtomicEmacs
   editor: (event) ->
     # Get editor from the event if possible so we can target mini-editors.
     if event.target?.getModel
-      event.target.getModel()
+      editor = event.target.getModel()
     else
-      atom.workspace.getActiveTextEditor()
-
-  upcaseWordOrRegion: (event) ->
-    editor = @editor(event)
-    if editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
-      # Atom bug: editor.upperCase() flips reversed ranges.
-      editor.mutateSelectedText (selection) ->
-        range = selection.getBufferRange()
-        editor.setTextInBufferRange(range, selection.getText().toUpperCase())
-    else
-      transformNextWord editor, (word) -> word.toUpperCase()
-
-  downcaseWordOrRegion: (event) ->
-    editor = @editor(event)
-    if editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
-      # Atom bug: editor.lowerCase() flips reversed ranges.
-      editor.mutateSelectedText (selection) ->
-        range = selection.getBufferRange()
-        editor.setTextInBufferRange(range, selection.getText().toLowerCase())
-    else
-      transformNextWord editor, (word) -> word.toLowerCase()
-
-  capitalizeWordOrRegion: (event) ->
-    editor = @editor(event)
-    if editor.getSelections().filter((selection) -> not selection.isEmpty()).length > 0
-      editor.mutateSelectedText (selection) ->
-        if not selection.isEmpty()
-          selectionRange = selection.getBufferRange()
-          editor.scanInBufferRange /\w+/g, selectionRange, (hit) ->
-            hit.replace(capitalize(hit.matchText))
-    else
-      transformNextWord editor, capitalize
-
-  openLine: (event) ->
-    editor = @editor(event)
-    editor.insertNewline()
-    editor.moveUp()
-
-  transposeChars: (event) ->
-    editor = @editor(event)
-    bob_cursor_ids = {}
-
-    editor.moveCursors (cursor) ->
-      {row, column} = cursor.getBufferPosition()
-      if row == 0 and column == 0
-        bob_cursor_ids[cursor.id] = 1
-      line = editor.lineTextForBufferRow(row)
-      cursor.moveLeft() if column == line.length
-
-    editor.transpose()
-
-    editor.moveCursors (cursor) ->
-      if bob_cursor_ids.hasOwnProperty(cursor.id)
-        cursor.moveLeft()
-      else if cursor.getBufferColumn() > 0
-        cursor.moveRight()
-
-  transposeWords: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for cursor in editor.getCursors()
-        emacsCursor = EmacsCursor.for(cursor)
-        emacsCursor.skipNonWordCharactersBackward()
-
-        word1 = emacsCursor.extractWord()
-        word1Pos = cursor.getBufferPosition()
-        emacsCursor.skipNonWordCharactersForward()
-        if editor.getEofBufferPosition().isEqual(cursor.getBufferPosition())
-          # No second word - put the first word back.
-          editor.setTextInBufferRange([word1Pos, word1Pos], word1)
-          emacsCursor.skipNonWordCharactersBackward()
-        else
-          word2 = emacsCursor.extractWord()
-          word2Pos = cursor.getBufferPosition()
-          editor.setTextInBufferRange([word2Pos, word2Pos], word1)
-          editor.setTextInBufferRange([word1Pos, word1Pos], word2)
-        cursor.setBufferPosition(cursor.getBufferPosition())
-
-  transposeLines: (event) ->
-    editor = @editor(event)
-    cursor = editor.getLastCursor()
-    row = cursor.getBufferRow()
-
-    editor.transact =>
-      if row == 0
-        endLineIfNecessary(cursor)
-        cursor.moveDown()
-        row += 1
-      endLineIfNecessary(cursor)
-
-      text = editor.getTextInBufferRange([[row, 0], [row + 1, 0]])
-      editor.deleteLine(row)
-      editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
-
-  markWholeBuffer: (event) ->
-    @editor(event).selectAll()
-
-  setMark: (event) ->
-    for cursor in @editor(event).getCursors()
-      Mark.for(cursor).set().activate()
-
-  keyboardQuit: (event) ->
-    deactivateCursors(@editor(event))
-
-  exchangePointAndMark: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      Mark.for(cursor).exchange()
+      editor = atom.workspace.getActiveTextEditor()
+    EmacsEditor.for(editor)
 
   closeOtherPanes: (event) ->
     activePane = atom.workspace.getActivePane()
@@ -177,228 +40,6 @@ class AtomicEmacs
     for pane in atom.workspace.getPanes()
       unless pane is activePane
         pane.close()
-
-  forwardChar: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      cursor.moveRight()
-
-  backwardChar: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      cursor.moveLeft()
-
-  forwardWord: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      tools = EmacsCursor.for(cursor)
-      tools.skipNonWordCharactersForward()
-      tools.skipWordCharactersForward()
-
-  backwardWord: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      tools = EmacsCursor.for(cursor)
-      tools.skipNonWordCharactersBackward()
-      tools.skipWordCharactersBackward()
-
-  forwardSexp: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      EmacsCursor.for(cursor).skipSexpForward()
-
-  backwardSexp: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      EmacsCursor.for(cursor).skipSexpBackward()
-
-  markSexp: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      EmacsCursor.for(cursor).markSexp()
-
-  backToIndentation: (event) ->
-    editor = @editor(event)
-    editor.moveCursors (cursor) ->
-      position = cursor.getBufferPosition()
-      line = editor.lineTextForBufferRow(position.row)
-      targetColumn = line.search(/\S/)
-      targetColumn = line.length if targetColumn == -1
-
-      if position.column != targetColumn
-        cursor.setBufferPosition([position.row, targetColumn])
-
-  nextLine: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      cursor.moveDown()
-
-  previousLine: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      cursor.moveUp()
-
-  scrollUp: (event) ->
-    editor = @editor(event)
-    [firstRow,lastRow] = editor.getVisibleRowRange()
-    currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - 2
-    editor.moveDown(rowCount)
-
-  scrollDown: (event) ->
-    editor = @editor(event)
-    [firstRow,lastRow] = editor.getVisibleRowRange()
-    currentRow = editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - 2
-    editor.moveUp(rowCount)
-
-  backwardParagraph: (event) ->
-    @editor(event).moveCursors (cursor) ->
-      position = cursor.getBufferPosition()
-      unless position.row == 0
-        cursor.setBufferPosition([position.row - 1, 0])
-
-      emacsCursor = EmacsCursor.for(cursor)
-      emacsCursor.goToMatchStartBackward(/^\s*$/) or
-        cursor.moveToTop()
-
-  forwardParagraph: (event) ->
-    editor = @editor(event)
-    lastRow = editor.getLastBufferRow()
-    editor.moveCursors (cursor) ->
-      position = cursor.getBufferPosition()
-      unless position.row == lastRow
-        cursor.setBufferPosition([position.row + 1, 0])
-
-      emacsCursor = EmacsCursor.for(cursor)
-      emacsCursor.goToMatchStartForward(/^\s*$/) or
-        cursor.moveToBottom()
-
-  backwardKillWord: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        selection.modifySelection =>
-          if selection.isEmpty()
-            emacsCursor = EmacsCursor.for(selection.cursor)
-            emacsCursor.skipNonWordCharactersBackward()
-            emacsCursor.skipWordCharactersBackward()
-          killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'prepend' else 'push'](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
-    @killed = true
-
-  killWord: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        selection.modifySelection =>
-          if selection.isEmpty()
-            emacsCursor = EmacsCursor.for(selection.cursor)
-            emacsCursor.skipNonWordCharactersForward()
-            emacsCursor.skipWordCharactersForward()
-          killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'append' else 'push'](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
-    @killed = true
-
-  killLine: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        selection.modifySelection =>
-          if selection.isEmpty()
-            {row, column} = selection.cursor.getBufferPosition()
-            line = editor.lineTextForBufferRow(row)
-            selection.cursor.moveToEndOfLine()
-            if /^\s*$/.test(line.slice(column))
-              selection.cursor.moveRight()
-          killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'append' else 'push'](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
-    @killed = true
-
-  killRegion: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        selection.modifySelection =>
-          killRing = KillRing.for(selection.cursor)
-          killRing.push(selection.getText())
-          selection.deleteSelectedText()
-          Mark.for(selection.cursor).deactivate()
-        selection.clear()
-      @killed = true
-
-  copyRegionAsKill: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        killRing = KillRing.for(selection.cursor)
-        killRing.push(selection.getText())
-        Mark.for(selection.cursor).deactivate()
-
-  justOneSpace: (event) ->
-    editor = @editor(event)
-    for cursor in editor.cursors
-      range = horizontalSpaceRange(cursor)
-      editor.setTextInBufferRange(range, ' ')
-
-  deleteHorizontalSpace: (event) ->
-    editor = @editor(event)
-    for cursor in editor.cursors
-      range = horizontalSpaceRange(cursor)
-      editor.setTextInBufferRange(range, '')
-
-  recenterTopBottom: (event) ->
-    if @previousCommand == 'atomic-emacs:recenter-top-bottom'
-      @recenters = (@recenters + 1) % 3
-    else
-      @recenters = 0
-
-    editor = @editor(event)
-    return unless editor
-    editorElement = atom.views.getView(editor)
-    minRow = Math.min((c.getBufferRow() for c in editor.getCursors())...)
-    maxRow = Math.max((c.getBufferRow() for c in editor.getCursors())...)
-    minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
-    maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
-
-    switch @recenters
-      when 0
-        editor.setScrollTop((minOffset.top + maxOffset.top - editor.getHeight())/2)
-      when 1
-        # Atom applies a (hardcoded) 2-line buffer while scrolling -- do that here.
-        editor.setScrollTop(minOffset.top - 2*editor.getLineHeightInPixels())
-      when 2
-        editor.setScrollTop(maxOffset.top + 3*editor.getLineHeightInPixels() - editor.getHeight())
-
-  deleteIndentation: (event) ->
-    editor = @editor(event)
-    return unless editor
-    editor.transact ->
-      editor.moveUp()
-      editor.joinLines()
-
-  yank: (event) ->
-    editor = @editor(event)
-    editor.transact =>
-      for selection in editor.getSelections()
-        cursor = selection.cursor
-        KillRing.for(cursor).yank()
-    @yanked = true
-
-  yankPop: (event) ->
-    editor = @editor(event)
-    return if not @yanking
-    editor.transact =>
-      for cursor in editor.getCursors()
-        killRing = KillRing.for(cursor)
-        killRing.rotate(-1)
-    @yanked = true
-
-  yankShift: (event) ->
-    editor = @editor(event)
-    return if not @yanking
-    editor.transact =>
-      for cursor in editor.getCursors()
-        killRing = KillRing.for(cursor)
-        killRing.rotate(1)
-    @yanked = true
 
 module.exports =
   AtomicEmacs: AtomicEmacs
@@ -411,46 +52,55 @@ module.exports =
     @disposable.add atom.commands.onWillDispatch (event) -> atomicEmacs.beforeCommand(event)
     @disposable.add atom.commands.onDidDispatch (event) -> atomicEmacs.afterCommand(event)
     @disposable.add atom.commands.add 'atom-text-editor',
-      "atomic-emacs:backward-char": (event) -> atomicEmacs.backwardChar(event)
-      "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.backwardKillWord(event)
-      "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.backwardParagraph(event)
-      "atomic-emacs:backward-word": (event) -> atomicEmacs.backwardWord(event)
-      "atomic-emacs:beginning-of-buffer": (event) -> atomicEmacs.beginningOfBuffer(event)
-      "atomic-emacs:capitalize-word-or-region": (event) -> atomicEmacs.capitalizeWordOrRegion(event)
+      # Navigation
+      "atomic-emacs:backward-char": (event) -> atomicEmacs.editor(event).backwardChar()
+      "atomic-emacs:forward-char": (event) -> atomicEmacs.editor(event).forwardChar()
+      "atomic-emacs:backward-word": (event) -> atomicEmacs.editor(event).backwardWord()
+      "atomic-emacs:forward-word": (event) -> atomicEmacs.editor(event).forwardWord()
+      "atomic-emacs:backward-sexp": (event) -> atomicEmacs.editor(event).backwardSexp()
+      "atomic-emacs:forward-sexp": (event) -> atomicEmacs.editor(event).forwardSexp()
+      "atomic-emacs:previous-line": (event) -> atomicEmacs.editor(event).previousLine()
+      "atomic-emacs:next-line": (event) -> atomicEmacs.editor(event).nextLine()
+      "atomic-emacs:backward-paragraph": (event) -> atomicEmacs.editor(event).backwardParagraph()
+      "atomic-emacs:forward-paragraph": (event) -> atomicEmacs.editor(event).forwardParagraph()
+      "atomic-emacs:back-to-indentation": (event) -> atomicEmacs.editor(event).backToIndentation()
+
+      # Killing & Yanking
+      "atomic-emacs:backward-kill-word": (event) -> atomicEmacs.editor(event).backwardKillWord()
+      "atomic-emacs:kill-word": (event) -> atomicEmacs.editor(event).killWord()
+      "atomic-emacs:kill-line": (event) -> atomicEmacs.editor(event).killLine()
+      "atomic-emacs:kill-region": (event) -> atomicEmacs.editor(event).killRegion()
+      "atomic-emacs:copy-region-as-kill": (event) -> atomicEmacs.editor(event).copyRegionAsKill()
+      "atomic-emacs:yank": (event) -> atomicEmacs.editor(event).yank()
+      "atomic-emacs:yank-pop": (event) -> atomicEmacs.editor(event).yankPop()
+      "atomic-emacs:yank-shift": (event) -> atomicEmacs.editor(event).yankShift()
+
+      # Editing
+      "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.editor(event).deleteHorizontalSpace()
+      "atomic-emacs:delete-indentation": (event) -> atomicEmacs.editor(event).deleteIndentation()
+      "atomic-emacs:open-line": (event) -> atomicEmacs.editor(event).openLine()
+      "atomic-emacs:just-one-space": (event) -> atomicEmacs.editor(event).justOneSpace()
+      "atomic-emacs:transpose-chars": (event) -> atomicEmacs.editor(event).transposeChars()
+      "atomic-emacs:transpose-lines": (event) -> atomicEmacs.editor(event).transposeLines()
+      "atomic-emacs:transpose-words": (event) -> atomicEmacs.editor(event).transposeWords()
+      "atomic-emacs:downcase-word-or-region": (event) -> atomicEmacs.editor(event).downcaseWordOrRegion()
+      "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.editor(event).upcaseWordOrRegion()
+      "atomic-emacs:capitalize-word-or-region": (event) -> atomicEmacs.editor(event).capitalizeWordOrRegion()
+
+      # Marking & Selecting
+      "atomic-emacs:set-mark": (event) -> atomicEmacs.editor(event).setMark()
+      "atomic-emacs:mark-sexp": (event) -> atomicEmacs.editor(event).markSexp()
+      "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.editor(event).markWholeBuffer()
+      "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.editor(event).exchangePointAndMark()
+
+      # Scrolling
+      "atomic-emacs:recenter-top-bottom": (event) -> atomicEmacs.editor(event).recenterTopBottom()
+      "atomic-emacs:scroll-down": (event) -> atomicEmacs.editor(event).scrollDown()
+      "atomic-emacs:scroll-up": (event) -> atomicEmacs.editor(event).scrollUp()
+
+      # UI
       "atomic-emacs:close-other-panes": (event) -> atomicEmacs.closeOtherPanes(event)
-      "atomic-emacs:copy-region-as-kill": (event) -> atomicEmacs.copyRegionAsKill(event)
-      "atomic-emacs:delete-horizontal-space": (event) -> atomicEmacs.deleteHorizontalSpace(event)
-      "atomic-emacs:delete-indentation": (event) -> atomicEmacs.deleteIndentation(event)
-      "atomic-emacs:downcase-word-or-region": (event) -> atomicEmacs.downcaseWordOrRegion(event)
-      "atomic-emacs:end-of-buffer": (event) -> atomicEmacs.endOfBuffer(event)
-      "atomic-emacs:exchange-point-and-mark": (event) -> atomicEmacs.exchangePointAndMark(event)
-      "atomic-emacs:forward-char": (event) -> atomicEmacs.forwardChar(event)
-      "atomic-emacs:forward-paragraph": (event) -> atomicEmacs.forwardParagraph(event)
-      "atomic-emacs:forward-word": (event) -> atomicEmacs.forwardWord(event)
-      "atomic-emacs:forward-sexp": (event) -> atomicEmacs.forwardSexp(event)
-      "atomic-emacs:backward-sexp": (event) -> atomicEmacs.backwardSexp(event)
-      "atomic-emacs:mark-sexp": (event) -> atomicEmacs.markSexp(event)
-      "atomic-emacs:just-one-space": (event) -> atomicEmacs.justOneSpace(event)
-      "atomic-emacs:kill-word": (event) -> atomicEmacs.killWord(event)
-      "atomic-emacs:kill-line": (event) -> atomicEmacs.killLine(event)
-      "atomic-emacs:kill-region": (event) -> atomicEmacs.killRegion(event)
-      "atomic-emacs:mark-whole-buffer": (event) -> atomicEmacs.markWholeBuffer(event)
-      "atomic-emacs:back-to-indentation": (event) -> atomicEmacs.backToIndentation(event)
-      "atomic-emacs:next-line": (event) -> atomicEmacs.nextLine(event)
-      "atomic-emacs:open-line": (event) -> atomicEmacs.openLine(event)
-      "atomic-emacs:previous-line": (event) -> atomicEmacs.previousLine(event)
-      "atomic-emacs:recenter-top-bottom": (event) -> atomicEmacs.recenterTopBottom(event)
-      "atomic-emacs:scroll-down": (event) -> atomicEmacs.scrollDown(event)
-      "atomic-emacs:scroll-up": (event) -> atomicEmacs.scrollUp(event)
-      "atomic-emacs:set-mark": (event) -> atomicEmacs.setMark(event)
-      "atomic-emacs:transpose-chars": (event) -> atomicEmacs.transposeChars(event)
-      "atomic-emacs:transpose-lines": (event) -> atomicEmacs.transposeLines(event)
-      "atomic-emacs:transpose-words": (event) -> atomicEmacs.transposeWords(event)
-      "atomic-emacs:upcase-word-or-region": (event) -> atomicEmacs.upcaseWordOrRegion(event)
-      "atomic-emacs:yank": (event) -> atomicEmacs.yank(event)
-      "atomic-emacs:yank-pop": (event) -> atomicEmacs.yankPop(event)
-      "atomic-emacs:yank-shift": (event) -> atomicEmacs.yankShift(event)
-      "core:cancel": (event) -> atomicEmacs.keyboardQuit(event)
+      "core:cancel": (event) -> atomicEmacs.editor(event).keyboardQuit()
 
   deactivate: ->
     document.getElementsByTagName('atom-workspace')[0]?.classList?.remove('atomic-emacs')

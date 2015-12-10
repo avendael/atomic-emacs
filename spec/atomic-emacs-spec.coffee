@@ -1,4 +1,5 @@
 {AtomicEmacs, activate, deactivate} = require '../lib/atomic-emacs'
+EmacsCursor = require '../lib/emacs-cursor'
 KillRing = require '../lib/kill-ring'
 Mark = require '../lib/mark'
 EditorState = require './editor-state'
@@ -440,12 +441,14 @@ describe "AtomicEmacs", ->
       [cursor0, cursor1] = @editor.getCursors()
       atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
 
-      expect(Mark.for(cursor0).isActive()).toBe(true)
-      point = Mark.for(cursor0).getBufferPosition()
+      mark0 = EmacsCursor.for(cursor0).mark()
+      expect(mark0.isActive()).toBe(true)
+      point = mark0.getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 0])
 
-      expect(Mark.for(cursor1).isActive()).toBe(true)
-      point = Mark.for(cursor1).getBufferPosition()
+      mark1 = EmacsCursor.for(cursor1).mark()
+      expect(mark1.isActive()).toBe(true)
+      point = mark1.getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 1])
 
     it "deactivates marks after all selections are updated", ->
@@ -458,13 +461,13 @@ describe "AtomicEmacs", ->
 
       atom.commands.dispatch @editorView, 'core:backspace'
       expect(EditorState.get(@editor)).toEqual("a[0]d e[1]h")
-      result = (Mark.for(c).isActive() for c in @editor.getCursors())
+      result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
       expect(result).toEqual([false, false])
 
   describe "core:cancel", ->
     it "deactivates all marks", ->
       EditorState.set(@editor, "[0].[1]")
-      [mark0, mark1] = (Mark.for(c) for c in @editor.getCursors())
+      [mark0, mark1] = (EmacsCursor.for(c).mark() for c in @editor.getCursors())
       m.activate() for m in [mark0, mark1]
       atom.commands.dispatch @editorView, 'core:cancel'
       expect(mark0.isActive()).toBe(false)
@@ -723,9 +726,9 @@ describe "AtomicEmacs", ->
   describe "atomic-emacs:exchange-point-and-mark", ->
     it "exchanges all cursors with their marks", ->
       EditorState.set(@editor, "[0]..[1].")
-      for cursor in @editor.getCursors()
-        Mark.for(cursor)
-        cursor.moveRight()
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(EditorState.get(@editor)).toEqual("(0).[0].(1).[1]")
       atom.commands.dispatch @editorView, 'atomic-emacs:exchange-point-and-mark'
       expect(EditorState.get(@editor)).toEqual("[0].(0).[1].(1)")
 

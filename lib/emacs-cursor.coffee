@@ -12,6 +12,9 @@ class EmacsCursor
   constructor: (@cursor) ->
     @editor = @cursor.editor
 
+  mark: ->
+    @_mark ?= new Mark(@cursor)
+
   # Look for the previous occurrence of the given regexp.
   #
   # Return a Range if found, null otherwise. This does not move the cursor.
@@ -164,7 +167,7 @@ class EmacsCursor
 
   # Add the next sexp to the cursor's selection. Activate if necessary.
   markSexp: ->
-    mark = Mark.for(@cursor)
+    mark = @mark()
     mark.activate() unless mark.isActive()
     range = mark.getSelectionRange()
     newTail = @_sexpForwardFrom(range.end)
