@@ -3,28 +3,24 @@ EmacsCursor = require './emacs-cursor'
 EmacsEditor = require './emacs-editor'
 KillRing = require './kill-ring'
 Mark = require './mark'
+State = require './state'
 
 class AtomicEmacs
   constructor: ->
-    @previousCommand = null
-    @killing = false
-    @killed = false
-    @recenters = 0
+    @state = new State
 
   beforeCommand: (event) ->
-    @killed = false
-    @yanked = false
+    @state.beforeCommand(event)
 
   afterCommand: (event) ->
     Mark.deactivatePending()
-    @previousCommand = event.type
-    @killing = @killed
 
-    if @yanking and not @yanked
-      editor = @editor(event)
-      for cursor in editor.getCursors()
+    if @state.yankComplete()
+      emacsEditor = @editor(event)
+      for cursor in emacsEditor.editor.getCursors()
         KillRing.for(cursor).yankComplete()
-    @yanking = @yanked
+
+    @state.afterCommand(event)
 
   editor: (event) ->
     # Get editor from the event if possible so we can target mini-editors.
@@ -32,7 +28,7 @@ class AtomicEmacs
       editor = event.target.getModel()
     else
       editor = atom.workspace.getActiveTextEditor()
-    EmacsEditor.for(editor)
+    EmacsEditor.for(editor, @state)
 
   closeOtherPanes: (event) ->
     activePane = atom.workspace.getActivePane()

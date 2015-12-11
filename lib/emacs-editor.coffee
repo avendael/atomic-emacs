@@ -1,6 +1,7 @@
 EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
 Mark = require './mark'
+State = require './state'
 
 horizontalSpaceRange = (cursor) ->
   emacsCursor = EmacsCursor.for(cursor)
@@ -22,10 +23,10 @@ capitalize = (string) ->
 
 module.exports =
 class EmacsEditor
-  @for: (editor) ->
-    editor._atomicEmacs ?= new EmacsEditor(editor)
+  @for: (editor, state) ->
+    editor._atomicEmacs ?= new EmacsEditor(editor, state)
 
-  constructor: (@editor) ->
+  constructor: (@editor, @state) ->
 
   getEmacsCursors: () ->
     EmacsCursor.for(c) for c in @editor.getCursors()
@@ -114,10 +115,10 @@ class EmacsEditor
             emacsCursor.skipNonWordCharactersBackward()
             emacsCursor.skipWordCharactersBackward()
           killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'prepend' else 'push'](selection.getText())
+          killRing[if @state.killing then 'prepend' else 'push'](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
-    @killed = true
+    @state.killed = true
 
   killWord: ->
     @editor.transact =>
@@ -128,10 +129,10 @@ class EmacsEditor
             emacsCursor.skipNonWordCharactersForward()
             emacsCursor.skipWordCharactersForward()
           killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'append' else 'push'](selection.getText())
+          killRing[if @state.killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
-    @killed = true
+    @state.killed = true
 
   killLine: ->
     @editor.transact =>
@@ -144,10 +145,10 @@ class EmacsEditor
             if /^\s*$/.test(line.slice(column))
               selection.cursor.moveRight()
           killRing = KillRing.for(selection.cursor)
-          killRing[if @killing then 'append' else 'push'](selection.getText())
+          killRing[if @state.killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
-    @killed = true
+    @state.killed = true
 
   killRegion: ->
     @editor.transact =>
@@ -158,7 +159,7 @@ class EmacsEditor
           selection.deleteSelectedText()
           EmacsCursor.for(selection.cursor).mark().deactivate()
         selection.clear()
-      @killed = true
+    @state.killed = true
 
   copyRegionAsKill: ->
     @editor.transact =>
@@ -172,23 +173,23 @@ class EmacsEditor
       for selection in @editor.getSelections()
         cursor = selection.cursor
         KillRing.for(cursor).yank()
-    @yanked = true
+    @state.yanked = true
 
   yankPop: ->
-    return if not @yanking
+    return if not @state.yanking
     @editor.transact =>
       for cursor in @editor.getCursors()
         killRing = KillRing.for(cursor)
         killRing.rotate(-1)
-    @yanked = true
+    @state.yanked = true
 
   yankShift: ->
-    return if not @yanking
+    return if not @state.yanking
     @editor.transact =>
       for cursor in @editor.getCursors()
         killRing = KillRing.for(cursor)
         killRing.rotate(1)
-    @yanked = true
+    @state.yanked = true
 
   ###
   Section: Editing
