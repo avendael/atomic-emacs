@@ -2,18 +2,13 @@ module.exports =
 class KillRing
   @instances = {}
 
-  @for: (cursor) ->
-   cursor._atomicEmacsKillRing ?= new this(cursor)
-
-  constructor: (cursor) ->
-    @cursor = cursor
+  constructor: () ->
     @currentIndex = -1
     @entries = []
     @limit = 500
-    @marker = null
-    KillRing.instances[cursor.id] = this
-    cursor.onDidDestroy ->
-      delete KillRing.instances[cursor.id]
+
+  isEmpty: ->
+    @entries.length == 0
 
   getEntries: ->
     @entries.slice()
@@ -44,30 +39,14 @@ class KillRing
       @entries[index] = "#{text}#{@entries[index]}"
       @currentIndex = @entries.length - 1
 
-  currentEntry: ->
+  getCurrentEntry: ->
     if @entries.length == 0
       return null
     else
       @entries[@currentIndex]
 
-  yank: ->
-    if @entries.length > 0
-      @_ensureMarkerInitialized()
-      range = @cursor.editor.setTextInBufferRange(@marker.getBufferRange(), @currentEntry())
-      @marker.setBufferRange(range)
-
   rotate: (n) ->
-    return if @entries.length == 0 or @marker == null
+    return null if @entries.length == 0
     @currentIndex = (@currentIndex + n) % @entries.length
     @currentIndex += @entries.length if @currentIndex < 0
-    range = @cursor.editor.setTextInBufferRange(@marker.getBufferRange(), @currentEntry())
-    @marker.setBufferRange(range)
-
-  yankComplete: ->
-    if @marker
-      @marker.destroy()
-      @marker = null
-
-  _ensureMarkerInitialized: ->
-    return if @marker
-    @marker = @cursor.editor.markBufferPosition(@cursor.getBufferPosition())
+    return @entries[@currentIndex]

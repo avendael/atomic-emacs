@@ -366,7 +366,7 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "a(0)[0]b")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
       cursor = @editor.getCursors()[0]
-      expect(KillRing.for(cursor).getEntries().length).toEqual(1)
+      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual([''])
       expect(EditorState.get(@editor)).toEqual("a[0]b")
 
     it "combines successive kills into a single kill ring entry", ->
@@ -392,14 +392,14 @@ describe "AtomicEmacs", ->
       EditorState.set(@editor, "a(0)b[0]c d[1]e(1)f")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       expect(EditorState.get(@editor)).toEqual("ab[0]c d[1]ef")
-      entries = (KillRing.for(c).getEntries() for c in @editor.getCursors())
+      entries = (EmacsCursor.for(c).killRing().getEntries() for c in @editor.getCursors())
       expect(entries).toEqual([['b'], ['e']])
 
     it "pushes blanks if selections are empty", ->
       EditorState.set(@editor, "a(0)[0]b")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       cursor = @editor.getCursors()[0]
-      expect(KillRing.for(cursor).getEntries().length).toEqual(1)
+      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual([''])
       expect(EditorState.get(@editor)).toEqual("a[0]b")
 
     it "does not combine successive kills into a single kill ring entry", ->
@@ -407,7 +407,7 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       cursor = @editor.getCursors()[0]
-      expect(KillRing.for(cursor).getEntries().length).toEqual(2)
+      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual(['b', 'bc'])
 
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
@@ -748,6 +748,26 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       expect(EditorState.get(@editor)).toEqual("aa\n[0]\nbb")
 
+  describe "atomic-emacs:yank", ->
+    describe "when the kill ring is empty", ->
+      it "does nothing", ->
+        EditorState.set(@editor, "[0]x")
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(EditorState.get(@editor)).toEqual("[0]x")
+
+    describe "when performed immediately after a yank", ->
+      beforeEach ->
+        EditorState.set(@editor, "[0]ab cd")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(EditorState.get(@editor)).toEqual(" cd[0]")
+
+      it "yanks again", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(EditorState.get(@editor)).toEqual(" cdcd[0]")
+
   describe "atomic-emacs:yank-pop", ->
     describe "when performed immediately after a yank", ->
       beforeEach ->
@@ -784,4 +804,42 @@ describe "AtomicEmacs", ->
 
       it "does nothing", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(EditorState.get(@editor)).toEqual("  e[0]f")
+
+  describe "atomic-emacs:yank-shift", ->
+    describe "when performed immediately after a yank-pop", ->
+      beforeEach ->
+        EditorState.set(@editor, "[0]ab cd ef")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(EditorState.get(@editor)).toEqual("  ab[0]")
+
+      it "replaces the yanked text with preceding kill ring entries", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(EditorState.get(@editor)).toEqual("  cd[0]")
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(EditorState.get(@editor)).toEqual("  ef[0]")
+
+
+    describe "when not performed immediately after a yank", ->
+      beforeEach ->
+        EditorState.set(@editor, "[0]ab cd ef")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+        expect(EditorState.get(@editor)).toEqual("  e[0]f")
+
+      it "does nothing", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
         expect(EditorState.get(@editor)).toEqual("  e[0]f")

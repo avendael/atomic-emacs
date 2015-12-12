@@ -17,8 +17,8 @@ class AtomicEmacs
 
     if @state.yankComplete()
       emacsEditor = @editor(event)
-      for cursor in emacsEditor.editor.getCursors()
-        KillRing.for(cursor).yankComplete()
+      for emacsCursor in emacsEditor.getEmacsCursors()
+        emacsCursor.yankComplete()
 
     @state.afterCommand(event)
 

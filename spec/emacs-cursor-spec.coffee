@@ -1,5 +1,6 @@
 EditorState = require './editor-state'
 EmacsCursor = require '../lib/emacs-cursor'
+KillRing = require '../lib/kill-ring'
 
 rangeCoordinates = (range) ->
   if range
@@ -15,7 +16,7 @@ describe "EmacsCursor", ->
         @emacsCursor = EmacsCursor.for(editor.getLastCursor())
 
   describe "mark", ->
-    it "returns a mark for the given cursor", ->
+    it "returns a mark for the cursor", ->
       EditorState.set(@editor, "a[0]b[1]c")
       [emacsCursor0, emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
       expect(emacsCursor0.mark().cursor).toBe(emacsCursor0.cursor)
@@ -24,6 +25,21 @@ describe "EmacsCursor", ->
     it "returns the same Mark each time for a cursor", ->
       a = @emacsCursor.mark()
       b = @emacsCursor.mark()
+      expect(a).toBe(b)
+
+  describe "killRing", ->
+    it "returns a kill ring for the cursor", ->
+      EditorState.set(@editor, "[0].[1]")
+      [emacsCursor0, emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
+      killRing0 = emacsCursor0.killRing()
+      killRing1 = emacsCursor1.killRing()
+      expect(killRing0.constructor).toBe(KillRing)
+      expect(killRing1.constructor).toBe(KillRing)
+      expect(killRing0).not.toBe(killRing1)
+
+    it "returns the same KillRing each time for a cursor", ->
+      a = @emacsCursor.killRing()
+      b = @emacsCursor.killRing()
       expect(a).toBe(b)
 
   describe "locateBackward", ->

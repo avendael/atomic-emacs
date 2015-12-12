@@ -110,12 +110,12 @@ class EmacsEditor
     @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection =>
+          emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
-            emacsCursor = EmacsCursor.for(selection.cursor)
             emacsCursor.skipNonWordCharactersBackward()
             emacsCursor.skipWordCharactersBackward()
-          killRing = KillRing.for(selection.cursor)
-          killRing[if @state.killing then 'prepend' else 'push'](selection.getText())
+          method = if @state.killing then 'prepend' else 'push'
+          killRing = emacsCursor.killRing()[method](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
     @state.killed = true
@@ -124,12 +124,12 @@ class EmacsEditor
     @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection =>
+          emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
-            emacsCursor = EmacsCursor.for(selection.cursor)
             emacsCursor.skipNonWordCharactersForward()
             emacsCursor.skipWordCharactersForward()
-          killRing = KillRing.for(selection.cursor)
-          killRing[if @state.killing then 'append' else 'push'](selection.getText())
+          method = if @state.killing then 'append' else 'push'
+          emacsCursor.killRing()[method](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
     @state.killed = true
@@ -138,13 +138,14 @@ class EmacsEditor
     @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection =>
+          emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
             {row, column} = selection.cursor.getBufferPosition()
             line = @editor.lineTextForBufferRow(row)
             selection.cursor.moveToEndOfLine()
             if /^\s*$/.test(line.slice(column))
               selection.cursor.moveRight()
-          killRing = KillRing.for(selection.cursor)
+          killRing = emacsCursor.killRing()
           killRing[if @state.killing then 'append' else 'push'](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
@@ -154,41 +155,38 @@ class EmacsEditor
     @editor.transact =>
       for selection in @editor.getSelections()
         selection.modifySelection =>
-          killRing = KillRing.for(selection.cursor)
-          killRing.push(selection.getText())
+          emacsCursor = EmacsCursor.for(selection.cursor)
+          killRing = emacsCursor.killRing().push(selection.getText())
           selection.deleteSelectedText()
-          EmacsCursor.for(selection.cursor).mark().deactivate()
+          emacsCursor.mark().deactivate()
         selection.clear()
     @state.killed = true
 
   copyRegionAsKill: ->
     @editor.transact =>
       for selection in @editor.getSelections()
-        killRing = KillRing.for(selection.cursor)
-        killRing.push(selection.getText())
-        EmacsCursor.for(selection.cursor).mark().deactivate()
+        emacsCursor = EmacsCursor.for(selection.cursor)
+        emacsCursor.killRing().push(selection.getText())
+        emacsCursor.mark().deactivate()
 
   yank: ->
     @editor.transact =>
-      for selection in @editor.getSelections()
-        cursor = selection.cursor
-        KillRing.for(cursor).yank()
+      for emacsCursor in @getEmacsCursors()
+        emacsCursor.yank()
     @state.yanked = true
 
   yankPop: ->
     return if not @state.yanking
     @editor.transact =>
-      for cursor in @editor.getCursors()
-        killRing = KillRing.for(cursor)
-        killRing.rotate(-1)
+      for emacsCursor in @getEmacsCursors()
+        emacsCursor.rotate(-1)
     @state.yanked = true
 
   yankShift: ->
     return if not @state.yanking
     @editor.transact =>
-      for cursor in @editor.getCursors()
-        killRing = KillRing.for(cursor)
-        killRing.rotate(1)
+      for emacsCursor in @getEmacsCursors()
+        emacsCursor.rotate(1)
     @state.yanked = true
 
   ###

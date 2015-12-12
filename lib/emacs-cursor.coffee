@@ -1,3 +1,4 @@
+KillRing = require './kill-ring'
 Mark = require './mark'
 {CompositeDisposable} = require 'atom'
 
@@ -11,9 +12,18 @@ class EmacsCursor
 
   constructor: (@cursor) ->
     @editor = @cursor.editor
+    @_mark = undefined
+    @_killRing = undefined
+    @_yankMarker = undefined
 
   mark: ->
     @_mark ?= new Mark(@cursor)
+
+  killRing: ->
+    @_killRing ?= new KillRing(@cursor)
+
+  destroy: ->
+    @_yankMarker.destroy()
 
   # Look for the previous occurrence of the given regexp.
   #
@@ -126,6 +136,24 @@ class EmacsCursor
   skipForwardUntil: (regexp) ->
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
+
+  yank: ->
+    killRing = @killRing()
+    return if killRing.isEmpty()
+    position = @cursor.getBufferPosition()
+    range = @cursor.editor.setTextInBufferRange([position, position], killRing.getCurrentEntry())
+    @_yankMarker ?= @cursor.editor.markBufferPosition(@cursor.getBufferPosition())
+    @_yankMarker.setBufferRange(range)
+
+  rotate: (n) ->
+    return if @_yankMarker == null
+    entry = @killRing().rotate(n)
+    range = @cursor.editor.setTextInBufferRange(@_yankMarker.getBufferRange(), entry)
+    @_yankMarker.setBufferRange(range)
+
+  yankComplete: ->
+    @_yankMarker?.destroy()
+    @_yankMarker = null
 
   _nextCharacterFrom: (position) ->
     lineLength = @editor.lineTextForBufferRow(position.row).length
