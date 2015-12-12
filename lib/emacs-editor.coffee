@@ -18,9 +18,6 @@ endLineIfNecessary = (cursor) ->
     length = cursor.getCurrentBufferLine().length
     editor.setTextInBufferRange([[row, length], [row, length]], "\n")
 
-capitalize = (string) ->
-  string.slice(0, 1).toUpperCase() + string.slice(1).toLowerCase()
-
 module.exports =
 class EmacsEditor
   @for: (editor, state) ->
@@ -266,43 +263,31 @@ class EmacsEditor
       @editor.deleteLine(row)
       @editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
 
+  downcase = (s) -> s.toLowerCase()
+  upcase = (s) -> s.toUpperCase()
+  capitalize = (s) -> s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase()
+
   downcaseWordOrRegion: ->
-    if @editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
-      # Atom bug: editor.lowerCase() flips reversed ranges.
-      @editor.mutateSelectedText (selection) =>
-        range = selection.getBufferRange()
-        @editor.setTextInBufferRange(range, selection.getText().toLowerCase())
-    else
-      @_transformNextWord (word) -> word.toLowerCase()
+    @_transformWordOrRegion(downcase)
 
   upcaseWordOrRegion: ->
-    if @editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
-      # Atom bug: @editor.upperCase() flips reversed ranges.
-      @editor.mutateSelectedText (selection) =>
-        range = selection.getBufferRange()
-        @editor.setTextInBufferRange(range, selection.getText().toUpperCase())
-    else
-      @_transformNextWord (word) -> word.toUpperCase()
+    @_transformWordOrRegion(upcase)
 
   capitalizeWordOrRegion: ->
-    if @editor.getSelections().filter((selection) -> not selection.isEmpty()).length > 0
-      @editor.mutateSelectedText (selection) =>
-        if not selection.isEmpty()
-          selectionRange = selection.getBufferRange()
-          @editor.scanInBufferRange /\w+/g, selectionRange, (hit) ->
-            hit.replace(capitalize(hit.matchText))
-    else
-      @_transformNextWord capitalize
+    @_transformWordOrRegion(capitalize, wordAtATime: true)
 
-  _transformNextWord: (transformation) ->
-    @moveEmacsCursors (emacsCursor, cursor) =>
-      emacsCursor.skipNonWordCharactersForward()
-      start = cursor.getBufferPosition()
-      emacsCursor.skipWordCharactersForward()
-      end = cursor.getBufferPosition()
-      range = [start, end]
-      text = @editor.getTextInBufferRange(range)
-      @editor.setTextInBufferRange(range, transformation(text))
+  _transformWordOrRegion: (transformWord, {wordAtATime}={}) ->
+    if @editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
+      @editor.mutateSelectedText (selection) =>
+        range = selection.getBufferRange()
+        if wordAtATime
+          @editor.scanInBufferRange /\w+/g, range, (hit) ->
+            hit.replace(transformWord(hit.matchText))
+        else
+          @editor.setTextInBufferRange(range, transformWord(selection.getText()))
+    else
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.transformWord(transformWord)
 
   ###
   Section: Marking & Selecting

@@ -137,6 +137,15 @@ class EmacsCursor
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
 
+  transformWord: (transformer) ->
+    @skipNonWordCharactersForward()
+    start = @cursor.getBufferPosition()
+    @skipWordCharactersForward()
+    end = @cursor.getBufferPosition()
+    range = [start, end]
+    text = @cursor.editor.getTextInBufferRange(range)
+    @cursor.editor.setTextInBufferRange(range, transformer(text))
+
   yank: ->
     killRing = @killRing()
     return if killRing.isEmpty()
