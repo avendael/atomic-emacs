@@ -1,5 +1,5 @@
-EditorState = require './editor-state'
 KillRing = require './../lib/kill-ring'
+TestEditor = require './test-editor'
 
 describe "KillRing", ->
   beforeEach ->
