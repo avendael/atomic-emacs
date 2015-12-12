@@ -15,19 +15,6 @@ describe "Mark", ->
       {row, column} = mark.getBufferPosition()
       expect([row, column]).toEqual([0, 1])
 
-    it "deactivates and destroys the marker when the cursor is destroyed", ->
-      EditorState.set(@editor, "[0].")
-      [cursor0, cursor1] = @editor.getCursors()
-      numMarkers = @editor.getMarkerCount()
-
-      cursor1 = @editor.addCursorAtBufferPosition([0, 1])
-      mark1 = new Mark(cursor1)
-      expect(@editor.getMarkerCount()).toBeGreaterThan(numMarkers)
-
-      cursor1.destroy()
-      expect(mark1.isActive()).toBe(false)
-      expect(@editor.getMarkerCount()).toEqual(numMarkers)
-
   describe "set", ->
     it "sets the mark position to where the cursor is", ->
       EditorState.set(@editor, "[0].")

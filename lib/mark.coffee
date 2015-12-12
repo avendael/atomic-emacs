@@ -25,7 +25,10 @@ class Mark
     @marker = @editor.markBufferPosition(cursor.getBufferPosition())
     @active = false
     @updating = false
-    @lifetimeSubscription = @cursor.onDidDestroy (event) => @_destroy()
+
+  destroy: ->
+    @deactivate() if @active
+    @marker.destroy()
 
   set: ->
     @deactivate()
@@ -58,12 +61,6 @@ class Mark
     position = @marker.getHeadBufferPosition()
     @set().activate()
     @cursor.setBufferPosition(position)
-
-  _destroy: ->
-    @deactivate() if @active
-    @marker.destroy()
-    @lifetimeSubscription.dispose()
-    delete @cursor._atomicEmacsMark
 
   _updateSelection: (event) ->
     # Updating the selection updates the cursor marker, so guard against the

@@ -8,13 +8,14 @@ CLOSERS = {')': '(', ']': '[', '}': '{', '\'': '\'', '"': '"', '`': '`'}
 module.exports =
 class EmacsCursor
   @for: (cursor) ->
-    cursor._atomicEmacsCursor ?= new EmacsCursor(cursor)
+    cursor._atomicEmacs ?= new EmacsCursor(cursor)
 
   constructor: (@cursor) ->
     @editor = @cursor.editor
     @_mark = undefined
     @_killRing = undefined
     @_yankMarker = undefined
+    @_disposable = @cursor.onDidDestroy => @destroy()
 
   mark: ->
     @_mark ?= new Mark(@cursor)
@@ -23,7 +24,11 @@ class EmacsCursor
     @_killRing ?= new KillRing(@cursor)
 
   destroy: ->
-    @_yankMarker.destroy()
+    @_disposable.dispose()
+    @_disposable = null
+    @_yankMarker?.destroy()
+    @_mark?.destroy()
+    delete @cursor._atomicEmacs
 
   # Look for the previous occurrence of the given regexp.
   #

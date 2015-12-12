@@ -30,6 +30,11 @@ class EmacsEditor
 
   moveEmacsCursors: (callback) ->
     @editor.moveCursors (cursor) ->
+      # Atom bug: if moving one cursor destroys another, the destroyed one's
+      # emitter is disposed, but cursor.isDestroyed() is still false. However
+      # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
+      # yield it in this case.
+      return if cursor.destroyed == true
       callback(EmacsCursor.for(cursor), cursor)
 
   ###
@@ -286,6 +291,8 @@ class EmacsEditor
         else
           @editor.setTextInBufferRange(range, transformWord(selection.getText()))
     else
+      for cursor in @editor.getCursors()
+        cursor.emitter.__track = true
       @moveEmacsCursors (emacsCursor) =>
         emacsCursor.transformWord(transformWord)
 
