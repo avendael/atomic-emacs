@@ -21,7 +21,13 @@ class EmacsCursor
     @_mark ?= new Mark(@cursor)
 
   killRing: ->
-    @_killRing ?= new KillRing(@cursor)
+    if @cursor.editor.hasMultipleCursors()
+      @getLocalKillRing()
+    else
+      KillRing.global
+
+  getLocalKillRing: ->
+    @_localKillRing ?= new KillRing(@cursor)
 
   destroy: ->
     @_disposable.dispose()
@@ -162,8 +168,9 @@ class EmacsCursor
   rotate: (n) ->
     return if @_yankMarker == null
     entry = @killRing().rotate(n)
-    range = @cursor.editor.setTextInBufferRange(@_yankMarker.getBufferRange(), entry)
-    @_yankMarker.setBufferRange(range)
+    unless entry is null
+      range = @cursor.editor.setTextInBufferRange(@_yankMarker.getBufferRange(), entry)
+      @_yankMarker.setBufferRange(range)
 
   yankComplete: ->
     @_yankMarker?.destroy()

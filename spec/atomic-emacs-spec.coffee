@@ -13,6 +13,7 @@ describe "AtomicEmacs", ->
       atom.workspace.open().then (@editor) =>
         @testEditor = new TestEditor(@editor)
         @editorView = atom.views.getView(@editor)
+        @getKillRing = (i) -> EmacsCursor.for(editor.getCursors()[i]).getLocalKillRing()
 
   describe "atomic-emacs:upcase-word-or-region", ->
     describe "when there is no selection", ->
@@ -235,18 +236,33 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       expect(@testEditor.getState()).toEqual("aaa b[0] c[1] ddd")
 
-    it "allows the deleted text to be yanked back", ->
-      @testEditor.setState("[0]aaa bbb\n[1]ccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa[0] bbb\nccc[1] ddd")
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a[0]b(0)c")
+
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(KillRing.global.getEntries()).toEqual(['b'])
+        expect(@getKillRing(0).getEntries()).toEqual([])
+
+    describe "when there are multiple cursors", ->
+      it "kills to a cursor-local kill ring", ->
+        @testEditor.setState("a[0]b(0)c d[1]e(1)f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(@getKillRing(0).getEntries()).toEqual(['b'])
+        expect(@getKillRing(1).getEntries()).toEqual(['e'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
+      it "merges cursors", ->
+        @testEditor.setState("a[0]b[1]c")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(@testEditor.getState()).toEqual("a[0]")
 
     it "combines successive kills into a single kill ring entry", ->
       @testEditor.setState("[0]aaa bbb ccc")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa bbb[0] ccc")
+      expect(KillRing.global.getEntries()).toEqual(['aaa bbb'])
 
   describe "atomic-emacs:backward-kill-word", ->
     it "deletes from the cursor to the beginning of the word if inside a word", ->
@@ -289,18 +305,33 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
       expect(@testEditor.getState()).toEqual("aaa [0]b [1]c ddd")
 
-    it "allows the deleted text to be yanked back", ->
-      @testEditor.setState("aaa bbb[0]\nccc ddd[1]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa bbb[0]\nccc ddd[1]")
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a(0)b[0]c")
+
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+        expect(KillRing.global.getEntries()).toEqual(['b'])
+        expect(@getKillRing(0).getEntries()).toEqual([])
+
+    describe "when there are multiple cursors", ->
+      it "kills to a cursor-local kill ring", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+        expect(@getKillRing(0).getEntries()).toEqual(['b'])
+        expect(@getKillRing(1).getEntries()).toEqual(['e'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
+      it "merges cursors", ->
+        @testEditor.setState("a[1]b[0]c")
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+        expect(@testEditor.getState()).toEqual("[0]c")
 
     it "combines successive kills into a single kill ring entry", ->
       @testEditor.setState("aaa bbb ccc[0]")
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa bbb ccc[0]")
+      expect(KillRing.global.getEntries()).toEqual(['bbb ccc'])
 
   describe "atomic-emacs:kill-line", ->
     it "deletes from the cursor to the end of the line if there is text to the right", ->
@@ -333,61 +364,85 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
       expect(@testEditor.getState()).toEqual("aaa b[0]\nc[1]")
 
-    it "allows the deleted text to be yanked back", ->
-      @testEditor.setState("[0]aaa bbb\n[1]ccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa bbb[0]\nccc ddd[1]")
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a[0]bc")
+
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        expect(KillRing.global.getEntries()).toEqual(['bc'])
+        expect(@getKillRing(0).getEntries()).toEqual([])
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("a[0]bc\n d[1]ef")
+
+      it "kills to a cursor-local kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        expect(@getKillRing(0).getEntries()).toEqual(['bc'])
+        expect(@getKillRing(1).getEntries()).toEqual(['ef'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
+      it "merges cursors", ->
+        @testEditor.setState("a[0]b\n[1]c")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        expect(@testEditor.getState()).toEqual("a[0]")
 
     it "combines successive kills into a single kill ring entry", ->
-      @testEditor.setState("aaa[0] bbb\nccc ddd\neee fff\nggg")
-      for i in [1, 2, 3, 4, 5, 6]
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("aaa bbb\nccc ddd\neee fff\n[0]ggg")
+      @testEditor.setState("aaa[0] bbb\nccc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+      expect(KillRing.global.getEntries()).toEqual([" bbb\nccc ddd"])
 
   describe "atomic-emacs:kill-region", ->
-    it "deletes the selected region", ->
-      @testEditor.setState("aaa b(0)b[0]b ccc")
+    it "deletes the selected regions", ->
+      @testEditor.setState("a(0)b[0]c d[1]e(1)f")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
-      expect(@testEditor.getState()).toEqual("aaa b[0]b ccc")
+      expect(@testEditor.getState()).toEqual("a[0]c d[1]f")
 
-    it "operates on multiple cursors", ->
-      @testEditor.setState("a(0)a[0]a b[1]b(1)b")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
-      expect(@testEditor.getState()).toEqual("a[0]a b[1]b")
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a(0)b[0]c")
 
-    it "allows the deleted text to be yanked back", ->
-      @testEditor.setState("a(0)b[0]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("ab[0]c")
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+        expect(KillRing.global.getEntries()).toEqual(['b'])
+        expect(@getKillRing(0).getEntries()).toEqual([])
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("a(0)b[0]c d[1]e(1)f")
+
+      it "kills to a cursor-local kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+        expect(@getKillRing(0).getEntries()).toEqual(['b'])
+        expect(@getKillRing(1).getEntries()).toEqual(['e'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
+      it "merges cursors", ->
+        @testEditor.setState("a(0)a[0](1)b[1]b")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+        expect(@testEditor.getState()).toEqual("a[0]b")
 
     it "pushes blanks if selections are empty", ->
       @testEditor.setState("a(0)[0]b")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
-      cursor = @editor.getCursors()[0]
-      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual([''])
       expect(@testEditor.getState()).toEqual("a[0]b")
+      expect(KillRing.global.getEntries()).toEqual([''])
 
     it "combines successive kills into a single kill ring entry", ->
-      @testEditor.setState("a[0]b(0)c d[1]e(1)f")
+      @testEditor.setState("a[0]b(0)c")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("abc[0] def[1]")
+      expect(KillRing.global.getEntries()).toEqual(['bc'])
 
   describe "atomic-emacs:copy-region-as-kill", ->
     it "clears the selection without deleting text", ->
       @testEditor.setState("aaa b(0)b[0]b ccc")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       expect(@testEditor.getState()).toEqual("aaa bb[0]b ccc")
-
-    it "allows the deleted text to be yanked back", ->
-      @testEditor.setState("a(0)b[0]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("abb[0]c")
 
     it "operates on multiple cursors", ->
       @testEditor.setState("a(0)b[0]c d[1]e(1)f")
@@ -403,12 +458,30 @@ describe "AtomicEmacs", ->
       expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual([''])
       expect(@testEditor.getState()).toEqual("a[0]b")
 
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a(0)b[0]c")
+
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+        expect(KillRing.global.getEntries()).toEqual(['b'])
+        expect(@getKillRing(0).getEntries()).toEqual([])
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("a(0)b[0]c d[1]e(1)f")
+
+      it "kills to a cursor-local kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+        expect(@getKillRing(0).getEntries()).toEqual(['b'])
+        expect(@getKillRing(1).getEntries()).toEqual(['e'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
     it "does not combine successive kills into a single kill ring entry", ->
       @testEditor.setState("a[0]b(0)c")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      cursor = @editor.getCursors()[0]
-      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual(['b', 'bc'])
+      expect(KillRing.global.getEntries()).toEqual(['b', 'bc'])
 
   describe "atomic-emacs:just-one-space", ->
     it "replaces all horizontal space around each cursor with one space", ->
@@ -750,97 +823,156 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("aa\n[0]\nbb")
 
   describe "atomic-emacs:yank", ->
-    describe "when the kill ring is empty", ->
-      it "does nothing", ->
-        @testEditor.setState("[0]x")
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        expect(@testEditor.getState()).toEqual("[0]x")
-
-    describe "when performed immediately after a yank", ->
+    describe "when there is a single cursor", ->
       beforeEach ->
-        @testEditor.setState("[0]ab cd")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        expect(@testEditor.getState()).toEqual(" cd[0]")
+        @testEditor.setState("x[0]y")
 
-      it "yanks again", ->
+      it "does nothing if the global kill ring is empty", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        expect(@testEditor.getState()).toEqual(" cdcd[0]")
+        expect(@testEditor.getState()).toEqual("x[0]y")
+
+      it "inserts the current entry of the global kill ring", ->
+        KillRing.global.setEntries(['a', 'b', 'c']).rotate(-1)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xb[0]y")
+
+      it "inserts the entry again if a successive yank is performed", ->
+        KillRing.global.setEntries(['a', 'b', 'c']).rotate(-1)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xbb[0]y")
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("x[0]y\nz[1]w")
+
+      it "does nothing if local kill rings are empty", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("x[0]y\nz[1]w")
+
+      it "inserts the current entry of each cursor's kill ring", ->
+        @getKillRing(0).setEntries(['a', 'b', 'c']).rotate(-1)
+        @getKillRing(1).setEntries(['d', 'e', 'f']).rotate(-1)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xb[0]y\nze[1]w")
+
+      it "inserts the entry again if a successive yank is performed", ->
+        @getKillRing(0).setEntries(['a', 'b', 'c']).rotate(-1)
+        @getKillRing(1).setEntries(['d', 'e', 'f']).rotate(-1)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xbb[0]y\nzee[1]w")
 
   describe "atomic-emacs:yank-pop", ->
     describe "when performed immediately after a yank", ->
       beforeEach ->
-        @testEditor.setState("[0]ab cd ef")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        expect(@testEditor.getState()).toEqual("  ef[0]")
+        @testEditor.setState("[0]")
 
       it "replaces the yanked text with successive kill ring entries", ->
+        KillRing.global.setEntries(['ab', 'cd', 'ef'])
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+
+        expect(@testEditor.getState()).toEqual("ef[0]")
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        expect(@testEditor.getState()).toEqual("  cd[0]")
+        expect(@testEditor.getState()).toEqual("cd[0]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(@testEditor.getState()).toEqual("ab[0]")
+
+      it "does nothing if the kill ring is empty", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
 
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        expect(@testEditor.getState()).toEqual("  ab[0]")
-
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        expect(@testEditor.getState()).toEqual("  ef[0]")
+        expect(@testEditor.getState()).toEqual("[0]")
 
     describe "when not performed immediately after a yank", ->
       beforeEach ->
-        @testEditor.setState("[0]ab cd ef")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-        expect(@testEditor.getState()).toEqual("  e[0]f")
+        @testEditor.setState("[0]")
+        expect(@testEditor.getState()).toEqual("[0]")
 
-      it "does nothing", ->
+      it "does nothing if the kill ring is empty", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        expect(@testEditor.getState()).toEqual("  e[0]f")
+        expect(@testEditor.getState()).toEqual("[0]")
+
+      it "does nothing if the kill ring is not empty", ->
+        KillRing.global.setEntries(['ab', 'cd', 'ef'])
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(@testEditor.getState()).toEqual("[0]")
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("x[0]y z[1]w")
+
+      it "uses cursor-local kill rings", ->
+        @getKillRing(0).setEntries(['ab', 'cd', 'ef'])
+        @getKillRing(1).setEntries(['gh', 'ij', 'kl'])
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xef[0]y zkl[1]w")
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(@testEditor.getState()).toEqual("xcd[0]y zij[1]w")
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(@testEditor.getState()).toEqual("xab[0]y zgh[1]w")
+
+      it "does nothing if the cursor-local kill rings are empty", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+        expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
 
   describe "atomic-emacs:yank-shift", ->
-    describe "when performed immediately after a yank-pop", ->
+    describe "when performed immediately after a yank", ->
       beforeEach ->
-        @testEditor.setState("[0]ab cd ef")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        @testEditor.setState("[0]")
+
+      it "replaces the yanked text with successive kill ring entries", ->
+        KillRing.global.setEntries(['ab', 'cd', 'ef']).rotate(-2)
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
-        expect(@testEditor.getState()).toEqual("  ab[0]")
 
-      it "replaces the yanked text with preceding kill ring entries", ->
+        expect(@testEditor.getState()).toEqual("ab[0]")
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
-        expect(@testEditor.getState()).toEqual("  cd[0]")
+        expect(@testEditor.getState()).toEqual("cd[0]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(@testEditor.getState()).toEqual("ef[0]")
+
+      it "does nothing if the kill ring is empty", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
 
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
-        expect(@testEditor.getState()).toEqual("  ef[0]")
-
+        expect(@testEditor.getState()).toEqual("[0]")
 
     describe "when not performed immediately after a yank", ->
       beforeEach ->
-        @testEditor.setState("[0]ab cd ef")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-        atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-        expect(@testEditor.getState()).toEqual("  e[0]f")
+        @testEditor.setState("[0]")
+        expect(@testEditor.getState()).toEqual("[0]")
 
-      it "does nothing", ->
+      it "does nothing if the kill ring is empty", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
-        expect(@testEditor.getState()).toEqual("  e[0]f")
+        expect(@testEditor.getState()).toEqual("[0]")
+
+      it "does nothing if the kill ring is not empty", ->
+        KillRing.global.setEntries(['ab', 'cd', 'ef']).rotate(-2)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(@testEditor.getState()).toEqual("[0]")
+
+    describe "when there are multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("x[0]y z[1]w")
+
+      it "uses cursor-local kill rings", ->
+        @getKillRing(0).setEntries(['ab', 'cd', 'ef']).rotate(-2)
+        @getKillRing(1).setEntries(['gh', 'ij', 'kl']).rotate(-2)
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("xab[0]y zgh[1]w")
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(@testEditor.getState()).toEqual("xcd[0]y zij[1]w")
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(@testEditor.getState()).toEqual("xef[0]y zkl[1]w")
+
+      it "does nothing if the cursor-local kill rings are empty", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+        expect(@testEditor.getState()).toEqual("x[0]y z[1]w")

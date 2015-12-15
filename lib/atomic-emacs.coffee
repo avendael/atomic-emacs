@@ -102,3 +102,4 @@ module.exports =
     document.getElementsByTagName('atom-workspace')[0]?.classList?.remove('atomic-emacs')
     @disposable?.dispose()
     @disposable = null
+    KillRing.global.reset()

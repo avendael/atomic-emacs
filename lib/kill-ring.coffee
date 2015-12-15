@@ -1,7 +1,5 @@
 module.exports =
 class KillRing
-  @instances = {}
-
   constructor: () ->
     @currentIndex = -1
     @entries = []
@@ -10,12 +8,16 @@ class KillRing
   isEmpty: ->
     @entries.length == 0
 
+  reset: ->
+    @entries = []
+
   getEntries: ->
     @entries.slice()
 
   setEntries: (entries) ->
     @entries = entries
     @currentIndex = @entries.length - 1
+    this
 
   push: (text) ->
     @entries.push(text)
@@ -50,3 +52,5 @@ class KillRing
     @currentIndex = (@currentIndex + n) % @entries.length
     @currentIndex += @entries.length if @currentIndex < 0
     return @entries[@currentIndex]
+
+  @global = new KillRing

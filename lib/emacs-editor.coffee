@@ -111,13 +111,19 @@ class EmacsEditor
   backwardKillWord: ->
     @editor.transact =>
       for selection in @editor.getSelections()
+        # Atom bug: if moving one cursor destroys another, the destroyed one's
+        # emitter is disposed, but cursor.isDestroyed() is still false. However
+        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
+        # yield it in this case.
+        continue if selection.cursor.destroyed == true
+
         selection.modifySelection =>
           emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
             emacsCursor.skipNonWordCharactersBackward()
             emacsCursor.skipWordCharactersBackward()
           method = if @state.killing then 'prepend' else 'push'
-          killRing = emacsCursor.killRing()[method](selection.getText())
+          emacsCursor.killRing()[method](selection.getText())
           selection.deleteSelectedText()
         selection.clear()
     @state.killed = true
@@ -125,6 +131,12 @@ class EmacsEditor
   killWord: ->
     @editor.transact =>
       for selection in @editor.getSelections()
+        # Atom bug: if moving one cursor destroys another, the destroyed one's
+        # emitter is disposed, but cursor.isDestroyed() is still false. However
+        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
+        # yield it in this case.
+        continue if selection.cursor.destroyed == true
+
         selection.modifySelection =>
           emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
@@ -139,6 +151,12 @@ class EmacsEditor
   killLine: ->
     @editor.transact =>
       for selection in @editor.getSelections()
+        # Atom bug: if moving one cursor destroys another, the destroyed one's
+        # emitter is disposed, but cursor.isDestroyed() is still false. However
+        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
+        # yield it in this case.
+        continue if selection.cursor.destroyed == true
+
         selection.modifySelection =>
           emacsCursor = EmacsCursor.for(selection.cursor)
           if selection.isEmpty()
@@ -156,9 +174,15 @@ class EmacsEditor
   killRegion: ->
     @editor.transact =>
       for selection in @editor.getSelections()
+        # Atom bug: if moving one cursor destroys another, the destroyed one's
+        # emitter is disposed, but cursor.isDestroyed() is still false. However
+        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
+        # yield it in this case.
+        continue if selection.cursor.destroyed == true
+
         selection.modifySelection =>
           emacsCursor = EmacsCursor.for(selection.cursor)
-          killRing = emacsCursor.killRing().push(selection.getText())
+          emacsCursor.killRing().push(selection.getText())
           selection.deleteSelectedText()
           emacsCursor.mark().deactivate()
         selection.clear()

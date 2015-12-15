@@ -50,19 +50,30 @@ describe "EmacsCursor", ->
       expect(a).toBe(b)
 
   describe "killRing", ->
-    it "returns a kill ring for the cursor", ->
-      @testEditor.setState("[0].[1]")
-      [emacsCursor0, emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
-      killRing0 = emacsCursor0.killRing()
-      killRing1 = emacsCursor1.killRing()
-      expect(killRing0.constructor).toBe(KillRing)
-      expect(killRing1.constructor).toBe(KillRing)
-      expect(killRing0).not.toBe(killRing1)
+    beforeEach ->
+      @testEditor.setState("[0].")
+      @emacsCursor = EmacsCursor.for(@editor.getCursors()[0])
 
-    it "returns the same KillRing each time for a cursor", ->
-      a = @emacsCursor.killRing()
-      b = @emacsCursor.killRing()
-      expect(a).toBe(b)
+    describe "when the editor has a single cursor", ->
+      it "returns the global kill ring", ->
+        expect(@emacsCursor.killRing()).toBe(KillRing.global)
+
+    describe "when the editor has multiple cursors", ->
+      beforeEach ->
+        @testEditor.setState("[0].[1]")
+        [@emacsCursor0, @emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
+
+      it "returns a kill ring for the cursor", ->
+        killRing0 = @emacsCursor0.killRing()
+        killRing1 = @emacsCursor1.killRing()
+        expect(killRing0.constructor).toBe(KillRing)
+        expect(killRing1.constructor).toBe(KillRing)
+        expect(killRing0).not.toBe(killRing1)
+
+      it "returns the same KillRing each time for a cursor", ->
+        a = @emacsCursor0.killRing()
+        b = @emacsCursor0.killRing()
+        expect(a).toBe(b)
 
   describe "locateBackward", ->
     it "returns the range of the previous match if found", ->
