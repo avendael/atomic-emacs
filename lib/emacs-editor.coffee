@@ -3,21 +3,6 @@ KillRing = require './kill-ring'
 Mark = require './mark'
 State = require './state'
 
-horizontalSpaceRange = (cursor) ->
-  emacsCursor = EmacsCursor.for(cursor)
-  emacsCursor.skipCharactersBackward(' \t')
-  start = cursor.getBufferPosition()
-  emacsCursor.skipCharactersForward(' \t')
-  end = cursor.getBufferPosition()
-  [start, end]
-
-endLineIfNecessary = (cursor) ->
-  row = cursor.getBufferPosition().row
-  editor = cursor.editor
-  if row == editor.getLineCount() - 1
-    length = cursor.getCurrentBufferLine().length
-    editor.setTextInBufferRange([[row, length], [row, length]], "\n")
-
 module.exports =
 class EmacsEditor
   @for: (editor, state) ->
@@ -227,8 +212,8 @@ class EmacsEditor
   ###
 
   deleteHorizontalSpace: ->
-    for cursor in @editor.getCursors()
-      range = horizontalSpaceRange(cursor)
+    for emacsCursor in @getEmacsCursors()
+      range = emacsCursor.horizontalSpaceRange()
       @editor.setTextInBufferRange(range, '')
 
   deleteIndentation: ->
@@ -242,8 +227,8 @@ class EmacsEditor
     @editor.moveUp()
 
   justOneSpace: ->
-    for cursor in @editor.getCursors()
-      range = horizontalSpaceRange(cursor)
+    for emacsCursor in @getEmacsCursors()
+      range = emacsCursor.horizontalSpaceRange()
       @editor.setTextInBufferRange(range, ' ')
 
   transposeChars: ->
@@ -285,15 +270,15 @@ class EmacsEditor
         cursor.setBufferPosition(cursor.getBufferPosition())
 
   transposeLines: ->
-    cursor = @editor.getLastCursor()
-    row = cursor.getBufferRow()
+    emacsCursor = EmacsCursor.for(@editor.getLastCursor())
+    row = emacsCursor.cursor.getBufferRow()
 
     @editor.transact =>
       if row == 0
-        endLineIfNecessary(cursor)
-        cursor.moveDown()
+        emacsCursor.endLineIfNecessary()
+        emacsCursor.cursor.moveDown()
         row += 1
-      endLineIfNecessary(cursor)
+      emacsCursor.endLineIfNecessary()
 
       text = @editor.getTextInBufferRange([[row, 0], [row + 1, 0]])
       @editor.deleteLine(row)

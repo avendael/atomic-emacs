@@ -151,6 +151,20 @@ class EmacsCursor
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
 
+  horizontalSpaceRange: ->
+    @skipCharactersBackward(' \t')
+    start = @cursor.getBufferPosition()
+    @skipCharactersForward(' \t')
+    end = @cursor.getBufferPosition()
+    [start, end]
+
+  endLineIfNecessary: ->
+    row = @cursor.getBufferPosition().row
+    editor = @cursor.editor
+    if row == editor.getLineCount() - 1
+      length = @cursor.getCurrentBufferLine().length
+      editor.setTextInBufferRange([[row, length], [row, length]], "\n")
+
   transformWord: (transformer) ->
     @skipNonWordCharactersForward()
     start = @cursor.getBufferPosition()
