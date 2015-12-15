@@ -24,6 +24,13 @@ class EmacsEditor
     editor._atomicEmacs ?= new EmacsEditor(editor, state)
 
   constructor: (@editor, @state) ->
+    @disposable = @editor.onDidRemoveCursor =>
+      cursors = @editor.getCursors()
+      if cursors.length == 1
+        EmacsCursor.for(cursors[0]).clearLocalKillRing()
+
+  destroy: ->
+    @disposable.dispose()
 
   getEmacsCursors: () ->
     EmacsCursor.for(c) for c in @editor.getCursors()

@@ -1,7 +1,9 @@
 {AtomicEmacs, activate, deactivate} = require '../lib/atomic-emacs'
 EmacsCursor = require '../lib/emacs-cursor'
+EmacsEditor = require '../lib/emacs-editor'
 KillRing = require '../lib/kill-ring'
 Mark = require '../lib/mark'
+State = require '../lib/state'
 TestEditor = require './test-editor'
 
 describe "AtomicEmacs", ->
@@ -11,9 +13,11 @@ describe "AtomicEmacs", ->
   beforeEach ->
     waitsForPromise =>
       atom.workspace.open().then (@editor) =>
+        @state = new State()
+        @emacsEditor = new EmacsEditor(@editor, @state)
         @testEditor = new TestEditor(@editor)
         @editorView = atom.views.getView(@editor)
-        @getKillRing = (i) -> EmacsCursor.for(editor.getCursors()[i]).getLocalKillRing()
+        @getKillRing = (i) => EmacsCursor.for(@editor.getCursors()[i]).getLocalKillRing()
 
   describe "atomic-emacs:backward-char", ->
     it "moves the cursor backward one character", ->
@@ -576,6 +580,19 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
         expect(@testEditor.getState()).toEqual("xbb[0]y\nzee[1]w")
+
+    describe "when switching to multiple cursors a second time", ->
+      it "does not yank from the old cursor-local kill ring", ->
+        @testEditor.setState("[0]x\n[1]y")
+        KillRing.global.setEntries(['.'])
+        @getKillRing(0).setEntries(['0'])
+        @getKillRing(1).setEntries(['1'])
+
+        @editor.getCursors()[1].destroy()
+        @editor.addCursor(@editor.markBufferPosition([1, 0]))
+
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual(".[0]x\n.[1]y")
 
   describe "atomic-emacs:yank-pop", ->
     describe "when performed immediately after a yank", ->

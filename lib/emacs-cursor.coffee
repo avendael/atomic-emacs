@@ -12,22 +12,25 @@ class EmacsCursor
 
   constructor: (@cursor) ->
     @editor = @cursor.editor
-    @_mark = undefined
-    @_killRing = undefined
-    @_yankMarker = undefined
+    @_mark = null
+    @_localKillRing = null
+    @_yankMarker = null
     @_disposable = @cursor.onDidDestroy => @destroy()
 
   mark: ->
     @_mark ?= new Mark(@cursor)
 
   killRing: ->
-    if @cursor.editor.hasMultipleCursors()
+    if @editor.hasMultipleCursors()
       @getLocalKillRing()
     else
       KillRing.global
 
   getLocalKillRing: ->
     @_localKillRing ?= KillRing.global.fork()
+
+  clearLocalKillRing: ->
+    @_localKillRing = null
 
   destroy: ->
     @_disposable.dispose()
