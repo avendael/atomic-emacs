@@ -1,9 +1,15 @@
 module.exports =
 class KillRing
-  constructor: () ->
+  constructor: ->
     @currentIndex = -1
     @entries = []
     @limit = 500
+
+  fork: ->
+    fork = new KillRing
+    fork.setEntries(@entries)
+    fork.currentIndex = @currentIndex
+    fork
 
   isEmpty: ->
     @entries.length == 0
@@ -15,7 +21,7 @@ class KillRing
     @entries.slice()
 
   setEntries: (entries) ->
-    @entries = entries
+    @entries = entries.slice()
     @currentIndex = @entries.length - 1
     this
 

@@ -243,7 +243,6 @@ describe "AtomicEmacs", ->
       it "kills to the global kill ring", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
         expect(KillRing.global.getEntries()).toEqual(['b'])
-        expect(@getKillRing(0).getEntries()).toEqual([])
 
     describe "when there are multiple cursors", ->
       it "kills to a cursor-local kill ring", ->
@@ -312,7 +311,6 @@ describe "AtomicEmacs", ->
       it "kills to the global kill ring", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
         expect(KillRing.global.getEntries()).toEqual(['b'])
-        expect(@getKillRing(0).getEntries()).toEqual([])
 
     describe "when there are multiple cursors", ->
       it "kills to a cursor-local kill ring", ->
@@ -371,7 +369,6 @@ describe "AtomicEmacs", ->
       it "kills to the global kill ring", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         expect(KillRing.global.getEntries()).toEqual(['bc'])
-        expect(@getKillRing(0).getEntries()).toEqual([])
 
     describe "when there are multiple cursors", ->
       beforeEach ->
@@ -409,7 +406,6 @@ describe "AtomicEmacs", ->
       it "kills to the global kill ring", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
         expect(KillRing.global.getEntries()).toEqual(['b'])
-        expect(@getKillRing(0).getEntries()).toEqual([])
 
     describe "when there are multiple cursors", ->
       beforeEach ->
@@ -465,7 +461,6 @@ describe "AtomicEmacs", ->
       it "kills to the global kill ring", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
         expect(KillRing.global.getEntries()).toEqual(['b'])
-        expect(@getKillRing(0).getEntries()).toEqual([])
 
     describe "when there are multiple cursors", ->
       beforeEach ->

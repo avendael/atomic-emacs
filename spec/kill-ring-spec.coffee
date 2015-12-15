@@ -13,6 +13,23 @@ describe "KillRing", ->
     it "creates an empty kill ring", ->
       expect(@killRing.getEntries()).toEqual([])
 
+  describe "fork", ->
+    it "creates a copy of the kill ring, with the same current entry", ->
+      @killRing.setEntries(['x', 'y']).rotate(-1)
+      fork = @killRing.fork()
+      expect(fork.getEntries()).toEqual(['x', 'y'])
+      expect(fork.getCurrentEntry()).toEqual('x')
+
+    it "maintains separate state to the original", ->
+      @killRing.setEntries(['x', 'y']).rotate(-1)
+      fork = @killRing.fork()
+
+      fork.rotate(1)
+      expect(fork.getCurrentEntry()).toEqual('y')
+
+      fork.push('z')
+      expect(fork.getEntries()).toEqual(['x', 'y', 'z'])
+
   describe "push", ->
     it "appends the given entry to the list", ->
       @killRing.push('a')

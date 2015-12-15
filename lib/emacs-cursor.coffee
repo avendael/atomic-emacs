@@ -27,7 +27,7 @@ class EmacsCursor
       KillRing.global
 
   getLocalKillRing: ->
-    @_localKillRing ?= new KillRing(@cursor)
+    @_localKillRing ?= KillRing.global.fork()
 
   destroy: ->
     @_disposable.dispose()
