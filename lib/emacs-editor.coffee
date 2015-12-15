@@ -205,14 +205,14 @@ class EmacsEditor
     return if not @state.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
-        emacsCursor.rotate(-1)
+        emacsCursor.rotateYank(-1)
     @state.yanked = true
 
   yankShift: ->
     return if not @state.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
-        emacsCursor.rotate(1)
+        emacsCursor.rotateYank(1)
     @state.yanked = true
 
   ###

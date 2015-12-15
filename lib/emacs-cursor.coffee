@@ -165,7 +165,7 @@ class EmacsCursor
     @_yankMarker ?= @cursor.editor.markBufferPosition(@cursor.getBufferPosition())
     @_yankMarker.setBufferRange(range)
 
-  rotate: (n) ->
+  rotateYank: (n) ->
     return if @_yankMarker == null
     entry = @killRing().rotate(n)
     unless entry is null
