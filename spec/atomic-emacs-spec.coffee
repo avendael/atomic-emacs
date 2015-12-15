@@ -15,253 +15,243 @@ describe "AtomicEmacs", ->
         @editorView = atom.views.getView(@editor)
         @getKillRing = (i) -> EmacsCursor.for(editor.getCursors()[i]).getLocalKillRing()
 
-  describe "atomic-emacs:upcase-word-or-region", ->
-    describe "when there is no selection", ->
-      it "upcases the word after each cursor (if any)", ->
-        @testEditor.setState("[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("AA[0] bb\ncc DD[1] ee\nFF[2] [3]")
+  describe "atomic-emacs:backward-char", ->
+    it "moves the cursor backward one character", ->
+      @testEditor.setState("x[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      expect(@testEditor.getState()).toEqual("[0]x")
 
-      it "merges any cursors that coincide", ->
-        @testEditor.setState("[0]aa[1]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("AA[0]")
+    it "does nothing at the start of the buffer", ->
+      @testEditor.setState("[0]x")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      expect(@testEditor.getState()).toEqual("[0]x")
 
-    describe "when there are selections", ->
-      it "upcases each word in each selection", ->
-        @testEditor.setState("aa (0)bb cc[0] dd\nee f[1]ffgg(1)g")
-        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("aa (0)BB CC[0] dd\nee f[1]FFGG(1)g")
+    it "extends an active selection if the mark is set", ->
+      @testEditor.setState("ab[0]c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      expect(@testEditor.getState()).toEqual("a[0]b(0)c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      expect(@testEditor.getState()).toEqual("[0]ab(0)c")
 
-  describe "atomic-emacs:downcase-word-or-region", ->
-    describe "when there is no selection", ->
-      it "downcases the word after each cursor (if any)", ->
-        @testEditor.setState("[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("aa[0] BB\nCC dd[1] EE\nff[2] [3]")
+  describe "atomic-emacs:forward-char", ->
+    it "moves the cursor forward one character", ->
+      @testEditor.setState("[0]x")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("x[0]")
 
-      it "merges any cursors that coincide", ->
-        @testEditor.setState("[0]AA[1]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("aa[0]")
+    it "does nothing at the end of the buffer", ->
+      @testEditor.setState("x[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("x[0]")
 
-    describe "when there are selections", ->
-      it "downcases each word in each selection", ->
-        @testEditor.setState("AA (0)BB CC[0] DD\nEE F[1]FFGG(1)G")
-        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
-        expect(@testEditor.getState()).toEqual("AA (0)bb cc[0] DD\nEE F[1]ffgg(1)G")
+    it "extends an active selection if the mark is set", ->
+      @testEditor.setState("a[0]bc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("a(0)b[0]c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("a(0)bc[0]")
 
-  describe "atomic-emacs:capitalize-word-or-region", ->
-    describe "when there is no selection", ->
-      it "capitalizes the word after each cursor (if any)", ->
-        @testEditor.setState("[0]aA bb\ncc[1] dd ee[2]\nff [3]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
-        expect(@testEditor.getState()).toEqual("Aa[0] bb\ncc Dd[1] ee\nFf[2] [3]")
+  describe "atomic-emacs:backward-word", ->
+    it "moves all cursors to the beginning of the current word if in a word", ->
+      @testEditor.setState("aa b[0]b c[1]c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
+      expect(@testEditor.getState()).toEqual("aa [0]bb [1]cc")
 
-      it "merges any cursors that coincide", ->
-        @testEditor.setState("[0]aa[1]")
-        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
-        expect(@testEditor.getState()).toEqual("Aa[0]")
+    it "moves to the beginning of the previous word if between words", ->
+      @testEditor.setState("aa bb [0] cc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
+      expect(@testEditor.getState()).toEqual("aa [0]bb  cc")
 
-    describe "when there are selections", ->
-      it "capitalizes each word in each selection", ->
-        @testEditor.setState("aa (0)bb CC[0] dd\nee f[1]FFGG(1)G")
-        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
-        expect(@testEditor.getState()).toEqual("aa (0)Bb Cc[0] dd\nee f[1]Ffgg(1)G")
+    it "moves to the beginning of the previous word if at the start of a word", ->
+      @testEditor.setState("aa bb [0]cc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
+      expect(@testEditor.getState()).toEqual("aa [0]bb cc")
 
-  describe "atomic-emacs:transpose-chars", ->
-    it "transposes the current character with the one after it", ->
-      @testEditor.setState("ab[0]cd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
-      expect(@testEditor.getState()).toEqual("acb[0]d")
+    it "moves to the beginning of the buffer if at the start of the first word", ->
+      @testEditor.setState(" [0]aa bb")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
+      expect(@testEditor.getState()).toEqual("[0] aa bb")
 
-    it "transposes the last two characters of the line at the end of a line", ->
-      @testEditor.setState("abc[0]\ndef")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
-      expect(@testEditor.getState()).toEqual("acb[0]\ndef")
+    it "moves to the beginning of the buffer if before the start of the first word", ->
+      @testEditor.setState(" [0] aa bb")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
+      expect(@testEditor.getState()).toEqual("[0]  aa bb")
 
-    it "transposes the first character with the newline at the start of a line", ->
-      @testEditor.setState("abc\n[0]def")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
-      expect(@testEditor.getState()).toEqual("abcd\n[0]ef")
+  describe "atomic-emacs:forward-word", ->
+    it "moves all cursors to the end of the current word if in a word", ->
+      @testEditor.setState("a[0]a b[1]b cc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
+      expect(@testEditor.getState()).toEqual("aa[0] bb[1] cc")
 
-    it "does nothing at the beginning of the buffer", ->
-      @testEditor.setState("[0]abcd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
-      expect(@testEditor.getState()).toEqual("[0]abcd")
+    it "moves to the end of the next word if between words", ->
+      @testEditor.setState("aa [0] bb cc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
+      expect(@testEditor.getState()).toEqual("aa  bb[0] cc")
 
-    it "transposes the last two characters at the end of the buffer", ->
-      @testEditor.setState("abcd[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
-      expect(@testEditor.getState()).toEqual("abdc[0]")
+    it "moves to the end of the next word if at the end of a word", ->
+      @testEditor.setState("aa[0] bb cc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
+      expect(@testEditor.getState()).toEqual("aa bb[0] cc")
 
-  describe "atomic-emacs:transpose-words", ->
-    it "transposes the current word with the one after it", ->
-      @testEditor.setState("aaa b[0]bb .\tccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+    it "moves to the end of the buffer if at the end of the last word", ->
+      @testEditor.setState("aa bb[0] ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
+      expect(@testEditor.getState()).toEqual("aa bb [0]")
 
-    it "transposes the previous and next words if at the end of a word", ->
-      @testEditor.setState("aaa bbb[0] .\tccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+    it "moves to the end of the buffer if past the end of the last word", ->
+      @testEditor.setState("aa bb [0] ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
+      expect(@testEditor.getState()).toEqual("aa bb  [0]")
 
-    it "transposes the previous and next words if at the beginning of a word", ->
-      @testEditor.setState("aaa bbb .\t[0]ccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+  describe "atomic-emacs:backward-sexp", ->
+    it "moves all cursors backward one symbolic expression", ->
+      @testEditor.setState("aa [0]\n(bb cc)[1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-sexp'
+      expect(@testEditor.getState()).toEqual("[0]aa \n[1](bb cc)\n")
 
-    it "transposes the previous and next words if in between words", ->
-      @testEditor.setState("aaa bbb .[0]\tccc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+    it "merges cursors that coincide", ->
+      @testEditor.setState("aa[0] [1]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-sexp'
+      expect(@testEditor.getState()).toEqual("[0]aa ")
 
-    it "moves to the start of the last word if in the last word", ->
-      # Emacs leaves point at the start of the word, but that seems unintuitive.
-      @testEditor.setState("aaa bbb .\tcc[0]c ")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa bbb .\tccc[0] ")
+  describe "atomic-emacs:forward-sexp", ->
+    it "moves all cursors forward one symbolic expression", ->
+      @testEditor.setState("[0]  aa\n[1](bb cc)\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
+      expect(@testEditor.getState()).toEqual("  aa[0]\n(bb cc)[1]\n")
 
-    it "transposes the last two words if at the start of the last word", ->
-      @testEditor.setState("aaa bbb .\t[0]ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0]")
+    it "merges cursors that coincide", ->
+      @testEditor.setState("[0] [1]aa")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
+      expect(@testEditor.getState()).toEqual(" aa[0]")
 
-    it "transposes the first two words if at the start of the buffer", ->
-      @testEditor.setState("[0]aaa .\tbbb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual("bbb .\taaa[0] ccc")
+  describe "atomic-emacs:previous-line", ->
+    it "moves the cursor up one line", ->
+      @testEditor.setState("ab\na[0]b\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      expect(@testEditor.getState()).toEqual("a[0]b\nab\n")
 
-    it "moves to the start of the word if it's the only word in the buffer", ->
-      # Emacs leaves point at the start of the word, but that seems unintuitive.
-      @testEditor.setState(" \taaa [0]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
-      expect(@testEditor.getState()).toEqual(" \taaa[0] \t")
+    it "goes to the start of the line if already at the top of the buffer", ->
+      @testEditor.setState("x[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      expect(@testEditor.getState()).toEqual("[0]x")
 
-  describe "atomic-emacs:transpose-lines", ->
-    it "transposes this line with the previous one, and moves to the next line", ->
-      @testEditor.setState("aaa\nb[0]bb\nccc\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]ccc\n")
+    it "extends an active selection if the mark is set", ->
+      @testEditor.setState("ab\nab\na[0]b\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      expect(@testEditor.getState()).toEqual("ab\na[0]b\na(0)b\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      expect(@testEditor.getState()).toEqual("a[0]b\nab\na(0)b\n")
 
-    it "pretends it's on the second line if it's on the first", ->
-      @testEditor.setState("a[0]aa\nbbb\nccc\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]ccc\n")
+  describe "atomic-emacs:next-line", ->
+    it "moves the cursor down one line", ->
+      @testEditor.setState("a[0]b\nab\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      expect(@testEditor.getState()).toEqual("ab\na[0]b\n")
 
-    it "creates a newline at end of file if necessary", ->
-      @testEditor.setState("aaa\nb[0]bb")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]")
+    it "goes to the end of the line if already at the bottom of the buffer", ->
+      @testEditor.setState("[0]x")
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      expect(@testEditor.getState()).toEqual("x[0]")
 
-    it "still transposes if at the end of the buffer after a trailing newline", ->
-      @testEditor.setState("aaa\nbbb\n[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("aaa\n\nbbb\n[0]")
+    it "extends an active selection if the mark is set", ->
+      @testEditor.setState("a[0]b\nab\nab\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      expect(@testEditor.getState()).toEqual("a(0)b\na[0]b\nab\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      expect(@testEditor.getState()).toEqual("a(0)b\nab\na[0]b\n")
 
-    it "inserts a blank line at the top if there's only one line with a trailing newline", ->
-      @testEditor.setState("a[0]aa\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("\naaa\n[0]")
+  describe "atomic-emacs:backward-paragraph", ->
+    it "moves back to an empty line", ->
+      @testEditor.setState("a\n\nb\nc\n[0]d")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\nd")
 
-    it "inserts a blank line at the top if there's only one line with no trailing newline", ->
-      @testEditor.setState("a[0]aa")
-      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
-      expect(@testEditor.getState()).toEqual("\naaa\n[0]")
+    it "moves back to the beginning of a line with only whitespace", ->
+      @testEditor.setState("a\n \t\nb\nc\nd[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n[0] \t\nb\nc\nd")
 
-  describe "atomic-emacs:delete-horizontal-space", ->
-    it "deletes all horizontal space around each cursor", ->
-      @testEditor.setState("a [0]\tb c [1]\td")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("a[0]b c[1]d")
+    it "stops if it reaches the beginning of the buffer", ->
+      @testEditor.setState("a\nb\n[0]c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("[0]a\nb\nc")
 
-    it "deletes all horizontal space to the beginning of the buffer if in leading space", ->
-      @testEditor.setState(" [0]\ta")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("[0]a")
+    it "does not stop on its own line", ->
+      @testEditor.setState("a\n\nb\nc\n[0]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\n\n")
 
-    it "deletes all horizontal space to the end of the buffer if in trailing space", ->
-      @testEditor.setState("a [0]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("a[0]")
+    it "moves to the beginning of the line if on the first line", ->
+      @testEditor.setState("a[0]a\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("[0]aa\n")
 
-    it "deletes all text if the buffer only contains horizontal spaces", ->
-      @testEditor.setState(" [0]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("[0]")
+    it "moves all cursors, and merges cursors that coincide", ->
+      @testEditor.setState("a\n\nb\nc\n[0]\nd\n[1]e\n[2]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\n[1]\nd\ne\n")
 
-    it "does not modify the buffer if there is no horizontal space around the cursor", ->
-      @testEditor.setState("a[0]b")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("a[0]b")
+  describe "atomic-emacs:forward-paragraph", ->
+    it "moves forward to an empty line", ->
+      @testEditor.setState("a\n[0]b\nc\n\nd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\nb\nc\n[0]\nd")
 
-  describe "atomic-emacs:kill-word", ->
-    it "deletes from the cursor to the end of the word if inside a word", ->
-      @testEditor.setState("aaa b[0]bb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa b[0] ccc")
+    it "moves forward to the beginning of a line with only whitespace", ->
+      @testEditor.setState("a\n[0]b\nc\n \t\nd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\nb\nc\n[0] \t\nd")
 
-    it "deletes the word in front of the cursor if at the beginning of a word", ->
-      @testEditor.setState("aaa [0]bbb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa [0] ccc")
+    it "stops if it reaches the end of the buffer", ->
+      @testEditor.setState("a\n[0]b\nc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\nb\nc[0]")
 
-    it "deletes the next word if at the end of a word", ->
-      @testEditor.setState("aaa[0] bbb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa[0] ccc")
+    it "does not stop on its own line", ->
+      @testEditor.setState("a\n[0]\nb\nc\n\nd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n\nb\nc\n[0]\nd")
 
-    it "deletes the next word if between words", ->
-      @testEditor.setState("aaa [0] bbb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa [0] ccc")
+    it "moves to the end of the line if on the last line", ->
+      @testEditor.setState("a[0]a")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("aa[0]")
 
-    it "does nothing if at the end of the buffer", ->
-      @testEditor.setState("aaa bbb ccc[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa bbb ccc[0]")
+    it "moves all cursors, and merges cursors that coincide", ->
+      @testEditor.setState("a\n[0]\nb\nc\n[1]\nd\n[2]e\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
+      expect(@testEditor.getState()).toEqual("a\n\nb\nc\n[0]\nd\ne\n[1]")
 
-    it "deletes the trailing space in front of the cursor if at the end of the buffer", ->
-      @testEditor.setState("aaa bbb ccc [0] ")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa bbb ccc [0]")
+  describe "atomic-emacs:back-to-indentation", ->
+    it "moves cursors forward to the first character if in leading space", ->
+      @testEditor.setState("[0]  aa\n [1] bb\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
+      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
 
-    it "deletes any selected text", ->
-      @testEditor.setState("aaa b(0)b[0]b ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa b[0]b ccc")
+    it "moves cursors back to the first character if past it", ->
+      @testEditor.setState("  a[0]a\n  bb[1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
+      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
 
-    it "operates on multiple cursors", ->
-      @testEditor.setState("aaa b[0]bb c[1]cc ddd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(@testEditor.getState()).toEqual("aaa b[0] c[1] ddd")
+    it "leaves cursors alone if already there", ->
+      @testEditor.setState("  [0]aa\n[1]  bb\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
+      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
 
-    describe "when there is a single cursor", ->
-      beforeEach ->
-        @testEditor.setState("a[0]b(0)c")
+    it "moves cursors to the end of their lines if they only contain spaces", ->
+      @testEditor.setState(" [0] \n  [1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
+      expect(@testEditor.getState()).toEqual("  [0]\n  [1]\n")
 
-      it "kills to the global kill ring", ->
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        expect(KillRing.global.getEntries()).toEqual(['b'])
-
-    describe "when there are multiple cursors", ->
-      it "kills to a cursor-local kill ring", ->
-        @testEditor.setState("a[0]b(0)c d[1]e(1)f")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        expect(@getKillRing(0).getEntries()).toEqual(['b'])
-        expect(@getKillRing(1).getEntries()).toEqual(['e'])
-        expect(KillRing.global.getEntries()).toEqual([])
-
-      it "merges cursors", ->
-        @testEditor.setState("a[0]b[1]c")
-        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-        expect(@testEditor.getState()).toEqual("a[0]")
-
-    it "combines successive kills into a single kill ring entry", ->
-      @testEditor.setState("[0]aaa bbb ccc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
-      expect(KillRing.global.getEntries()).toEqual(['aaa bbb'])
+    it "merges cursors after moving", ->
+      @testEditor.setState("  a[0]a[1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
+      expect(@testEditor.getState()).toEqual("  [0]aa\n")
 
   describe "atomic-emacs:backward-kill-word", ->
     it "deletes from the cursor to the beginning of the word if inside a word", ->
@@ -330,6 +320,74 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
       expect(KillRing.global.getEntries()).toEqual(['bbb ccc'])
+
+  describe "atomic-emacs:kill-word", ->
+    it "deletes from the cursor to the end of the word if inside a word", ->
+      @testEditor.setState("aaa b[0]bb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa b[0] ccc")
+
+    it "deletes the word in front of the cursor if at the beginning of a word", ->
+      @testEditor.setState("aaa [0]bbb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa [0] ccc")
+
+    it "deletes the next word if at the end of a word", ->
+      @testEditor.setState("aaa[0] bbb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa[0] ccc")
+
+    it "deletes the next word if between words", ->
+      @testEditor.setState("aaa [0] bbb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa [0] ccc")
+
+    it "does nothing if at the end of the buffer", ->
+      @testEditor.setState("aaa bbb ccc[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa bbb ccc[0]")
+
+    it "deletes the trailing space in front of the cursor if at the end of the buffer", ->
+      @testEditor.setState("aaa bbb ccc [0] ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa bbb ccc [0]")
+
+    it "deletes any selected text", ->
+      @testEditor.setState("aaa b(0)b[0]b ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa b[0]b ccc")
+
+    it "operates on multiple cursors", ->
+      @testEditor.setState("aaa b[0]bb c[1]cc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(@testEditor.getState()).toEqual("aaa b[0] c[1] ddd")
+
+    describe "when there is a single cursor", ->
+      beforeEach ->
+        @testEditor.setState("a[0]b(0)c")
+
+      it "kills to the global kill ring", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(KillRing.global.getEntries()).toEqual(['b'])
+
+    describe "when there are multiple cursors", ->
+      it "kills to a cursor-local kill ring", ->
+        @testEditor.setState("a[0]b(0)c d[1]e(1)f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(@getKillRing(0).getEntries()).toEqual(['b'])
+        expect(@getKillRing(1).getEntries()).toEqual(['e'])
+        expect(KillRing.global.getEntries()).toEqual([])
+
+      it "merges cursors", ->
+        @testEditor.setState("a[0]b[1]c")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(@testEditor.getState()).toEqual("a[0]")
+
+    it "combines successive kills into a single kill ring entry", ->
+      @testEditor.setState("[0]aaa bbb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(KillRing.global.getEntries()).toEqual(['aaa bbb'])
 
   describe "atomic-emacs:kill-line", ->
     it "deletes from the cursor to the end of the line if there is text to the right", ->
@@ -477,345 +535,6 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       expect(KillRing.global.getEntries()).toEqual(['b', 'bc'])
-
-  describe "atomic-emacs:just-one-space", ->
-    it "replaces all horizontal space around each cursor with one space", ->
-      @testEditor.setState("a [0]\tb c [1]\td")
-      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
-      expect(@testEditor.getState()).toEqual("a [0]b c [1]d")
-
-    it "replaces all horizontal space at the beginning of the buffer with one space if in leading space", ->
-      @testEditor.setState(" [0]\ta")
-      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
-      expect(@testEditor.getState()).toEqual(" [0]a")
-
-    it "replaces all horizontal space at the end of the buffer with one space if in trailing space", ->
-      @testEditor.setState("a [0]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
-      expect(@testEditor.getState()).toEqual("a [0]")
-
-    it "replaces all text with one space if the buffer only contains horizontal spaces", ->
-      @testEditor.setState(" [0]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
-      expect(@testEditor.getState()).toEqual(" [0]")
-
-    it "does not modify the buffer if there is already exactly one space at around the cursor", ->
-      @testEditor.setState("a[0]b")
-      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
-      expect(@testEditor.getState()).toEqual("a [0]b")
-
-  describe "atomic_emacs:set-mark", ->
-    it "sets and activates the mark of all cursors", ->
-      @testEditor.setState("[0].[1]")
-      [cursor0, cursor1] = @editor.getCursors()
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-
-      mark0 = EmacsCursor.for(cursor0).mark()
-      expect(mark0.isActive()).toBe(true)
-      point = mark0.getBufferPosition()
-      expect([point.row, point.column]).toEqual([0, 0])
-
-      mark1 = EmacsCursor.for(cursor1).mark()
-      expect(mark1.isActive()).toBe(true)
-      point = mark1.getBufferPosition()
-      expect([point.row, point.column]).toEqual([0, 1])
-
-    it "deactivates marks after all selections are updated", ->
-      @testEditor.setState("a[0]bcd e[1]fgh")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("a(0)bc[0]d e(1)fg[1]h")
-
-      atom.commands.dispatch @editorView, 'core:backspace'
-      expect(@testEditor.getState()).toEqual("a[0]d e[1]h")
-      result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
-      expect(result).toEqual([false, false])
-
-  describe "core:cancel", ->
-    it "deactivates all marks", ->
-      @testEditor.setState("[0].[1]")
-      [mark0, mark1] = (EmacsCursor.for(c).mark() for c in @editor.getCursors())
-      m.activate() for m in [mark0, mark1]
-      atom.commands.dispatch @editorView, 'core:cancel'
-      expect(mark0.isActive()).toBe(false)
-
-  describe "atomic-emacs:backward-char", ->
-    it "moves the cursor backward one character", ->
-      @testEditor.setState("x[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-      expect(@testEditor.getState()).toEqual("[0]x")
-
-    it "does nothing at the start of the buffer", ->
-      @testEditor.setState("[0]x")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-      expect(@testEditor.getState()).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      @testEditor.setState("ab[0]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-      expect(@testEditor.getState()).toEqual("a[0]b(0)c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
-      expect(@testEditor.getState()).toEqual("[0]ab(0)c")
-
-  describe "atomic-emacs:close-other-panes", ->
-    it "should close all inactive panes", ->
-      pane1 = atom.workspace.getActivePane()
-      pane2 = pane1.splitRight()
-      pane3 = pane2.splitRight()
-      pane2.activate()
-
-      atom.commands.dispatch @editorView, 'atomic-emacs:close-other-panes'
-
-      expect(pane1.isDestroyed()).toEqual(true)
-      expect(pane2.isDestroyed()).toEqual(false)
-      expect(pane3.isDestroyed()).toEqual(true)
-
-  describe "atomic-emacs:forward-char", ->
-    it "moves the cursor forward one character", ->
-      @testEditor.setState("[0]x")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("x[0]")
-
-    it "does nothing at the end of the buffer", ->
-      @testEditor.setState("x[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      @testEditor.setState("a[0]bc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("a(0)b[0]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("a(0)bc[0]")
-
-  describe "atomic-emacs:backward-word", ->
-    it "moves all cursors to the beginning of the current word if in a word", ->
-      @testEditor.setState("aa b[0]b c[1]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
-      expect(@testEditor.getState()).toEqual("aa [0]bb [1]cc")
-
-    it "moves to the beginning of the previous word if between words", ->
-      @testEditor.setState("aa bb [0] cc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
-      expect(@testEditor.getState()).toEqual("aa [0]bb  cc")
-
-    it "moves to the beginning of the previous word if at the start of a word", ->
-      @testEditor.setState("aa bb [0]cc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
-      expect(@testEditor.getState()).toEqual("aa [0]bb cc")
-
-    it "moves to the beginning of the buffer if at the start of the first word", ->
-      @testEditor.setState(" [0]aa bb")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
-      expect(@testEditor.getState()).toEqual("[0] aa bb")
-
-    it "moves to the beginning of the buffer if before the start of the first word", ->
-      @testEditor.setState(" [0] aa bb")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-word'
-      expect(@testEditor.getState()).toEqual("[0]  aa bb")
-
-  describe "atomic-emacs:forward-word", ->
-    it "moves all cursors to the end of the current word if in a word", ->
-      @testEditor.setState("a[0]a b[1]b cc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
-      expect(@testEditor.getState()).toEqual("aa[0] bb[1] cc")
-
-    it "moves to the end of the next word if between words", ->
-      @testEditor.setState("aa [0] bb cc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
-      expect(@testEditor.getState()).toEqual("aa  bb[0] cc")
-
-    it "moves to the end of the next word if at the end of a word", ->
-      @testEditor.setState("aa[0] bb cc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
-      expect(@testEditor.getState()).toEqual("aa bb[0] cc")
-
-    it "moves to the end of the buffer if at the end of the last word", ->
-      @testEditor.setState("aa bb[0] ")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
-      expect(@testEditor.getState()).toEqual("aa bb [0]")
-
-    it "moves to the end of the buffer if past the end of the last word", ->
-      @testEditor.setState("aa bb [0] ")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-word'
-      expect(@testEditor.getState()).toEqual("aa bb  [0]")
-
-  describe "atomic-emacs:forward-sexp", ->
-    it "moves all cursors forward one symbolic expression", ->
-      @testEditor.setState("[0]  aa\n[1](bb cc)\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
-      expect(@testEditor.getState()).toEqual("  aa[0]\n(bb cc)[1]\n")
-
-    it "merges cursors that coincide", ->
-      @testEditor.setState("[0] [1]aa")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
-      expect(@testEditor.getState()).toEqual(" aa[0]")
-
-  describe "atomic-emacs:backward-sexp", ->
-    it "moves all cursors backward one symbolic expression", ->
-      @testEditor.setState("aa [0]\n(bb cc)[1]\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-sexp'
-      expect(@testEditor.getState()).toEqual("[0]aa \n[1](bb cc)\n")
-
-    it "merges cursors that coincide", ->
-      @testEditor.setState("aa[0] [1]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-sexp'
-      expect(@testEditor.getState()).toEqual("[0]aa ")
-
-  describe "atomic-emacs:back-to-indentation", ->
-    it "moves cursors forward to the first character if in leading space", ->
-      @testEditor.setState("[0]  aa\n [1] bb\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
-      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
-
-    it "moves cursors back to the first character if past it", ->
-      @testEditor.setState("  a[0]a\n  bb[1]\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
-      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
-
-    it "leaves cursors alone if already there", ->
-      @testEditor.setState("  [0]aa\n[1]  bb\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
-      expect(@testEditor.getState()).toEqual("  [0]aa\n  [1]bb\n")
-
-    it "moves cursors to the end of their lines if they only contain spaces", ->
-      @testEditor.setState(" [0] \n  [1]\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
-      expect(@testEditor.getState()).toEqual("  [0]\n  [1]\n")
-
-    it "merges cursors after moving", ->
-      @testEditor.setState("  a[0]a[1]\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:back-to-indentation'
-      expect(@testEditor.getState()).toEqual("  [0]aa\n")
-
-  describe "atomic-emacs:previous-line", ->
-    it "moves the cursor up one line", ->
-      @testEditor.setState("ab\na[0]b\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
-      expect(@testEditor.getState()).toEqual("a[0]b\nab\n")
-
-    it "goes to the start of the line if already at the top of the buffer", ->
-      @testEditor.setState("x[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
-      expect(@testEditor.getState()).toEqual("[0]x")
-
-    it "extends an active selection if the mark is set", ->
-      @testEditor.setState("ab\nab\na[0]b\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
-      expect(@testEditor.getState()).toEqual("ab\na[0]b\na(0)b\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
-      expect(@testEditor.getState()).toEqual("a[0]b\nab\na(0)b\n")
-
-  describe "atomic-emacs:next-line", ->
-    it "moves the cursor down one line", ->
-      @testEditor.setState("a[0]b\nab\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
-      expect(@testEditor.getState()).toEqual("ab\na[0]b\n")
-
-    it "goes to the end of the line if already at the bottom of the buffer", ->
-      @testEditor.setState("[0]x")
-      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
-      expect(@testEditor.getState()).toEqual("x[0]")
-
-    it "extends an active selection if the mark is set", ->
-      @testEditor.setState("a[0]b\nab\nab\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
-      expect(@testEditor.getState()).toEqual("a(0)b\na[0]b\nab\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
-      expect(@testEditor.getState()).toEqual("a(0)b\nab\na[0]b\n")
-
-  describe "atomic-emacs:backward-paragraph", ->
-    it "moves back to an empty line", ->
-      @testEditor.setState("a\n\nb\nc\n[0]d")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\nd")
-
-    it "moves back to the beginning of a line with only whitespace", ->
-      @testEditor.setState("a\n \t\nb\nc\nd[0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n[0] \t\nb\nc\nd")
-
-    it "stops if it reaches the beginning of the buffer", ->
-      @testEditor.setState("a\nb\n[0]c")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("[0]a\nb\nc")
-
-    it "does not stop on its own line", ->
-      @testEditor.setState("a\n\nb\nc\n[0]\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\n\n")
-
-    it "moves to the beginning of the line if on the first line", ->
-      @testEditor.setState("a[0]a\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("[0]aa\n")
-
-    it "moves all cursors, and merges cursors that coincide", ->
-      @testEditor.setState("a\n\nb\nc\n[0]\nd\n[1]e\n[2]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:backward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n[0]\nb\nc\n[1]\nd\ne\n")
-
-  describe "atomic-emacs:forward-paragraph", ->
-    it "moves forward to an empty line", ->
-      @testEditor.setState("a\n[0]b\nc\n\nd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\nb\nc\n[0]\nd")
-
-    it "moves forward to the beginning of a line with only whitespace", ->
-      @testEditor.setState("a\n[0]b\nc\n \t\nd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\nb\nc\n[0] \t\nd")
-
-    it "stops if it reaches the end of the buffer", ->
-      @testEditor.setState("a\n[0]b\nc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\nb\nc[0]")
-
-    it "does not stop on its own line", ->
-      @testEditor.setState("a\n[0]\nb\nc\n\nd")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n\nb\nc\n[0]\nd")
-
-    it "moves to the end of the line if on the last line", ->
-      @testEditor.setState("a[0]a")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("aa[0]")
-
-    it "moves all cursors, and merges cursors that coincide", ->
-      @testEditor.setState("a\n[0]\nb\nc\n[1]\nd\n[2]e\n")
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-paragraph'
-      expect(@testEditor.getState()).toEqual("a\n\nb\nc\n[0]\nd\ne\n[1]")
-
-  describe "atomic-emacs:exchange-point-and-mark", ->
-    it "exchanges all cursors with their marks", ->
-      @testEditor.setState("[0]..[1].")
-      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
-      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
-      expect(@testEditor.getState()).toEqual("(0).[0].(1).[1]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:exchange-point-and-mark'
-      expect(@testEditor.getState()).toEqual("[0].(0).[1].(1)")
-
-  describe "atomic-emacs:delete-indentation", ->
-    it "joins the current line with the previous one if at the start of the line", ->
-      @testEditor.setState("aa \n[0] bb\ncc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
-      expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
-
-    it "does exactly the same thing if at the end of the line", ->
-      @testEditor.setState("aa \n bb[0]\ncc")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
-      expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
-
-    it "joins the two empty lines if they're both blank", ->
-      @testEditor.setState("aa\n\n[0]\nbb")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
-      expect(@testEditor.getState()).toEqual("aa\n[0]\nbb")
 
   describe "atomic-emacs:yank", ->
     describe "when there is a single cursor", ->
@@ -971,3 +690,258 @@ describe "AtomicEmacs", ->
 
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
         expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
+
+  describe "atomic-emacs:delete-horizontal-space", ->
+    it "deletes all horizontal space around each cursor", ->
+      @testEditor.setState("a [0]\tb c [1]\td")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("a[0]b c[1]d")
+
+    it "deletes all horizontal space to the beginning of the buffer if in leading space", ->
+      @testEditor.setState(" [0]\ta")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("[0]a")
+
+    it "deletes all horizontal space to the end of the buffer if in trailing space", ->
+      @testEditor.setState("a [0]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("a[0]")
+
+    it "deletes all text if the buffer only contains horizontal spaces", ->
+      @testEditor.setState(" [0]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("[0]")
+
+    it "does not modify the buffer if there is no horizontal space around the cursor", ->
+      @testEditor.setState("a[0]b")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("a[0]b")
+
+  describe "atomic-emacs:delete-indentation", ->
+    it "joins the current line with the previous one if at the start of the line", ->
+      @testEditor.setState("aa \n[0] bb\ncc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
+      expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
+
+    it "does exactly the same thing if at the end of the line", ->
+      @testEditor.setState("aa \n bb[0]\ncc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
+      expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
+
+    it "joins the two empty lines if they're both blank", ->
+      @testEditor.setState("aa\n\n[0]\nbb")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
+      expect(@testEditor.getState()).toEqual("aa\n[0]\nbb")
+
+  describe "atomic-emacs:transpose-chars", ->
+    it "transposes the current character with the one after it", ->
+      @testEditor.setState("ab[0]cd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("acb[0]d")
+
+    it "transposes the last two characters of the line at the end of a line", ->
+      @testEditor.setState("abc[0]\ndef")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("acb[0]\ndef")
+
+    it "transposes the first character with the newline at the start of a line", ->
+      @testEditor.setState("abc\n[0]def")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("abcd\n[0]ef")
+
+    it "does nothing at the beginning of the buffer", ->
+      @testEditor.setState("[0]abcd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("[0]abcd")
+
+    it "transposes the last two characters at the end of the buffer", ->
+      @testEditor.setState("abcd[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("abdc[0]")
+
+  describe "atomic-emacs:transpose-words", ->
+    it "transposes the current word with the one after it", ->
+      @testEditor.setState("aaa b[0]bb .\tccc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+
+    it "transposes the previous and next words if at the end of a word", ->
+      @testEditor.setState("aaa bbb[0] .\tccc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+
+    it "transposes the previous and next words if at the beginning of a word", ->
+      @testEditor.setState("aaa bbb .\t[0]ccc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+
+    it "transposes the previous and next words if in between words", ->
+      @testEditor.setState("aaa bbb .[0]\tccc ddd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0] ddd")
+
+    it "moves to the start of the last word if in the last word", ->
+      # Emacs leaves point at the start of the word, but that seems unintuitive.
+      @testEditor.setState("aaa bbb .\tcc[0]c ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa bbb .\tccc[0] ")
+
+    it "transposes the last two words if at the start of the last word", ->
+      @testEditor.setState("aaa bbb .\t[0]ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("aaa ccc .\tbbb[0]")
+
+    it "transposes the first two words if at the start of the buffer", ->
+      @testEditor.setState("[0]aaa .\tbbb ccc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("bbb .\taaa[0] ccc")
+
+    it "moves to the start of the word if it's the only word in the buffer", ->
+      # Emacs leaves point at the start of the word, but that seems unintuitive.
+      @testEditor.setState(" \taaa [0]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual(" \taaa[0] \t")
+
+  describe "atomic-emacs:transpose-lines", ->
+    it "transposes this line with the previous one, and moves to the next line", ->
+      @testEditor.setState("aaa\nb[0]bb\nccc\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]ccc\n")
+
+    it "pretends it's on the second line if it's on the first", ->
+      @testEditor.setState("a[0]aa\nbbb\nccc\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]ccc\n")
+
+    it "creates a newline at end of file if necessary", ->
+      @testEditor.setState("aaa\nb[0]bb")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("bbb\naaa\n[0]")
+
+    it "still transposes if at the end of the buffer after a trailing newline", ->
+      @testEditor.setState("aaa\nbbb\n[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("aaa\n\nbbb\n[0]")
+
+    it "inserts a blank line at the top if there's only one line with a trailing newline", ->
+      @testEditor.setState("a[0]aa\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("\naaa\n[0]")
+
+    it "inserts a blank line at the top if there's only one line with no trailing newline", ->
+      @testEditor.setState("a[0]aa")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("\naaa\n[0]")
+
+  describe "atomic-emacs:downcase-word-or-region", ->
+    describe "when there is no selection", ->
+      it "downcases the word after each cursor (if any)", ->
+        @testEditor.setState("[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("aa[0] BB\nCC dd[1] EE\nff[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        @testEditor.setState("[0]AA[1]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("aa[0]")
+
+    describe "when there are selections", ->
+      it "downcases each word in each selection", ->
+        @testEditor.setState("AA (0)BB CC[0] DD\nEE F[1]FFGG(1)G")
+        atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("AA (0)bb cc[0] DD\nEE F[1]ffgg(1)G")
+
+  describe "atomic-emacs:upcase-word-or-region", ->
+    describe "when there is no selection", ->
+      it "upcases the word after each cursor (if any)", ->
+        @testEditor.setState("[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("AA[0] bb\ncc DD[1] ee\nFF[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        @testEditor.setState("[0]aa[1]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("AA[0]")
+
+    describe "when there are selections", ->
+      it "upcases each word in each selection", ->
+        @testEditor.setState("aa (0)bb cc[0] dd\nee f[1]ffgg(1)g")
+        atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
+        expect(@testEditor.getState()).toEqual("aa (0)BB CC[0] dd\nee f[1]FFGG(1)g")
+
+  describe "atomic-emacs:capitalize-word-or-region", ->
+    describe "when there is no selection", ->
+      it "capitalizes the word after each cursor (if any)", ->
+        @testEditor.setState("[0]aA bb\ncc[1] dd ee[2]\nff [3]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
+        expect(@testEditor.getState()).toEqual("Aa[0] bb\ncc Dd[1] ee\nFf[2] [3]")
+
+      it "merges any cursors that coincide", ->
+        @testEditor.setState("[0]aa[1]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
+        expect(@testEditor.getState()).toEqual("Aa[0]")
+
+    describe "when there are selections", ->
+      it "capitalizes each word in each selection", ->
+        @testEditor.setState("aa (0)bb CC[0] dd\nee f[1]FFGG(1)G")
+        atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
+        expect(@testEditor.getState()).toEqual("aa (0)Bb Cc[0] dd\nee f[1]Ffgg(1)G")
+
+  describe "atomic_emacs:set-mark", ->
+    it "sets and activates the mark of all cursors", ->
+      @testEditor.setState("[0].[1]")
+      [cursor0, cursor1] = @editor.getCursors()
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+
+      mark0 = EmacsCursor.for(cursor0).mark()
+      expect(mark0.isActive()).toBe(true)
+      point = mark0.getBufferPosition()
+      expect([point.row, point.column]).toEqual([0, 0])
+
+      mark1 = EmacsCursor.for(cursor1).mark()
+      expect(mark1.isActive()).toBe(true)
+      point = mark1.getBufferPosition()
+      expect([point.row, point.column]).toEqual([0, 1])
+
+    it "deactivates marks after all selections are updated", ->
+      @testEditor.setState("a[0]bcd e[1]fgh")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("a(0)bc[0]d e(1)fg[1]h")
+
+      atom.commands.dispatch @editorView, 'core:backspace'
+      expect(@testEditor.getState()).toEqual("a[0]d e[1]h")
+      result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
+      expect(result).toEqual([false, false])
+
+  describe "atomic-emacs:exchange-point-and-mark", ->
+    it "exchanges all cursors with their marks", ->
+      @testEditor.setState("[0]..[1].")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("(0).[0].(1).[1]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:exchange-point-and-mark'
+      expect(@testEditor.getState()).toEqual("[0].(0).[1].(1)")
+
+  describe "atomic-emacs:close-other-panes", ->
+    it "should close all inactive panes", ->
+      pane1 = atom.workspace.getActivePane()
+      pane2 = pane1.splitRight()
+      pane3 = pane2.splitRight()
+      pane2.activate()
+
+      atom.commands.dispatch @editorView, 'atomic-emacs:close-other-panes'
+
+      expect(pane1.isDestroyed()).toEqual(true)
+      expect(pane2.isDestroyed()).toEqual(false)
+      expect(pane3.isDestroyed()).toEqual(true)
+
+  describe "core:cancel", ->
+    it "deactivates all marks", ->
+      @testEditor.setState("[0].[1]")
+      [mark0, mark1] = (EmacsCursor.for(c).mark() for c in @editor.getCursors())
+      m.activate() for m in [mark0, mark1]
+      atom.commands.dispatch @editorView, 'core:cancel'
+      expect(mark0.isActive()).toBe(false)
