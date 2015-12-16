@@ -806,6 +806,28 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       expect(@testEditor.getState()).toEqual("aa\n[0]\nbb")
 
+  describe "atomic-emacs:delete-horizontal-space", ->
+    it "deletes horizontal space around all cursors", ->
+      @testEditor.setState("a [0] b\n\t[1]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("a[0]b\n[1]")
+
+    it "merges cursors that coincide", ->
+      @testEditor.setState("[0] [0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("[0]")
+
+  describe "atomic-emacs:just-one-space", ->
+    it "replaces horizontal space around each cursor with a single space", ->
+      @testEditor.setState("a [0] b\n\t[1]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
+      expect(@testEditor.getState()).toEqual("a [0]b\n [1]")
+
+    it "merges cursors that coincide", ->
+      @testEditor.setState("[0] [0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
+      expect(@testEditor.getState()).toEqual(" [0]")
+
   describe "atomic-emacs:transpose-chars", ->
     it "transposes the current character with the one after it", ->
       @testEditor.setState("ab[0]cd")
@@ -1013,6 +1035,45 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("a[0]d e[1]h")
       result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
       expect(result).toEqual([false, false])
+
+  describe "atomic-emacs:mark-sexp", ->
+    it "marks a symbol forward of the cursor", ->
+      @testEditor.setState("a[0] bc ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] bc(0) ")
+
+    it "marks a balanced delimited expression from the cursor", ->
+      @testEditor.setState("a[0] (b c) ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] (b c)(0) ")
+
+    it "marks a balanced quoted expression from the cursor", ->
+      @testEditor.setState("a[0] 'b c' ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] 'b c'(0) ")
+
+    it "handles nested delimiters", ->
+      @testEditor.setState("a[0] (b' 'c) ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] (b' 'c)(0) ")
+
+    it "extends the marked region on successive calls", ->
+      @testEditor.setState("a[0] bc (d e) ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] bc(0) (d e) ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      expect(@testEditor.getState()).toEqual("a[0] bc (d e)(0) ")
+
+  describe "atomic-emacs:mark-whole-buffer", ->
+    it "marks the whole buffer, with the cursor at the beginning", ->
+      @testEditor.setState(" [0] ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-whole-buffer'
+      expect(@testEditor.getState()).toEqual("[0]  (0)")
+
+    it "removes extra cursors", ->
+      @testEditor.setState(" [0] [1]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-whole-buffer'
+      expect(@testEditor.getState()).toEqual("[0]  (0)")
 
   describe "atomic-emacs:exchange-point-and-mark", ->
     it "exchanges all cursors with their marks", ->

@@ -167,9 +167,10 @@ class EmacsEditor
   ###
 
   deleteHorizontalSpace: ->
-    for emacsCursor in @getEmacsCursors()
-      range = emacsCursor.horizontalSpaceRange()
-      @editor.setTextInBufferRange(range, '')
+    @editor.transact =>
+      @moveEmacsCursors (emacsCursor) =>
+        range = emacsCursor.horizontalSpaceRange()
+        @editor.setTextInBufferRange(range, '')
 
   deleteIndentation: ->
     return unless @editor
@@ -242,7 +243,12 @@ class EmacsEditor
       emacsCursor.markSexp()
 
   markWholeBuffer: ->
-    @editor.selectAll()
+    [first, rest...] = @editor.getCursors()
+    c.destroy() for c in rest
+    emacsCursor = EmacsCursor.for(first)
+    first.moveToBottom()
+    emacsCursor.mark().set().activate()
+    first.moveToTop()
 
   exchangePointAndMark: ->
     @moveEmacsCursors (emacsCursor) ->
