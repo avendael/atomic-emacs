@@ -170,10 +170,15 @@ class EmacsCursor
   yank: ->
     killRing = @killRing()
     return if killRing.isEmpty()
-    position = @cursor.getBufferPosition()
-    range = @cursor.editor.setTextInBufferRange([position, position], killRing.getCurrentEntry())
+    if @cursor.selection
+      range = @cursor.selection.getBufferRange()
+      @cursor.selection.clear()
+    else
+      position = @cursor.getBufferPosition()
+      range = [position, position]
+    newRange = @cursor.editor.setTextInBufferRange(range, killRing.getCurrentEntry())
     @_yankMarker ?= @cursor.editor.markBufferPosition(@cursor.getBufferPosition())
-    @_yankMarker.setBufferRange(range)
+    @_yankMarker.setBufferRange(newRange)
 
   rotateYank: (n) ->
     return if @_yankMarker == null

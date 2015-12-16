@@ -594,6 +594,12 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
         expect(@testEditor.getState()).toEqual(".[0]x\n.[1]y")
 
+    it "replaces any selection present", ->
+      @testEditor.setState("(0)a[0]")
+      KillRing.global.setEntries(['b'])
+      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+      expect(@testEditor.getState()).toEqual("b[0]")
+
   describe "atomic-emacs:yank-pop", ->
     describe "when performed immediately after a yank", ->
       beforeEach ->
@@ -651,6 +657,13 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
         expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
 
+    it "rotates a replaced selection", ->
+      @testEditor.setState("(0)a[0]")
+      KillRing.global.setEntries(['b', 'c', 'd']).rotate(-1)
+      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+      atom.commands.dispatch @editorView, 'atomic-emacs:yank-pop'
+      expect(@testEditor.getState()).toEqual("b[0]")
+
   describe "atomic-emacs:yank-shift", ->
     describe "when performed immediately after a yank", ->
       beforeEach ->
@@ -707,6 +720,13 @@ describe "AtomicEmacs", ->
 
         atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
         expect(@testEditor.getState()).toEqual("x[0]y z[1]w")
+
+    it "rotates a replaced selection", ->
+      @testEditor.setState("(0)a[0]")
+      KillRing.global.setEntries(['b', 'c', 'd']).rotate(-1)
+      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+      atom.commands.dispatch @editorView, 'atomic-emacs:yank-shift'
+      expect(@testEditor.getState()).toEqual("d[0]")
 
   describe "atomic-emacs:delete-horizontal-space", ->
     it "deletes all horizontal space around each cursor", ->
