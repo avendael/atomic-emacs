@@ -776,6 +776,21 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
       expect(@testEditor.getState()).toEqual("abdc[0]")
 
+    it "operates on multiple cursors", ->
+      @testEditor.setState("ab[0]cd ef[1]gh")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("acb[0]d egf[1]h")
+
+    it "does nothing at the end of a one-character buffer", ->
+      @testEditor.setState("a[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("a[0]")
+
+    it "does nothing in an empty buffer", ->
+      @testEditor.setState("[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      expect(@testEditor.getState()).toEqual("[0]")
+
   describe "atomic-emacs:transpose-words", ->
     it "transposes the current word with the one after it", ->
       @testEditor.setState("aaa b[0]bb .\tccc ddd")
@@ -819,6 +834,11 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
       expect(@testEditor.getState()).toEqual(" \taaa[0] \t")
 
+    it "operates on multiple cursors", ->
+      @testEditor.setState("aa[0] bb cc[1] dd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      expect(@testEditor.getState()).toEqual("bb aa[0] dd cc[1]")
+
   describe "atomic-emacs:transpose-lines", ->
     it "transposes this line with the previous one, and moves to the next line", ->
       @testEditor.setState("aaa\nb[0]bb\nccc\n")
@@ -849,6 +869,11 @@ describe "AtomicEmacs", ->
       @testEditor.setState("a[0]aa")
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
       expect(@testEditor.getState()).toEqual("\naaa\n[0]")
+
+    it "operates on multiple cursors", ->
+      @testEditor.setState("aa bb\ncc dd[0]\nee ff\ngg hh\n[1]ii jj\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      expect(@testEditor.getState()).toEqual("cc dd\naa bb\n[0]ee ff\nii jj\ngg hh\n[1]")
 
   describe "atomic-emacs:downcase-word-or-region", ->
     describe "when there is no selection", ->

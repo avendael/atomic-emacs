@@ -232,57 +232,19 @@ class EmacsEditor
       @editor.setTextInBufferRange(range, ' ')
 
   transposeChars: ->
-    bob_cursor_ids = {}
-
-    @editor.moveCursors (cursor) =>
-      {row, column} = cursor.getBufferPosition()
-      if row == 0 and column == 0
-        bob_cursor_ids[cursor.id] = 1
-      line = @editor.lineTextForBufferRow(row)
-      cursor.moveLeft() if column == line.length
-
-    @editor.transpose()
-
-    @editor.moveCursors (cursor) ->
-      if bob_cursor_ids.hasOwnProperty(cursor.id)
-        cursor.moveLeft()
-      else if cursor.getBufferColumn() > 0
-        cursor.moveRight()
+    @editor.transact =>
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.transposeChars()
 
   transposeWords: ->
     @editor.transact =>
-      for emacsCursor in @getEmacsCursors()
-        cursor = emacsCursor.cursor
-        emacsCursor.skipNonWordCharactersBackward()
-
-        word1 = emacsCursor.extractWord()
-        word1Pos = cursor.getBufferPosition()
-        emacsCursor.skipNonWordCharactersForward()
-        if @editor.getEofBufferPosition().isEqual(cursor.getBufferPosition())
-          # No second word - put the first word back.
-          @editor.setTextInBufferRange([word1Pos, word1Pos], word1)
-          emacsCursor.skipNonWordCharactersBackward()
-        else
-          word2 = emacsCursor.extractWord()
-          word2Pos = cursor.getBufferPosition()
-          @editor.setTextInBufferRange([word2Pos, word2Pos], word1)
-          @editor.setTextInBufferRange([word1Pos, word1Pos], word2)
-        cursor.setBufferPosition(cursor.getBufferPosition())
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.transposeWords()
 
   transposeLines: ->
-    emacsCursor = EmacsCursor.for(@editor.getLastCursor())
-    row = emacsCursor.cursor.getBufferRow()
-
     @editor.transact =>
-      if row == 0
-        emacsCursor.endLineIfNecessary()
-        emacsCursor.cursor.moveDown()
-        row += 1
-      emacsCursor.endLineIfNecessary()
-
-      text = @editor.getTextInBufferRange([[row, 0], [row + 1, 0]])
-      @editor.deleteLine(row)
-      @editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.transposeLines()
 
   downcase = (s) -> s.toLowerCase()
   upcase = (s) -> s.toUpperCase()

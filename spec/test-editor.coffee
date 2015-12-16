@@ -1,5 +1,7 @@
 {Point} = require 'atom'
 
+cmp = (a, b) -> if a < b then -1 else if a > b then 1 else 0
+
 module.exports =
 class TestEditor
 
@@ -61,7 +63,9 @@ class TestEditor
       insertions.push([head.row, head.column, "[#{i}]"])
       insertions.push([tail.row, tail.column, "(#{i})"]) if not head.isEqual(tail)
 
-    for [row, column, text] in insertions.sort().reverse()
+    insertions.sort (a, b) -> cmp(a[0], b[0]) or cmp(a[1], b[1])
+    insertions.reverse()
+    for [row, column, text] in insertions
       [line, ending] = linesWithEndings[row]
       line = line.slice(0, column) + text + line.slice(column)
       linesWithEndings[row] = [line, ending]

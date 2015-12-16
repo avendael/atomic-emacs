@@ -158,13 +158,6 @@ class EmacsCursor
     end = @cursor.getBufferPosition()
     [start, end]
 
-  endLineIfNecessary: ->
-    row = @cursor.getBufferPosition().row
-    editor = @cursor.editor
-    if row == editor.getLineCount() - 1
-      length = @cursor.getCurrentBufferLine().length
-      editor.setTextInBufferRange([[row, length], [row, length]], "\n")
-
   transformWord: (transformer) ->
     @skipNonWordCharactersForward()
     start = @cursor.getBufferPosition()
@@ -239,6 +232,75 @@ class EmacsCursor
     newTail = @_sexpForwardFrom(range.end)
     mark.setSelectionRange(range.start, newTail)
 
+  # Transpose the two characters around the cursor. At the beginning of a line,
+  # transpose the newline with the first character of the line. At the end of a
+  # line, transpose the last two characters. At the beginning of the buffer, do
+  # nothing. Weird, but that's Emacs!
+  transposeChars: ->
+    {row, column} = @cursor.getBufferPosition()
+    return if row == 0 and column == 0
+
+    line = @editor.lineTextForBufferRow(row)
+    if column == 0
+      previousLine = @editor.lineTextForBufferRow(row - 1)
+      pairRange = [[row - 1, previousLine.length], [row, 1]]
+    else if column == line.length
+      pairRange = [[row, column - 2], [row, column]]
+    else
+      pairRange = [[row, column - 1], [row, column + 1]]
+    pair = @editor.getTextInBufferRange(pairRange)
+    @editor.setTextInBufferRange(pairRange, (pair[1] or '') + pair[0])
+
+  # Transpose the word at the cursor with the next one. Move to the end of the
+  # next word.
+  transposeWords: ->
+    @skipNonWordCharactersBackward()
+
+    word1Range = @_wordRange()
+    @skipWordCharactersForward()
+    @skipNonWordCharactersForward()
+    if @editor.getEofBufferPosition().isEqual(@cursor.getBufferPosition())
+      # No second word - just go back.
+      @skipNonWordCharactersBackward()
+    else
+      word2Range = @_wordRange()
+      word1 = @editor.getTextInBufferRange(word1Range)
+      word2 = @editor.getTextInBufferRange(word2Range)
+
+      @editor.setTextInBufferRange(word2Range, word1)
+      @editor.setTextInBufferRange(word1Range, word2)
+      @cursor.setBufferPosition(word2Range[1])
+
+  # Transpose the line at the cursor with the one above it. Move to the
+  # beginning of the next line.
+  transposeLines: ->
+    row = @cursor.getBufferRow()
+    if row == 0
+      @_endLineIfNecessary()
+      @cursor.moveDown()
+      row += 1
+    @_endLineIfNecessary()
+
+    lineRange = [[row, 0], [row + 1, 0]]
+    text = @editor.getTextInBufferRange(lineRange)
+    @editor.setTextInBufferRange(lineRange, '')
+    @editor.setTextInBufferRange([[row - 1, 0], [row - 1, 0]], text)
+
+  _wordRange: ->
+    @skipWordCharactersBackward()
+    range = @locateNonWordCharacterBackward()
+    wordStart = if range then range.end else [0, 0]
+    range = @locateNonWordCharacterForward()
+    wordEnd = if range then range.start else @editor.getEofBufferPosition()
+    [wordStart, wordEnd]
+
+  _endLineIfNecessary: ->
+    row = @cursor.getBufferPosition().row
+    editor = @cursor.editor
+    if row == editor.getLineCount() - 1
+      length = @cursor.getCurrentBufferLine().length
+      editor.setTextInBufferRange([[row, length], [row, length]], "\n")
+
   _sexpForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
     point = @_locateForwardFrom(point, /[\w()[\]{}'"]/i)?.start or eob
@@ -294,19 +356,6 @@ class EmacsCursor
       result or point
     else
       @_locateBackwardFrom(point, /\W/i)?.end or BOB
-
-  # Delete and return the word at the cursor.
-  #
-  # If not in or at the start or end of a word, return the empty string and
-  # leave the buffer unmodified.
-  extractWord: (emacsCursor) ->
-    @skipWordCharactersBackward()
-    range = @locateNonWordCharacterForward()
-    wordEnd = if range then range.start else @editor.getEofBufferPosition()
-    wordRange = [@cursor.getBufferPosition(), wordEnd]
-    word = @editor.getTextInBufferRange(wordRange)
-    @editor.setTextInBufferRange(wordRange, '')
-    word
 
   _locateBackwardFrom: (point, regExp) ->
     result = null
