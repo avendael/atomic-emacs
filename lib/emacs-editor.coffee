@@ -101,30 +101,38 @@ class EmacsEditor
   ###
 
   backwardKillWord: ->
+    kills = []
     method = if @state.killing then 'prepend' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor, cursor) =>
-        emacsCursor.backwardKillWord(method)
+        kills.push emacsCursor.backwardKillWord(method)
+    atom.clipboard.write(kills.join("\n"))
     @state.killed = true
 
   killWord: ->
+    kills = []
     method = if @state.killing then 'append' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killWord(method)
+        kills.push emacsCursor.killWord(method)
+    atom.clipboard.write(kills.join("\n"))
     @state.killed = true
 
   killLine: ->
+    kills = []
     method = if @state.killing then 'append' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killLine(method)
+        kills.push emacsCursor.killLine(method)
+    atom.clipboard.write(kills.join("\n"))
     @state.killed = true
 
   killRegion: ->
+    kills = []
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killRegion()
+        kills.push emacsCursor.killRegion()
+    atom.clipboard.write(kills.join("\n"))
     @state.killed = true
 
   copyRegionAsKill: ->

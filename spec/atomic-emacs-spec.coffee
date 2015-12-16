@@ -306,6 +306,10 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
         expect(KillRing.global.getEntries()).toEqual(['b'])
 
+      it "puts the kill on the clipboard", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+        expect(atom.clipboard.read()).toEqual('b')
+
     describe "when there are multiple cursors", ->
       it "kills to a cursor-local kill ring", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
@@ -313,6 +317,11 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
         expect(KillRing.global.getEntries()).toEqual([])
+
+      it "puts the kills on the clipboard separated by newlines", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+        expect(atom.clipboard.read()).toEqual("b\ne")
 
       it "merges cursors", ->
         @testEditor.setState("a[1]b[0]c")
@@ -374,6 +383,10 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
         expect(KillRing.global.getEntries()).toEqual(['b'])
 
+      it "puts the kill on the clipboard", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(atom.clipboard.read()).toEqual('b')
+
     describe "when there are multiple cursors", ->
       it "kills to a cursor-local kill ring", ->
         @testEditor.setState("a[0]b(0)c d[1]e(1)f")
@@ -381,6 +394,11 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
         expect(KillRing.global.getEntries()).toEqual([])
+
+      it "puts the kills on the clipboard separated by newlines", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+        expect(atom.clipboard.read()).toEqual("b\ne")
 
       it "merges cursors", ->
         @testEditor.setState("a[0]b[1]c")
@@ -432,6 +450,10 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         expect(KillRing.global.getEntries()).toEqual(['bc'])
 
+      it "puts the kill on the clipboard", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        expect(atom.clipboard.read()).toEqual('bc')
+
     describe "when there are multiple cursors", ->
       beforeEach ->
         @testEditor.setState("a[0]bc\n d[1]ef")
@@ -441,6 +463,11 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(0).getEntries()).toEqual(['bc'])
         expect(@getKillRing(1).getEntries()).toEqual(['ef'])
         expect(KillRing.global.getEntries()).toEqual([])
+
+      it "puts the kills on the clipboard separated by newlines", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+        expect(atom.clipboard.read()).toEqual("b\ne")
 
       it "merges cursors", ->
         @testEditor.setState("a[0]b\n[1]c")
@@ -469,6 +496,10 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
         expect(KillRing.global.getEntries()).toEqual(['b'])
 
+      it "puts the kill on the clipboard", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+        expect(atom.clipboard.read()).toEqual('b')
+
     describe "when there are multiple cursors", ->
       beforeEach ->
         @testEditor.setState("a(0)b[0]c d[1]e(1)f")
@@ -478,6 +509,11 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
         expect(KillRing.global.getEntries()).toEqual([])
+
+      it "puts the kills on the clipboard separated by newlines", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+        expect(atom.clipboard.read()).toEqual("b\ne")
 
       it "merges cursors", ->
         @testEditor.setState("a(0)a[0](1)b[1]b")

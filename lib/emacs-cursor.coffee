@@ -207,8 +207,9 @@ class EmacsCursor
 
     text = @editor.getTextInBufferRange(range)
     @editor.setTextInBufferRange(range, '')
-    @killRing()[method](text)
-    text
+    killRing = @killRing()
+    killRing[method](text)
+    killRing.getCurrentEntry()
 
   yank: ->
     killRing = @killRing()
