@@ -107,7 +107,7 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor, cursor) =>
         kills.push emacsCursor.backwardKillWord(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed = true
+    @state.killed()
 
   killWord: ->
     kills = []
@@ -116,7 +116,7 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killWord(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed = true
+    @state.killed()
 
   killLine: ->
     kills = []
@@ -125,7 +125,7 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killLine(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed = true
+    @state.killed()
 
   killRegion: ->
     kills = []
@@ -133,7 +133,7 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killRegion()
     atom.clipboard.write(kills.join("\n"))
-    @state.killed = true
+    @state.killed()
 
   copyRegionAsKill: ->
     @editor.transact =>
@@ -146,21 +146,21 @@ class EmacsEditor
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.yank()
-    @state.yanked = true
+    @state.yanked()
 
   yankPop: ->
     return if not @state.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.rotateYank(-1)
-    @state.yanked = true
+    @state.yanked()
 
   yankShift: ->
     return if not @state.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.rotateYank(1)
-    @state.yanked = true
+    @state.yanked()
 
   ###
   Section: Editing
@@ -259,11 +259,6 @@ class EmacsEditor
   ###
 
   recenterTopBottom: ->
-    if @previousCommand == 'atomic-emacs:recenter-top-bottom'
-      @recenters = (@recenters + 1) % 3
-    else
-      @recenters = 0
-
     return unless @editor
     editorElement = atom.views.getView(@editor)
     minRow = Math.min((c.getBufferRow() for c in @editor.getCursors())...)
@@ -271,7 +266,7 @@ class EmacsEditor
     minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
     maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
 
-    switch @recenters
+    switch @state.recenters
       when 0
         @editor.setScrollTop((minOffset.top + maxOffset.top - @editor.getHeight())/2)
       when 1
@@ -279,6 +274,8 @@ class EmacsEditor
         @editor.setScrollTop(minOffset.top - 2*@editor.getLineHeightInPixels())
       when 2
         @editor.setScrollTop(maxOffset.top + 3*@editor.getLineHeightInPixels() - @editor.getHeight())
+
+    @state.recentered()
 
   scrollUp: ->
     [firstRow,lastRow] = @editor.getVisibleRowRange()

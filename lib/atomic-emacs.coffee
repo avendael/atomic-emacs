@@ -9,9 +9,6 @@ class AtomicEmacs
   constructor: ->
     @state = new State
 
-  beforeCommand: (event) ->
-    @state.beforeCommand(event)
-
   afterCommand: (event) ->
     Mark.deactivatePending()
 
@@ -45,7 +42,6 @@ module.exports =
     atomicEmacs = new AtomicEmacs()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
-    @disposable.add atom.commands.onWillDispatch (event) -> atomicEmacs.beforeCommand(event)
     @disposable.add atom.commands.onDidDispatch (event) -> atomicEmacs.afterCommand(event)
     @disposable.add atom.commands.add 'atom-text-editor',
       # Navigation
