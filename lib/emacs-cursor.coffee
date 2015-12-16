@@ -167,6 +167,49 @@ class EmacsCursor
     text = @cursor.editor.getTextInBufferRange(range)
     @cursor.editor.setTextInBufferRange(range, transformer(text))
 
+  backwardKillWord: (method) ->
+    @_killUnit method, =>
+      end = @cursor.getBufferPosition()
+      @skipNonWordCharactersBackward()
+      @skipWordCharactersBackward()
+      start = @cursor.getBufferPosition()
+      [start, end]
+
+  killWord: (method) ->
+    @_killUnit method, =>
+      start = @cursor.getBufferPosition()
+      @skipNonWordCharactersForward()
+      @skipWordCharactersForward()
+      end = @cursor.getBufferPosition()
+      [start, end]
+
+  killLine: (method) ->
+    @_killUnit method, =>
+      start = @cursor.getBufferPosition()
+      line = @editor.lineTextForBufferRow(start.row)
+      if /^\s*$/.test(line.slice(start.column))
+        end = [start.row + 1, 0]
+      else
+        end = [start.row, line.length]
+      [start, end]
+
+  killRegion: ->
+    @_killUnit 'push', =>
+      position = @cursor.selection.getBufferRange()
+      [position, position]
+
+  _killUnit: (method='push', findRange) ->
+    if @cursor.selection? and not @cursor.selection.isEmpty()
+      range = @cursor.selection.getBufferRange()
+      @cursor.selection.clear()
+    else
+      range = findRange()
+
+    text = @editor.getTextInBufferRange(range)
+    @editor.setTextInBufferRange(range, '')
+    @killRing()[method](text)
+    text
+
   yank: ->
     killRing = @killRing()
     return if killRing.isEmpty()

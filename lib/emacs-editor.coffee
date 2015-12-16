@@ -101,83 +101,30 @@ class EmacsEditor
   ###
 
   backwardKillWord: ->
+    method = if @state.killing then 'prepend' else 'push'
     @editor.transact =>
-      for selection in @editor.getSelections()
-        # Atom bug: if moving one cursor destroys another, the destroyed one's
-        # emitter is disposed, but cursor.isDestroyed() is still false. However
-        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
-        # yield it in this case.
-        continue if selection.cursor.destroyed == true
-
-        selection.modifySelection =>
-          emacsCursor = EmacsCursor.for(selection.cursor)
-          if selection.isEmpty()
-            emacsCursor.skipNonWordCharactersBackward()
-            emacsCursor.skipWordCharactersBackward()
-          method = if @state.killing then 'prepend' else 'push'
-          emacsCursor.killRing()[method](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
+      @moveEmacsCursors (emacsCursor, cursor) =>
+        emacsCursor.backwardKillWord(method)
     @state.killed = true
 
   killWord: ->
+    method = if @state.killing then 'append' else 'push'
     @editor.transact =>
-      for selection in @editor.getSelections()
-        # Atom bug: if moving one cursor destroys another, the destroyed one's
-        # emitter is disposed, but cursor.isDestroyed() is still false. However
-        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
-        # yield it in this case.
-        continue if selection.cursor.destroyed == true
-
-        selection.modifySelection =>
-          emacsCursor = EmacsCursor.for(selection.cursor)
-          if selection.isEmpty()
-            emacsCursor.skipNonWordCharactersForward()
-            emacsCursor.skipWordCharactersForward()
-          method = if @state.killing then 'append' else 'push'
-          emacsCursor.killRing()[method](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.killWord(method)
     @state.killed = true
 
   killLine: ->
+    method = if @state.killing then 'append' else 'push'
     @editor.transact =>
-      for selection in @editor.getSelections()
-        # Atom bug: if moving one cursor destroys another, the destroyed one's
-        # emitter is disposed, but cursor.isDestroyed() is still false. However
-        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
-        # yield it in this case.
-        continue if selection.cursor.destroyed == true
-
-        selection.modifySelection =>
-          emacsCursor = EmacsCursor.for(selection.cursor)
-          if selection.isEmpty()
-            {row, column} = selection.cursor.getBufferPosition()
-            line = @editor.lineTextForBufferRow(row)
-            selection.cursor.moveToEndOfLine()
-            if /^\s*$/.test(line.slice(column))
-              selection.cursor.moveRight()
-          killRing = emacsCursor.killRing()
-          killRing[if @state.killing then 'append' else 'push'](selection.getText())
-          selection.deleteSelectedText()
-        selection.clear()
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.killLine(method)
     @state.killed = true
 
   killRegion: ->
     @editor.transact =>
-      for selection in @editor.getSelections()
-        # Atom bug: if moving one cursor destroys another, the destroyed one's
-        # emitter is disposed, but cursor.isDestroyed() is still false. However
-        # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
-        # yield it in this case.
-        continue if selection.cursor.destroyed == true
-
-        selection.modifySelection =>
-          emacsCursor = EmacsCursor.for(selection.cursor)
-          emacsCursor.killRing().push(selection.getText())
-          selection.deleteSelectedText()
-          emacsCursor.mark().deactivate()
-        selection.clear()
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.killRegion()
     @state.killed = true
 
   copyRegionAsKill: ->
