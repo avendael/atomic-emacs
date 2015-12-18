@@ -275,11 +275,10 @@ class EmacsCursor
 
   # Add the next sexp to the cursor's selection. Activate if necessary.
   markSexp: ->
-    mark = @mark()
-    mark.activate() unless mark.isActive()
-    range = mark.getSelectionRange()
+    range = @cursor.getMarker().getBufferRange()
     newTail = @_sexpForwardFrom(range.end)
-    mark.setSelectionRange(range.start, newTail)
+    mark = @mark().set(newTail)
+    mark.activate() unless mark.isActive()
 
   # Transpose the two characters around the cursor. At the beginning of a line,
   # transpose the newline with the first character of the line. At the end of a

@@ -1064,6 +1064,16 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
       expect(@testEditor.getState()).toEqual("a[0] bc (d e)(0) ")
 
+    it "does not extend a deactivated mark when followed by a move", ->
+      @testEditor.setState("a[0]bcd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      atom.commands.dispatch @editorView, 'core:cancel'
+
+      atom.commands.dispatch @editorView, 'atomic-emacs:mark-sexp'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("abc[0]d(0)")
+
   describe "atomic-emacs:mark-whole-buffer", ->
     it "marks the whole buffer, with the cursor at the beginning", ->
       @testEditor.setState(" [0] ")

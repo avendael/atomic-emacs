@@ -30,9 +30,10 @@ class Mark
     @deactivate() if @active
     @marker.destroy()
 
-  set: ->
+  set: (point=@cursor.getBufferPosition()) ->
     @deactivate()
-    @marker.setHeadBufferPosition(@cursor.getBufferPosition())
+    @marker.setHeadBufferPosition(point)
+    @_updateSelection()
     @
 
   getBufferPosition: ->
