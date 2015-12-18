@@ -109,6 +109,7 @@
 
 '.platform-win32':
   'alt-g g': 'go-to-line:toggle'
+  'alt-g alt-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
 
 '.platform-win32 .go-to-line atom-text-editor[mini] input':
@@ -116,6 +117,7 @@
 
 '.platform-darwin':
   'alt-g g': 'go-to-line:toggle'
+  'alt-g alt-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
 
 '.platform-darwin .go-to-line atom-text-editor[mini] input':
