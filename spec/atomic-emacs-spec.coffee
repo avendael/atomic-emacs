@@ -630,11 +630,18 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:yank'
         expect(@testEditor.getState()).toEqual(".[0]x\n.[1]y")
 
-    it "replaces any selection present", ->
-      @testEditor.setState("(0)a[0]")
-      KillRing.global.setEntries(['b'])
-      atom.commands.dispatch @editorView, 'atomic-emacs:yank'
-      expect(@testEditor.getState()).toEqual("b[0]")
+    describe "when there is a selection present", ->
+      it "replaces the selected text and moves to the end of it", ->
+        @testEditor.setState("(0)a[0]b")
+        KillRing.global.setEntries(['c'])
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("c[0]b")
+
+      it "does the same if the selection is reversed", ->
+        @testEditor.setState("[0]a(0)b")
+        KillRing.global.setEntries(['c'])
+        atom.commands.dispatch @editorView, 'atomic-emacs:yank'
+        expect(@testEditor.getState()).toEqual("c[0]b")
 
   describe "atomic-emacs:yank-pop", ->
     describe "when performed immediately after a yank", ->

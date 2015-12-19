@@ -221,6 +221,7 @@ class EmacsCursor
       position = @cursor.getBufferPosition()
       range = [position, position]
     newRange = @editor.setTextInBufferRange(range, killRing.getCurrentEntry())
+    @cursor.setBufferPosition(newRange.end)
     @_yankMarker ?= @editor.markBufferPosition(@cursor.getBufferPosition())
     @_yankMarker.setBufferRange(newRange)
 
