@@ -164,8 +164,8 @@ class EmacsCursor
     @skipWordCharactersForward()
     end = @cursor.getBufferPosition()
     range = [start, end]
-    text = @cursor.editor.getTextInBufferRange(range)
-    @cursor.editor.setTextInBufferRange(range, transformer(text))
+    text = @editor.getTextInBufferRange(range)
+    @editor.setTextInBufferRange(range, transformer(text))
 
   backwardKillWord: (method) ->
     @_killUnit method, =>
@@ -220,15 +220,15 @@ class EmacsCursor
     else
       position = @cursor.getBufferPosition()
       range = [position, position]
-    newRange = @cursor.editor.setTextInBufferRange(range, killRing.getCurrentEntry())
-    @_yankMarker ?= @cursor.editor.markBufferPosition(@cursor.getBufferPosition())
+    newRange = @editor.setTextInBufferRange(range, killRing.getCurrentEntry())
+    @_yankMarker ?= @editor.markBufferPosition(@cursor.getBufferPosition())
     @_yankMarker.setBufferRange(newRange)
 
   rotateYank: (n) ->
     return if @_yankMarker == null
     entry = @killRing().rotate(n)
     unless entry is null
-      range = @cursor.editor.setTextInBufferRange(@_yankMarker.getBufferRange(), entry)
+      range = @editor.setTextInBufferRange(@_yankMarker.getBufferRange(), entry)
       @_yankMarker.setBufferRange(range)
 
   yankComplete: ->
@@ -344,10 +344,9 @@ class EmacsCursor
 
   _endLineIfNecessary: ->
     row = @cursor.getBufferPosition().row
-    editor = @cursor.editor
-    if row == editor.getLineCount() - 1
+    if row == @editor.getLineCount() - 1
       length = @cursor.getCurrentBufferLine().length
-      editor.setTextInBufferRange([[row, length], [row, length]], "\n")
+      @editor.setTextInBufferRange([[row, length], [row, length]], "\n")
 
   _sexpForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
