@@ -1,84 +1,99 @@
 ## Atomic Emacs
 
-An atomic implementation of emacs keybindings.
+Emacs keybindings for Atom.
 ![Build Status](https://travis-ci.org/avendael/atomic-emacs.svg?branch=master)
 
-### Important Note
+## Commands
 
-I love emacs, but this package will never implement all of emacs' features. It only aims to
-provide a reasonable set of default emacs keybindings so that emacs refugees might find themselves
-at home.
+### Navigation
 
-OSX already provides emacs-like keybindings to Atom, and those are not reimplemented in this
-package. This might, however, cause a problem later on when Atom becomes available at other
-platforms. Once that time comes, I will gladly include those keybindings in this package.
+    'ctrl-b': 'atomic-emacs:backward-char'
+    'left': 'atomic-emacs:backward-char'
+    'ctrl-f': 'atomic-emacs:forward-char'
+    'right': 'atomic-emacs:forward-char'
+    'alt-b': 'atomic-emacs:backward-word'
+    'alt-left': 'atomic-emacs:backward-word'
+    'alt-f': 'atomic-emacs:forward-word'
+    'alt-right': 'atomic-emacs:forward-word'
+    'ctrl-alt-b': 'atomic-emacs:backward-sexp'
+    'ctrl-alt-f': 'atomic-emacs:forward-sexp'
+    'alt-{': 'atomic-emacs:backward-paragraph'
+    'alt-}': 'atomic-emacs:forward-paragraph'
+    'alt-m': 'atomic-emacs:back-to-indentation'
+    'ctrl-a': 'editor:move-to-beginning-of-line'
+    'ctrl-s': 'find-and-replace:show'
+    'ctrl-r': 'find-and-replace:show'
+    'alt-<': 'core:move-to-top'
+    'alt->': 'core:move-to-bottom'
 
-### Current Status
+### Killing & Yanking
 
-It's super incomplete, very alpha stage. Basically, just these:
+    'alt-backspace': 'atomic-emacs:backward-kill-word'
+    'alt-delete': 'atomic-emacs:backward-kill-word'
+    'alt-d': 'atomic-emacs:kill-word'
+    'ctrl-k': 'atomic-emacs:kill-line'
+    'ctrl-w': 'atomic-emacs:kill-region'
+    'alt-w': 'atomic-emacs:copy-region-as-kill'
+    'ctrl-y': 'atomic-emacs:yank'
+    'alt-y': 'atomic-emacs:yank-pop'
+    'alt-shift-y': 'atomic-emacs:yank-shift'
 
-* 'ctrl-f': 'atomic-emacs:forward-char'
-* 'ctrl-b': 'atomic-emacs:backward-char'
-* 'ctrl-n': 'atomic-emacs:next-line'
-* 'ctrl-p': 'atomic-emacs:previous-line'
-* 'ctrl-a': 'atomic-emacs:move-beginning-of-line'
-* 'ctrl-e': 'atomic-emacs:move-end-of-line'
-* 'ctrl-l': 'atomic-emacs:recenter-top-bottom'
-* 'ctrl-g': 'atomic-emacs:remove-mark'
-* 'ctrl-k': 'editor:cut-to-end-of-line'
-* 'ctrl-y': 'core:paste'
-* 'ctrl-w': 'atomic-emacs:kill-region'
-* 'ctrl-v': 'atomic-emacs:scroll-up'
-* 'ctrl-s': 'find-and-replace:show'
-* 'ctrl-r': 'find-and-replace:show'
-* 'ctrl-j': 'editor:newline'
-* 'ctrl-/': 'core:undo'
-* 'ctrl-o': 'atomic-emacs:open-line'
-* 'ctrl-t': 'atomic-emacs:transpose-chars'
-* 'ctrl-_': 'core:undo'
-* 'ctrl-space': 'atomic-emacs:set-mark'
-* 'ctrl-x ctrl-s': 'core:save'
-* 'ctrl-x ctrl-u': 'atomic-emacs:upcase-region'
-* 'ctrl-x ctrl-l': 'atomic-emacs:downcase-region'
-* 'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
-* 'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
-* 'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
-* 'alt-f': 'atomic-emacs:forward-word'
-* 'alt-b': 'atomic-emacs:backward-word'
-* 'alt-q': 'autoflow:reflow-selection'
-* 'atl-t': 'atomic-emacs:transpose-words'
-* 'alt-w': 'atomic-emacs:copy'
-* 'alt-;': 'editor:toggle-line-comments'
-* 'alt-v': 'atomic-emacs:scroll-down'
-* 'alt-<': 'atomic-emacs:beginning-of-buffer'
-* 'alt->': 'atomic-emacs:end-of-buffer'
-* 'alt-m': 'atomic-emacs:back-to-indentation'
-* 'alt-/': 'autocomplete:toggle'
-* 'alt-.': 'symbols-view:toggle-file-symbols'
-* 'alt-\\': 'atomic-emacs:delete-horizontal-space'
-* 'alt-space': 'atomic-emacs:just-one-space'
-* 'alt-{': 'atomic-emacs:backward-paragraph'
-* 'alt-}': 'atomic-emacs:forward-paragraph'
+Note that Atomic Emacs does not (yet) support prefix arguments, so to rotate the
+kill ring forward, use `yank-shift` (equivalent to `yank-pop` in Emacs with a
+prefix argument of -1).
 
-### Configuration options
+### Editing
 
-You can opt to use native navigation keys for ctrl-n,p,b, and f:
+    'alt-\\': 'atomic-emacs:delete-horizontal-space'
+    'alt-^': 'atomic-emacs:delete-indentation'
+    'ctrl-o': 'atomic-emacs:open-line'
+    'alt-space': 'atomic-emacs:just-one-space'
+    'ctrl-t': 'atomic-emacs:transpose-chars'
+    'alt-t': 'atomic-emacs:transpose-words'
+    'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
+    'ctrl-x ctrl-l': 'atomic-emacs:downcase-word-or-region'
+    'alt-l': 'atomic-emacs:downcase-word-or-region'
+    'ctrl-x ctrl-u': 'atomic-emacs:upcase-word-or-region'
+    'alt-u': 'atomic-emacs:upcase-word-or-region'
+    'alt-c': 'atomic-emacs:capitalize-word-or-region'
+    'ctrl-j': 'editor:newline'
+    'ctrl-/': 'core:undo'
+    'ctrl-_': 'core:undo'
+    'alt-/': 'autocomplete-plus:activate'
+    'alt-q': 'autoflow:reflow-selection'
+    'alt-;': 'editor:toggle-line-comments'
 
-```
-  "atomic-emacs":
-    useNativeNavigationKeys: false
-```
+### Marking & Selecting
 
-This would cause the marks to not work properly, but it's reportedly the workaround to #37.
+    'ctrl-space': 'atomic-emacs:set-mark'
+    'ctrl-alt-space': 'atomic-emacs:mark-sexp'
+    'ctrl-x h': 'atomic-emacs:mark-whole-buffer'
+    'ctrl-x ctrl-x': 'atomic-emacs:exchange-point-and-mark'
 
-### Future Work
+### UI
 
-Version 1.0.0 should be somewhat close to what [sublemacspro](https://github.com/grundprinzip/sublemacspro) currently has as of time of writing (03/04/14), and then improve further based on that. Next up are:
+    'ctrl-g': 'core:cancel'
+    'ctrl-x ctrl-s': 'core:save'
+    'alt-x': 'command-palette:toggle'
+    'alt-.': 'symbols-view:toggle-file-symbols'
+    'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
+    'ctrl-x b': 'fuzzy-finder:toggle-buffer-finder'
+    'ctrl-x k': 'core:close'
+    'ctrl-x 0': 'pane:close'
+    'ctrl-x 1': 'atomic-emacs:close-other-panes'
+    'ctrl-x 2': 'pane:split-down'
+    'ctrl-x 3': 'pane:split-right'
+    'ctrl-x o': 'window:focus-next-pane'
 
-* Kill ring
-* Macros
-* Motion commands for other platforms (OSX has the basic emacs motion commands by default)
+### Something missing?
 
-### Contributing
+Feel free to suggest features on the Github issue tracker, or better yet, send a
+pull request!
 
-Yes please!
+## Contributing
+
+* [Bug reports](https://github.com/avendael/atomic-emacs/issues)
+* [Source](https://github.com/avendael/atomic-emacs)
+* Patches: Fork on Github, send pull request.
+ * Include tests where practical.
+ * Leave the version alone, or bump it in a separate commit.
