@@ -34,6 +34,7 @@ Emacs keybindings for Atom.
     'ctrl-k': 'atomic-emacs:kill-line'
     'ctrl-w': 'atomic-emacs:kill-region'
     'alt-w': 'atomic-emacs:copy-region-as-kill'
+    'ctrl-alt-w': 'atomic-emacs:append-next-kill'
     'ctrl-y': 'atomic-emacs:yank'
     'alt-y': 'atomic-emacs:yank-pop'
     'alt-shift-y': 'atomic-emacs:yank-shift'
