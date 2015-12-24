@@ -1,6 +1,5 @@
 module.exports =
-class State
-  constructor: ->
+  initialize: ->
     @_killed = @killing = false
     @_yanked = @yanking = false
     @previousCommand = null

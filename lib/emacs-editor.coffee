@@ -5,10 +5,10 @@ State = require './state'
 
 module.exports =
 class EmacsEditor
-  @for: (editor, state) ->
-    editor._atomicEmacs ?= new EmacsEditor(editor, state)
+  @for: (editor) ->
+    editor._atomicEmacs ?= new EmacsEditor(editor)
 
-  constructor: (@editor, @state) ->
+  constructor: (@editor) ->
     @disposable = @editor.onDidRemoveCursor =>
       cursors = @editor.getCursors()
       if cursors.length == 1
@@ -102,30 +102,30 @@ class EmacsEditor
 
   backwardKillWord: ->
     kills = []
-    method = if @state.killing then 'prepend' else 'push'
+    method = if State.killing then 'prepend' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor, cursor) =>
         kills.push emacsCursor.backwardKillWord(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed()
+    State.killed()
 
   killWord: ->
     kills = []
-    method = if @state.killing then 'append' else 'push'
+    method = if State.killing then 'append' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killWord(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed()
+    State.killed()
 
   killLine: ->
     kills = []
-    method = if @state.killing then 'append' else 'push'
+    method = if State.killing then 'append' else 'push'
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killLine(method)
     atom.clipboard.write(kills.join("\n"))
-    @state.killed()
+    State.killed()
 
   killRegion: ->
     kills = []
@@ -133,7 +133,7 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killRegion()
     atom.clipboard.write(kills.join("\n"))
-    @state.killed()
+    State.killed()
 
   copyRegionAsKill: ->
     @editor.transact =>
@@ -146,21 +146,21 @@ class EmacsEditor
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.yank()
-    @state.yanked()
+    State.yanked()
 
   yankPop: ->
-    return if not @state.yanking
+    return if not State.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.rotateYank(-1)
-    @state.yanked()
+    State.yanked()
 
   yankShift: ->
-    return if not @state.yanking
+    return if not State.yanking
     @editor.transact =>
       for emacsCursor in @getEmacsCursors()
         emacsCursor.rotateYank(1)
-    @state.yanked()
+    State.yanked()
 
   ###
   Section: Editing
@@ -266,7 +266,7 @@ class EmacsEditor
     minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
     maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
 
-    switch @state.recenters
+    switch State.recenters
       when 0
         @editor.setScrollTop((minOffset.top + maxOffset.top - @editor.getHeight())/2)
       when 1
@@ -275,7 +275,7 @@ class EmacsEditor
       when 2
         @editor.setScrollTop(maxOffset.top + 3*@editor.getLineHeightInPixels() - @editor.getHeight())
 
-    @state.recentered()
+    State.recentered()
 
   scrollUp: ->
     [firstRow,lastRow] = @editor.getVisibleRowRange()

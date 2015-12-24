@@ -13,8 +13,7 @@ describe "AtomicEmacs", ->
   beforeEach ->
     waitsForPromise =>
       atom.workspace.open().then (@editor) =>
-        @state = new State()
-        @emacsEditor = new EmacsEditor(@editor, @state)
+        @emacsEditor = new EmacsEditor(@editor)
         @testEditor = new TestEditor(@editor)
         @editorView = atom.views.getView(@editor)
         @getKillRing = (i) => EmacsCursor.for(@editor.getCursors()[i]).getLocalKillRing()
