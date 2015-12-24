@@ -17,8 +17,10 @@ module.exports =
       @_yanked = false
 
     if @_recentered
-      @recenters = (@recenters + 1) % 3
       @_recentered = false
+      @recenters = (@recenters + 1) % 3
+    else
+      @recenters = 0
 
     @previousCommand = event.type
     @isDuringCommand = false
