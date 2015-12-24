@@ -327,7 +327,18 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
         expect(@testEditor.getState()).toEqual("[0]c")
 
-    it "combines successive kills into a single kill ring entry", ->
+    it "prepends to the last kill ring entry if killing", ->
+      @testEditor.setState("a[0]b")
+      KillRing.global.setEntries(['x'])
+      State.killing = true
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+      expect(KillRing.global.getEntries()).toEqual(['ax'])
+
+    it "sets the killing flag", ->
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
+      expect(State.killing).toBe(true)
+
+    it "results in combining successive kills into a single kill ring entry", ->
       @testEditor.setState("aaa bbb ccc[0]")
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
@@ -404,7 +415,18 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
         expect(@testEditor.getState()).toEqual("a[0]")
 
-    it "combines successive kills into a single kill ring entry", ->
+    it "appends to the last kill ring entry if killing", ->
+      @testEditor.setState("a[0]b")
+      KillRing.global.setEntries(['x'])
+      State.killing = true
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(KillRing.global.getEntries()).toEqual(['xb'])
+
+    it "sets the killing flag", ->
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
+      expect(State.killing).toBe(true)
+
+    it "results in combining successive kills into a single kill ring entry", ->
       @testEditor.setState("[0]aaa bbb ccc")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
@@ -474,7 +496,18 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         expect(@testEditor.getState()).toEqual("a[0]")
 
-    it "combines successive kills into a single kill ring entry", ->
+    it "appends to the last kill ring entry if killing", ->
+      @testEditor.setState("a[0]b")
+      KillRing.global.setEntries(['x'])
+      State.killing = true
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+      expect(KillRing.global.getEntries()).toEqual(['xb'])
+
+    it "sets the killing flag", ->
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
+      expect(State.killing).toBe(true)
+
+    it "results in combining successive kills into a single kill ring entry", ->
       @testEditor.setState("aaa[0] bbb\nccc ddd")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
@@ -525,7 +558,18 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("a[0]b")
       expect(KillRing.global.getEntries()).toEqual([''])
 
-    it "combines successive kills into a single kill ring entry", ->
+    it "appends to the last kill ring entry if killing", ->
+      @testEditor.setState("a[0]b(0)")
+      KillRing.global.setEntries(['x'])
+      State.killing = true
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+      expect(KillRing.global.getEntries()).toEqual(['xb'])
+
+    it "sets the killing flag", ->
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+      expect(State.killing).toBe(true)
+
+    it "results in combining successive kills into a single kill ring entry", ->
       @testEditor.setState("a[0]b(0)c")
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
@@ -569,11 +613,36 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
         expect(KillRing.global.getEntries()).toEqual([])
 
-    it "does not combine successive kills into a single kill ring entry", ->
+    it "appends to the last kill ring entry if killing", ->
+      @testEditor.setState("a[0]b(0)")
+      KillRing.global.setEntries(['x'])
+      State.killing = true
+      atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+      expect(KillRing.global.getEntries()).toEqual(['xb'])
+
+    it "does not set the killing flag", ->
+      @testEditor.setState("a[0]b(0)")
+      atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+      expect(State.killing).toBe(false)
+
+    it "does not result in combining successive kills into a single kill ring entry", ->
       @testEditor.setState("a[0]b(0)c")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
       expect(KillRing.global.getEntries()).toEqual(['b', 'bc'])
+
+  describe "atomic-emacs:append-next-kill", ->
+    it "sets the killing flag", ->
+      @testEditor.setState("a[0]b")
+      atom.commands.dispatch @editorView, 'atomic-emacs:append-next-kill'
+      expect(State.killing).toBe(true)
+
+    it "results in combining a subsequent kill with the current entry", ->
+      @testEditor.setState("a[0]b(0)")
+      KillRing.global.setEntries(['x'])
+      atom.commands.dispatch @editorView, 'atomic-emacs:append-next-kill'
+      atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
+      expect(KillRing.global.getEntries()).toEqual(['xb'])
 
   describe "atomic-emacs:yank", ->
     describe "when there is a single cursor", ->

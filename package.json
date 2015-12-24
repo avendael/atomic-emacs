@@ -22,6 +22,7 @@
       "atomic-emacs:kill-line",
       "atomic-emacs:kill-region",
       "atomic-emacs:copy-region-as-kill",
+      "atomic-emacs:append-next-kill",
       "atomic-emacs:yank",
       "atomic-emacs:yank-pop",
       "atomic-emacs:yank-shift",

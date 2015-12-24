@@ -62,6 +62,7 @@ module.exports =
       "atomic-emacs:kill-line": (event) -> getEditor(event).killLine()
       "atomic-emacs:kill-region": (event) -> getEditor(event).killRegion()
       "atomic-emacs:copy-region-as-kill": (event) -> getEditor(event).copyRegionAsKill()
+      "atomic-emacs:append-next-kill": (event) -> State.killed()
       "atomic-emacs:yank": (event) -> getEditor(event).yank()
       "atomic-emacs:yank-pop": (event) -> getEditor(event).yankPop()
       "atomic-emacs:yank-shift": (event) -> getEditor(event).yankShift()

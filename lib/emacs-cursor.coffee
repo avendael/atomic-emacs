@@ -193,8 +193,8 @@ class EmacsCursor
         end = [start.row, line.length]
       [start, end]
 
-  killRegion: ->
-    @_killUnit 'push', =>
+  killRegion: (method) ->
+    @_killUnit method, =>
       position = @cursor.selection.getBufferRange()
       [position, position]
 
