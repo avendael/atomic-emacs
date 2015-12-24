@@ -179,8 +179,9 @@ class EmacsEditor
       @editor.joinLines()
 
   openLine: ->
-    @editor.insertNewline()
-    @editor.moveUp()
+    @editor.transact =>
+      @editor.insertText("\n")
+      @editor.moveLeft()
 
   justOneSpace: ->
     @editor.transact =>

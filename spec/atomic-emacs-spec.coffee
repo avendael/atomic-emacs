@@ -829,6 +829,23 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'core:undo'
       @testEditor.setState("a \n [0]b\nc \n [1]d")
 
+  describe "atomic-emacs:open-line", ->
+    it "inserts a newline in front of each cursor", ->
+      @testEditor.setState("a[0]b\nc[1]d")
+      atom.commands.dispatch @editorView, 'atomic-emacs:open-line'
+      expect(@testEditor.getState()).toEqual("a[0]\nb\nc[1]\nd")
+
+    it "works in an empty buffer", ->
+      @testEditor.setState("[0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:open-line'
+      expect(@testEditor.getState()).toEqual("[0]\n")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a[0]b\nc[1]d")
+      atom.commands.dispatch @editorView, 'atomic-emacs:open-line'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("a[0]b\nc[1]d")
+
   describe "atomic-emacs:just-one-space", ->
     it "replaces horizontal space around each cursor with a single space", ->
       @testEditor.setState("a [0] b\n\t[1]\t")
