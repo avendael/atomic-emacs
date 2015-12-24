@@ -797,12 +797,12 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("a[0]b")
 
   describe "atomic-emacs:delete-indentation", ->
-    it "joins the current line with the previous one if at the start of the line", ->
-      @testEditor.setState("aa \n[0] bb\ncc")
+    it "joins each cursor's current line with the previous one if at the start of the line", ->
+      @testEditor.setState("a \n [0]b\nc \n [1]d")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
-      expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
+      @testEditor.setState("a [0]b\nc [1]d")
 
-    it "does exactly the same thing if at the end of the line", ->
+    it "does the same thing at the end of the line", ->
       @testEditor.setState("aa \n bb[0]\ncc")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       expect(@testEditor.getState()).toEqual("aa[0] bb\ncc")
@@ -811,6 +811,12 @@ describe "AtomicEmacs", ->
       @testEditor.setState("aa\n\n[0]\nbb")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       expect(@testEditor.getState()).toEqual("aa\n[0]\nbb")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a \n [0]b\nc \n [1]d")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
+      atom.commands.dispatch @editorView, 'core:undo'
+      @testEditor.setState("a \n [0]b\nc \n [1]d")
 
   describe "atomic-emacs:delete-horizontal-space", ->
     it "deletes horizontal space around all cursors", ->
@@ -823,6 +829,12 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
       expect(@testEditor.getState()).toEqual("[0]")
 
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a [0] b\n\t[1]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("a [0] b\n\t[1]\t")
+
   describe "atomic-emacs:just-one-space", ->
     it "replaces horizontal space around each cursor with a single space", ->
       @testEditor.setState("a [0] b\n\t[1]\t")
@@ -833,6 +845,12 @@ describe "AtomicEmacs", ->
       @testEditor.setState("[0] [0]")
       atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
       expect(@testEditor.getState()).toEqual(" [0]")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a [0] b\n\t[1]\t")
+      atom.commands.dispatch @editorView, 'atomic-emacs:just-one-space'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("a [0] b\n\t[1]\t")
 
   describe "atomic-emacs:transpose-chars", ->
     it "transposes the current character with the one after it", ->
@@ -864,6 +882,12 @@ describe "AtomicEmacs", ->
       @testEditor.setState("ab[0]cd ef[1]gh")
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
       expect(@testEditor.getState()).toEqual("acb[0]d egf[1]h")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("ab[0]cd ef[1]gh")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-chars'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("ab[0]cd ef[1]gh")
 
     it "does nothing at the end of a one-character buffer", ->
       @testEditor.setState("a[0]")
@@ -923,6 +947,12 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
       expect(@testEditor.getState()).toEqual("bb aa[0] dd cc[1]")
 
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("aa[0] bb cc[1] dd")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-words'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("aa[0] bb cc[1] dd")
+
   describe "atomic-emacs:transpose-lines", ->
     it "transposes this line with the previous one, and moves to the next line", ->
       @testEditor.setState("aaa\nb[0]bb\nccc\n")
@@ -959,7 +989,19 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
       expect(@testEditor.getState()).toEqual("cc dd\naa bb\n[0]ee ff\nii jj\ngg hh\n[1]")
 
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("aa bb\ncc dd[0]\nee ff\ngg hh\n[1]ii jj\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:transpose-lines'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("aa bb\ncc dd[0]\nee ff\ngg hh\n[1]ii jj\n")
+
   describe "atomic-emacs:downcase-word-or-region", ->
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:downcase-word-or-region'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
+
     describe "when there is no selection", ->
       it "downcases the word after each cursor (if any)", ->
         @testEditor.setState("[0]aA BB\nCC[1] DD EE[2]\nFF [3]")
@@ -978,6 +1020,12 @@ describe "AtomicEmacs", ->
         expect(@testEditor.getState()).toEqual("AA (0)bb cc[0] DD\nEE F[1]ffgg(1)G")
 
   describe "atomic-emacs:upcase-word-or-region", ->
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:upcase-word-or-region'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
+
     describe "when there is no selection", ->
       it "upcases the word after each cursor (if any)", ->
         @testEditor.setState("[0]Aa bb\ncc[1] dd ee[2]\nff [3]")
@@ -996,6 +1044,12 @@ describe "AtomicEmacs", ->
         expect(@testEditor.getState()).toEqual("aa (0)BB CC[0] dd\nee f[1]FFGG(1)g")
 
   describe "atomic-emacs:capitalize-word-or-region", ->
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("[0]aA bb\ncc[1] dd ee[2]\nff [3]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:capitalize-word-or-region'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("[0]aA bb\ncc[1] dd ee[2]\nff [3]")
+
     describe "when there is no selection", ->
       it "capitalizes the word after each cursor (if any)", ->
         @testEditor.setState("[0]aA bb\ncc[1] dd ee[2]\nff [3]")

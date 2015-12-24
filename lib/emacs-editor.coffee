@@ -183,9 +183,10 @@ class EmacsEditor
     @editor.moveUp()
 
   justOneSpace: ->
-    for emacsCursor in @getEmacsCursors()
-      range = emacsCursor.horizontalSpaceRange()
-      @editor.setTextInBufferRange(range, ' ')
+    @editor.transact =>
+      for emacsCursor in @getEmacsCursors()
+        range = emacsCursor.horizontalSpaceRange()
+        @editor.setTextInBufferRange(range, ' ')
 
   transposeChars: ->
     @editor.transact =>
@@ -216,19 +217,20 @@ class EmacsEditor
     @_transformWordOrRegion(capitalize, wordAtATime: true)
 
   _transformWordOrRegion: (transformWord, {wordAtATime}={}) ->
-    if @editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
-      @editor.mutateSelectedText (selection) =>
-        range = selection.getBufferRange()
-        if wordAtATime
-          @editor.scanInBufferRange /\w+/g, range, (hit) ->
-            hit.replace(transformWord(hit.matchText))
-        else
-          @editor.setTextInBufferRange(range, transformWord(selection.getText()))
-    else
-      for cursor in @editor.getCursors()
-        cursor.emitter.__track = true
-      @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.transformWord(transformWord)
+    @editor.transact =>
+      if @editor.getSelections().filter((s) -> not s.isEmpty()).length > 0
+        @editor.mutateSelectedText (selection) =>
+          range = selection.getBufferRange()
+          if wordAtATime
+            @editor.scanInBufferRange /\w+/g, range, (hit) ->
+              hit.replace(transformWord(hit.matchText))
+          else
+            @editor.setTextInBufferRange(range, transformWord(selection.getText()))
+      else
+        for cursor in @editor.getCursors()
+          cursor.emitter.__track = true
+        @moveEmacsCursors (emacsCursor) =>
+          emacsCursor.transformWord(transformWord)
 
   ###
   Section: Marking & Selecting
