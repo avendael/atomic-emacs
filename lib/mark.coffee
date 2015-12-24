@@ -1,4 +1,5 @@
-{CompositeDisposable, Point} = require('atom')
+{CompositeDisposable, Point} = require 'atom'
+State = require './state'
 
 # Represents an Emacs-style mark.
 #
@@ -46,7 +47,14 @@ class Mark
         @_updateSelection(event)
       @activeSubscriptions.add @editor.getBuffer().onDidChange (event) =>
         unless @_isIndent(event) or @_isOutdent(event)
-          Mark.deactivatable.push(this)
+          # If we're in a command (as opposed to a simple character insert),
+          # delay the deactivation until the end of the command. Otherwise
+          # updating one selection may prematurely deactivate the mark and clear
+          # a second selection before it has a chance to be updated.
+          if State.isDuringCommand
+            Mark.deactivatable.push(this)
+          else
+            @deactivate()
       @active = true
 
   deactivate: ->

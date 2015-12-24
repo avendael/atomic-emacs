@@ -5,6 +5,9 @@ KillRing = require './kill-ring'
 Mark = require './mark'
 State = require './state'
 
+beforeCommand = (event) ->
+  State.beforeCommand(event)
+
 afterCommand = (event) ->
   Mark.deactivatePending()
 
@@ -37,6 +40,7 @@ module.exports =
     State.initialize()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
+    @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)
     @disposable.add atom.commands.onDidDispatch (event) -> afterCommand(event)
     @disposable.add atom.commands.add 'atom-text-editor',
       # Navigation

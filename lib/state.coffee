@@ -6,6 +6,9 @@ module.exports =
     @recenters = 0
     @_recentered = false
 
+  beforeCommand: (event) ->
+    @isDuringCommand = true
+
   afterCommand: (event) ->
     if (@killing = @_killed)
       @_killed = false
@@ -18,6 +21,7 @@ module.exports =
       @_recentered = false
 
     @previousCommand = event.type
+    @isDuringCommand = false
 
   killed: ->
     @_killed = true

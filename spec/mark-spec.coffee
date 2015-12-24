@@ -60,7 +60,6 @@ describe "Mark", ->
       expect(@testEditor.getState()).toEqual(".(0).[0].")
 
       @editor.setTextInBufferRange([[0, 0], [0, 1]], 'x')
-      Mark.deactivatePending()
       expect(mark.isActive()).toBe(false)
       expect(@testEditor.getState()).toEqual("x.[0].")
       expect(@cursor.selection.isEmpty()).toBe(true)
