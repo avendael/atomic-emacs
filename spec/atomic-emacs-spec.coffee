@@ -880,7 +880,7 @@ describe "AtomicEmacs", ->
     it "joins each cursor's current line with the previous one if at the start of the line", ->
       @testEditor.setState("a \n [0]b\nc \n [1]d")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
-      @testEditor.setState("a [0]b\nc [1]d")
+      expect(@testEditor.getState()).toEqual("a[0] b\nc[1] d")
 
     it "does the same thing at the end of the line", ->
       @testEditor.setState("aa \n bb[0]\ncc")
@@ -896,7 +896,7 @@ describe "AtomicEmacs", ->
       @testEditor.setState("a \n [0]b\nc \n [1]d")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       atom.commands.dispatch @editorView, 'core:undo'
-      @testEditor.setState("a \n [0]b\nc \n [1]d")
+      expect(@testEditor.getState()).toEqual("a \n [0]b\nc \n [1]d")
 
   describe "atomic-emacs:open-line", ->
     it "inserts a newline in front of each cursor", ->
