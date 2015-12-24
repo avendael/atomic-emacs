@@ -771,10 +771,21 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("d[0]")
 
   describe "atomic-emacs:delete-horizontal-space", ->
-    it "deletes all horizontal space around each cursor", ->
-      @testEditor.setState("a [0]\tb c [1]\td")
+    it "deletes horizontal space around all cursors", ->
+      @testEditor.setState("a [0] b\n\t[1]\t")
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("a[0]b c[1]d")
+      expect(@testEditor.getState()).toEqual("a[0]b\n[1]")
+
+    it "merges cursors that coincide", ->
+      @testEditor.setState("[0] [0]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      expect(@testEditor.getState()).toEqual("[0]")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a [0] b\nc\t[1]\td")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("a [0] b\nc\t[1]\td")
 
     it "deletes all horizontal space to the beginning of the buffer if in leading space", ->
       @testEditor.setState(" [0]\ta")
@@ -817,23 +828,6 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:delete-indentation'
       atom.commands.dispatch @editorView, 'core:undo'
       @testEditor.setState("a \n [0]b\nc \n [1]d")
-
-  describe "atomic-emacs:delete-horizontal-space", ->
-    it "deletes horizontal space around all cursors", ->
-      @testEditor.setState("a [0] b\n\t[1]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("a[0]b\n[1]")
-
-    it "merges cursors that coincide", ->
-      @testEditor.setState("[0] [0]")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      expect(@testEditor.getState()).toEqual("[0]")
-
-    it "creates a single history entry for multiple changes", ->
-      @testEditor.setState("a [0] b\n\t[1]\t")
-      atom.commands.dispatch @editorView, 'atomic-emacs:delete-horizontal-space'
-      atom.commands.dispatch @editorView, 'core:undo'
-      expect(@testEditor.getState()).toEqual("a [0] b\n\t[1]\t")
 
   describe "atomic-emacs:just-one-space", ->
     it "replaces horizontal space around each cursor with a single space", ->
