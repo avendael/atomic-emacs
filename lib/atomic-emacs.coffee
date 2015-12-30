@@ -34,7 +34,11 @@ closeOtherPanes = (event) ->
       pane.close()
 
 module.exports =
+  EmacsCursor: EmacsCursor
+  EmacsEditor: EmacsEditor
+  KillRing: KillRing
   Mark: Mark
+  State: State
 
   activate: ->
     State.initialize()

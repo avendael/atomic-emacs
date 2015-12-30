@@ -1,9 +1,5 @@
-{AtomicEmacs, activate, deactivate} = require '../lib/atomic-emacs'
-EmacsCursor = require '../lib/emacs-cursor'
-EmacsEditor = require '../lib/emacs-editor'
-KillRing = require '../lib/kill-ring'
-Mark = require '../lib/mark'
-State = require '../lib/state'
+{EmacsCursor, EmacsEditor, KillRing, State, activate, deactivate} =
+  require '../lib/atomic-emacs'
 TestEditor = require './test-editor'
 
 describe "AtomicEmacs", ->
