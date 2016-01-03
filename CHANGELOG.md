@@ -1,4 +1,4 @@
-## LATEST
+## 0.9.0 (2016-01-02)
 
 * Updated readme.
 * Killing and yanking commands, multi-cursor aware. See readme for details.
