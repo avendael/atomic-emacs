@@ -1,7 +1,7 @@
 {
   "name": "atomic-emacs",
   "main": "./lib/atomic-emacs",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "An atomic implementation of emacs keybindings",
   "activationCommands": {
     "atom-text-editor": [
@@ -16,7 +16,6 @@
       "atomic-emacs:backward-paragraph",
       "atomic-emacs:forward-paragraph",
       "atomic-emacs:back-to-indentation",
-
       "atomic-emacs:backward-kill-word",
       "atomic-emacs:kill-word",
       "atomic-emacs:kill-line",
@@ -26,7 +25,6 @@
       "atomic-emacs:yank",
       "atomic-emacs:yank-pop",
       "atomic-emacs:yank-shift",
-
       "atomic-emacs:delete-horizontal-space",
       "atomic-emacs:delete-indentation",
       "atomic-emacs:open-line",
@@ -37,16 +35,13 @@
       "atomic-emacs:downcase-word-or-region",
       "atomic-emacs:upcase-word-or-region",
       "atomic-emacs:capitalize-word-or-region",
-
       "atomic-emacs:set-mark",
       "atomic-emacs:mark-sexp",
       "atomic-emacs:mark-whole-buffer",
       "atomic-emacs:exchange-point-and-mark",
-
       "atomic-emacs:recenter-top-bottom",
       "atomic-emacs:scroll-down",
       "atomic-emacs:scroll-up",
-
       "atomic-emacs:close-other-panes"
     ]
   },
