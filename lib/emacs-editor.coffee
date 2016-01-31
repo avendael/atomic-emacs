@@ -137,12 +137,15 @@ class EmacsEditor
     State.killed()
 
   copyRegionAsKill: ->
+    kills = []
     method = if State.killing then 'append' else 'push'
     @editor.transact =>
       for selection in @editor.getSelections()
         emacsCursor = EmacsCursor.for(selection.cursor)
         emacsCursor.killRing()[method](selection.getText())
+        kills.push emacsCursor.killRing().getCurrentEntry()
         emacsCursor.mark().deactivate()
+    atom.clipboard.write(kills.join("\n"))
 
   yank: ->
     @editor.transact =>
