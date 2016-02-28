@@ -59,6 +59,7 @@
   'ctrl-j': 'editor:newline'
   'ctrl-/': 'core:undo'
   'ctrl-_': 'core:undo'
+  'ctrl-x u': 'core:undo'
   'alt-/': 'autocomplete-plus:activate'
   'alt-q': 'autoflow:reflow-selection'
   'alt-;': 'editor:toggle-line-comments'
