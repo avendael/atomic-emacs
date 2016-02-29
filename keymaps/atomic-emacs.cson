@@ -20,7 +20,7 @@
   'ctrl-g crtl-shift-p':'git-plus:pull'
   'ctrl-g ctrl-d':'git-plus:diff'
   'ctrl-g ctrl-r':'git-plus:rm'
-  'ctrl-g ctrl-shift-c':'git-plus:checkout'
+  'ctrl-g ctrl-shift-p':'git-plus:checkout'
 
 
 'atom-workspace atom-text-editor':
