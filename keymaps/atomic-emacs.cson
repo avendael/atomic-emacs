@@ -11,6 +11,7 @@
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
+  
   # git-plus bindings
   'ctrl-g ctrl-s':'git-plus:status'
   'ctrl-g ctrl-a':'git-plus:add'
