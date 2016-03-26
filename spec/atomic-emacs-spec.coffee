@@ -599,6 +599,10 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
         expect(KillRing.global.getEntries()).toEqual(['b'])
 
+      it "puts the kill on the clipboard", ->
+        atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+        expect(atom.clipboard.read()).toEqual('b')
+
     describe "when there are multiple cursors", ->
       beforeEach ->
         @testEditor.setState("a(0)b[0]c d[1]e(1)f")
@@ -608,6 +612,11 @@ describe "AtomicEmacs", ->
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
         expect(KillRing.global.getEntries()).toEqual([])
+
+      it "puts the kills on the clipboard separated by newlines", ->
+        @testEditor.setState("a(0)b[0]c d(1)e[1]f")
+        atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
+        expect(atom.clipboard.read()).toEqual("b\ne")
 
     it "appends to the last kill ring entry if killing", ->
       @testEditor.setState("a[0]b(0)")
