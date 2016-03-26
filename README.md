@@ -91,6 +91,21 @@ prefix argument of -1).
 Feel free to suggest features on the Github issue tracker, or better yet, send a
 pull request!
 
+## Windows Note
+
+Some common Emacs keystrokes conflict with the default key bindings on Atom for
+Windows in unexpected ways. For example, `ctrl-k` (kill-line on emacs) is a
+prefix key for a set of pane management commands in Atom for Windows. The result
+is that after pressing `ctrl-k`, Atom will wait for 2 seconds to determine if it
+should treat this as a full command, or the beginning of another command, making
+`kill-line` feel "slow".
+
+You can of course disable this by disabling the all built-in key bindings that
+start with `ctrl-k` in your `keymaps.config` file. You can also do this a little
+easier with the [disable-keybindings][disable-keybindings] package.
+
+[disable-keybindings]: https://atom.io/packages/disable-keybindings
+
 ## Contributing
 
 * [Bug reports](https://github.com/avendael/atomic-emacs/issues)
