@@ -1,3 +1,13 @@
+## 0.9.1 (2016-03-26)
+
+* New bindings:
+  * ctrl-x ctrl-c: application:quit [Josh Meyer]
+  * ctrl-x u: core:undo [Josh Meyer]
+* copy-region-as-kill writes to clipboard, like other kill commands. [Yuichi
+  Tanikawa]
+* Fix selection disappearing when moving past the ends of the buffer.
+* Added note to readme about key binding collisions on Windows.
+
 ## 0.9.0 (2016-01-02)
 
 * Updated readme.
