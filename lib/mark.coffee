@@ -45,6 +45,12 @@ class Mark
       @activeSubscriptions = new CompositeDisposable
       @activeSubscriptions.add @cursor.onDidChangePosition (event) =>
         @_updateSelection(event)
+      # Cursor movement commands like cursor.moveDown deactivate the selection
+      # unconditionally, but don't trigger onDidChangePosition if the position
+      # doesn't change (e.g. at EOF). So we also update the selection after any
+      # command.
+      @activeSubscriptions.add atom.commands.onDidDispatch (event) =>
+        @_updateSelection(event)
       @activeSubscriptions.add @editor.getBuffer().onDidChange (event) =>
         unless @_isIndent(event) or @_isOutdent(event)
           # If we're in a command (as opposed to a simple character insert),

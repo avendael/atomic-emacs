@@ -33,6 +33,13 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
       expect(@testEditor.getState()).toEqual("[0]ab(0)c")
 
+    it "does not deactivate an active selection if at BOB", ->
+      @testEditor.setState("a[0]bc")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-char'
+      expect(@testEditor.getState()).toEqual("[0]a(0)bc")
+
   describe "atomic-emacs:forward-char", ->
     it "moves the cursor forward one character", ->
       @testEditor.setState("[0]x")
@@ -51,6 +58,13 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("a(0)b[0]c")
       atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
       expect(@testEditor.getState()).toEqual("a(0)bc[0]")
+
+    it "does not deactivate an active selection if at EOB", ->
+      @testEditor.setState("ab[0]c")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-char'
+      expect(@testEditor.getState()).toEqual("ab(0)c[0]")
 
   describe "atomic-emacs:backward-word", ->
     it "moves all cursors to the beginning of the current word if in a word", ->
@@ -145,6 +159,13 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
       expect(@testEditor.getState()).toEqual("a[0]b\nab\na(0)b\n")
 
+    it "does not deactivate an active selection if at BOB", ->
+      @testEditor.setState("ab\na[0]b\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      atom.commands.dispatch @editorView, 'atomic-emacs:previous-line'
+      expect(@testEditor.getState()).toEqual("[0]ab\na(0)b\n")
+
   describe "atomic-emacs:next-line", ->
     it "moves the cursor down one line", ->
       @testEditor.setState("a[0]b\nab\n")
@@ -163,6 +184,13 @@ describe "AtomicEmacs", ->
       expect(@testEditor.getState()).toEqual("a(0)b\na[0]b\nab\n")
       atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
       expect(@testEditor.getState()).toEqual("a(0)b\nab\na[0]b\n")
+
+    it "does not deactivate an active selection if at EOB", ->
+      @testEditor.setState("a[0]b\nab\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      atom.commands.dispatch @editorView, 'atomic-emacs:next-line'
+      expect(@testEditor.getState()).toEqual("a(0)b\nab\n[0]")
 
   describe "atomic-emacs:backward-paragraph", ->
     it "moves back to an empty line", ->
