@@ -1,3 +1,7 @@
+## LATEST
+
+* Fix scroll-{up,down} in an empty editor.
+
 ## 0.9.1 (2016-03-26)
 
 * New bindings:

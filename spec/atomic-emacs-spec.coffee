@@ -1287,3 +1287,13 @@ describe "AtomicEmacs", ->
       m.activate() for m in [mark0, mark1]
       atom.commands.dispatch @editorView, 'core:cancel'
       expect(mark0.isActive()).toBe(false)
+
+  describe "atomic-emacs:scroll-up", ->
+    it "does not crash on an empty editor", ->
+      @testEditor.setState('')
+      atom.commands.dispatch @editorView, 'atomic-emacs:scroll-up'
+
+  describe "atomic-emacs:scroll-down", ->
+    it "does not crash on an empty editor", ->
+      @testEditor.setState('')
+      atom.commands.dispatch @editorView, 'atomic-emacs:scroll-up'

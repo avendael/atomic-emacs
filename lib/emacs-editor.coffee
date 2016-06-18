@@ -286,16 +286,18 @@ class EmacsEditor
     State.recentered()
 
   scrollUp: ->
-    [firstRow,lastRow] = @editor.getVisibleRowRange()
-    currentRow = @editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - 2
-    @editor.moveDown(rowCount)
+    if (visibleRowRange = @editor.getVisibleRowRange())
+      [firstRow,lastRow] = visibleRowRange
+      currentRow = @editor.cursors[0].getBufferRow()
+      rowCount = (lastRow - firstRow) - 2
+      @editor.moveDown(rowCount)
 
   scrollDown: ->
-    [firstRow,lastRow] = @editor.getVisibleRowRange()
-    currentRow = @editor.cursors[0].getBufferRow()
-    rowCount = (lastRow - firstRow) - 2
-    @editor.moveUp(rowCount)
+    if (visibleRowRange = @editor.getVisibleRowRange())
+      [firstRow,lastRow] = visibleRowRange
+      currentRow = @editor.cursors[0].getBufferRow()
+      rowCount = (lastRow - firstRow) - 2
+      @editor.moveUp(rowCount)
 
   ###
   Section: Other
