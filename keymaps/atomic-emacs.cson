@@ -11,6 +11,22 @@
   'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
 
+'body.platform-darwin':
+  'cmd-x': 'atomic-emacs:cut'
+  'cmd-c': 'atomic-emacs:copy'
+
+'body.platform-linux':
+  'shift-delete': 'atomic-emacs:cut'
+  'ctrl-insert': 'atomic-emacs:copy'
+  'ctrl-x': 'atomic-emacs:cut'
+  'ctrl-c': 'atomic-emacs:copy'
+
+'body.platform-win32':
+  'shift-delete': 'atomic-emacs:cut'
+  'ctrl-insert': 'atomic-emacs:copy'
+  'ctrl-x': 'atomic-emacs:cut'
+  'ctrl-c': 'atomic-emacs:copy'
+
 'atom-workspace atom-text-editor':
   # Navigation
   'ctrl-b': 'atomic-emacs:backward-char'

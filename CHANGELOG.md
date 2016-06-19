@@ -1,3 +1,7 @@
+## LATEST
+
+* Setting to make built-in cut & copy commands use the kill ring.
+
 ## 0.9.2 (2016-06-18)
 
 * Fix scroll-{up,down} in an empty editor.

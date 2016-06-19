@@ -40,6 +40,12 @@ module.exports =
   Mark: Mark
   State: State
 
+  config:
+    alwaysUseKillRing:
+      type: 'boolean',
+      default: false,
+      title: 'Use kill ring for built-in copy & cut commands.'
+
   activate: ->
     if @disposable
       console.log "atomic-emacs activated twice -- aborting"
@@ -74,6 +80,16 @@ module.exports =
       "atomic-emacs:yank": (event) -> getEditor(event).yank()
       "atomic-emacs:yank-pop": (event) -> getEditor(event).yankPop()
       "atomic-emacs:yank-shift": (event) -> getEditor(event).yankShift()
+      "atomic-emacs:cut": (event) ->
+        if atom.config.get('atomic-emacs.alwaysUseKillRing')
+          getEditor(event).killRegion()
+        else
+          event.abortKeyBinding()
+      "atomic-emacs:copy": (event) ->
+        if atom.config.get('atomic-emacs.alwaysUseKillRing')
+          getEditor(event).copyRegionAsKill()
+        else
+          event.abortKeyBinding()
 
       # Editing
       "atomic-emacs:delete-horizontal-space": (event) -> getEditor(event).deleteHorizontalSpace()

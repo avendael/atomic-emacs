@@ -25,6 +25,8 @@
       "atomic-emacs:yank",
       "atomic-emacs:yank-pop",
       "atomic-emacs:yank-shift",
+      "atomic-emacs:cut",
+      "atomic-emacs:copy",
       "atomic-emacs:delete-horizontal-space",
       "atomic-emacs:delete-indentation",
       "atomic-emacs:open-line",
