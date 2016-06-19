@@ -41,6 +41,10 @@ module.exports =
   State: State
 
   activate: ->
+    if @disposable
+      console.log "atomic-emacs activated twice -- aborting"
+      return
+
     State.initialize()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
