@@ -42,7 +42,7 @@
   'alt-{': 'atomic-emacs:backward-paragraph'
   'alt-}': 'atomic-emacs:forward-paragraph'
   'alt-m': 'atomic-emacs:back-to-indentation'
-  'ctrl-a': 'editor:move-to-beginning-of-line'
+  'ctrl-a': 'editor:move-to-first-character-of-line'
   'ctrl-s': 'find-and-replace:show'
   'ctrl-r': 'find-and-replace:show'
   'alt-<': 'core:move-to-top'
