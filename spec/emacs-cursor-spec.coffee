@@ -20,22 +20,22 @@ describe "EmacsCursor", ->
     beforeEach ->
       @testEditor.setState("[0].")
       @emacsCursor = EmacsCursor.for(@editor.getCursors()[0])
-      @startingMarkerCount = @editor.getMarkerCount()
+      @startingMarkerCount = @editor.getMarkers().length
 
     it "cleans up markers set by the mark", ->
       @emacsCursor.mark().set().activate()
-      expect(@editor.getMarkerCount()).toBeGreaterThan(@startingMarkerCount)
+      expect(@editor.getMarkers().length).toBeGreaterThan(@startingMarkerCount)
 
       @emacsCursor.destroy()
-      expect(@editor.getMarkerCount()).toEqual(@startingMarkerCount)
+      expect(@editor.getMarkers().length).toEqual(@startingMarkerCount)
 
     it "cleans up the yank marker", ->
       @emacsCursor.killRing().push('x')
       @emacsCursor.yank()
-      expect(@editor.getMarkerCount()).toBeGreaterThan(@startingMarkerCount)
+      expect(@editor.getMarkers().length).toBeGreaterThan(@startingMarkerCount)
 
       @emacsCursor.destroy()
-      expect(@editor.getMarkerCount()).toEqual(@startingMarkerCount)
+      expect(@editor.getMarkers().length).toEqual(@startingMarkerCount)
 
   describe "mark", ->
     it "returns a mark for the cursor", ->
