@@ -1,3 +1,4 @@
+{CompositeDisposable} = require 'atom'
 EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
 Mark = require './mark'
@@ -9,12 +10,19 @@ class EmacsEditor
     editor._atomicEmacs ?= new EmacsEditor(editor)
 
   constructor: (@editor) ->
-    @disposable = @editor.onDidRemoveCursor =>
+    @disposable = new CompositeDisposable
+    @disposable.add @editor.onDidRemoveCursor =>
       cursors = @editor.getCursors()
       if cursors.length == 1
         EmacsCursor.for(cursors[0]).clearLocalKillRing()
+    @disposable.add @editor.onDidDestroy =>
+      @destroy()
 
   destroy: ->
+    # Neither cursor.did-destroy nor TextEditor.did-remove-cursor seems to fire
+    # when the editor is destroyed. (Atom bug?) So we destroy EmacsCursors here.
+    for cursor in @getEmacsCursors()
+      cursor.destroy()
     @disposable.dispose()
 
   getEmacsCursors: () ->

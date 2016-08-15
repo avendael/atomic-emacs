@@ -33,6 +33,7 @@ class EmacsCursor
     @_localKillRing = null
 
   destroy: ->
+    @clearLocalKillRing()
     @_disposable.dispose()
     @_disposable = null
     @_yankMarker?.destroy()

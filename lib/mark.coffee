@@ -67,7 +67,8 @@ class Mark
     if @active
       @activeSubscriptions.dispose()
       @active = false
-    @cursor.clearSelection()
+    unless @cursor.editor.isDestroyed()
+      @cursor.clearSelection()
 
   isActive: ->
     @active

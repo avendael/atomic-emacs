@@ -1209,6 +1209,10 @@ describe "AtomicEmacs", ->
       result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
       expect(result).toEqual([false, false])
 
+    it "properly cleans up if the editor is closed while the mark is active", ->
+      atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
+      atom.commands.dispatch atom.views.getView(atom.workspace), 'core:close'
+
   describe "atomic-emacs:mark-sexp", ->
     it "marks a symbol forward of the cursor", ->
       @testEditor.setState("a[0] bc ")
