@@ -6,7 +6,8 @@ State = require './state'
 # Each cursor may have a Mark. On construction, the mark is at the cursor's
 # position.
 #
-# The can then be set() at any time, which will move to where the cursor is.
+# The mark can then be set() at any time, which will move it to where the cursor
+# is.
 #
 # It can also be activate()d and deactivate()d. While active, the region between
 # the mark and the cursor is selected, and this selection is updated as the
