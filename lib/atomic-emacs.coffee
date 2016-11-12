@@ -45,6 +45,10 @@ module.exports =
       type: 'boolean',
       default: false,
       title: 'Use kill ring for built-in copy & cut commands.'
+    killWholeLine:
+      type: 'boolean',
+      default: false,
+      title: 'Always Kill whole line.'
 
   activate: ->
     if @disposable

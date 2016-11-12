@@ -188,10 +188,13 @@ class EmacsCursor
     @_killUnit method, =>
       start = @cursor.getBufferPosition()
       line = @editor.lineTextForBufferRow(start.row)
-      if /^\s*$/.test(line.slice(start.column))
-        end = [start.row + 1, 0]
+      if start.column == 0 and atom.config.get("atomic-emacs.killWholeLine")
+          end = [start.row + 1, 0]
       else
-        end = [start.row, line.length]
+        if /^\s*$/.test(line.slice(start.column))
+          end = [start.row + 1, 0]
+        else
+          end = [start.row, line.length]
       [start, end]
 
   killRegion: (method) ->
