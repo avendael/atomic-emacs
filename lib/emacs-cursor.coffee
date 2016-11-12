@@ -188,7 +188,7 @@ class EmacsCursor
     @_killUnit method, =>
       start = @cursor.getBufferPosition()
       line = @editor.lineTextForBufferRow(start.row)
-      if /^\s*$/.test(line.slice(start.column))
+      if atom.config.get("atomic-emacs.killWholeLine") or /^\s*$/.test(line.slice(start.column))
         end = [start.row + 1, 0]
       else
         end = [start.row, line.length]
