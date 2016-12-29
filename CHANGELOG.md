@@ -1,6 +1,8 @@
 ## LATEST
 
 * Setting to make built-in cut & copy commands use the kill ring.
+* Fix error when closing a tab with the mark active.
+* Fix commands potentially firing twice after upgrading Atomic Emacs.
 
 ## 0.9.2 (2016-06-18)
 
