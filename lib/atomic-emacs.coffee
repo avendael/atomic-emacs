@@ -99,6 +99,7 @@ module.exports =
       "atomic-emacs:just-one-space": (event) -> getEditor(event).justOneSpace()
       "atomic-emacs:transpose-chars": (event) -> getEditor(event).transposeChars()
       "atomic-emacs:transpose-lines": (event) -> getEditor(event).transposeLines()
+      "atomic-emacs:transpose-sexps": (event) -> getEditor(event).transposeSexps()
       "atomic-emacs:transpose-words": (event) -> getEditor(event).transposeWords()
       "atomic-emacs:downcase-word-or-region": (event) -> getEditor(event).downcaseWordOrRegion()
       "atomic-emacs:upcase-word-or-region": (event) -> getEditor(event).upcaseWordOrRegion()

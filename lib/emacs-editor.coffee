@@ -217,6 +217,11 @@ class EmacsEditor
       @moveEmacsCursors (emacsCursor) =>
         emacsCursor.transposeLines()
 
+  transposeSexps: ->
+    @editor.transact =>
+      @moveEmacsCursors (emacsCursor) =>
+        emacsCursor.transposeSexps()
+
   downcase = (s) -> s.toLowerCase()
   upcase = (s) -> s.toUpperCase()
   capitalize = (s) -> s.slice(0, 1).toUpperCase() + s.slice(1).toLowerCase()

@@ -67,6 +67,7 @@
   'alt-space': 'atomic-emacs:just-one-space'
   'ctrl-t': 'atomic-emacs:transpose-chars'
   'alt-t': 'atomic-emacs:transpose-words'
+  'ctrl-alt-t': 'atomic-emacs:transpose-sexps'
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x ctrl-l': 'atomic-emacs:downcase-word-or-region'
   'alt-l': 'atomic-emacs:downcase-word-or-region'
