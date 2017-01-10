@@ -91,6 +91,7 @@
   # UI
   'ctrl-g': 'core:cancel'
   'ctrl-x ctrl-s': 'core:save'
+  'ctrl-x ctrl-w': 'core:save-as'
   'alt-.': 'symbols-view:toggle-file-symbols'
 
 'atom-text-editor:not(.autocomplete-active):not(.mini)':
