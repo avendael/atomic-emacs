@@ -75,6 +75,7 @@ prefix argument of -1).
 
     'ctrl-g': 'core:cancel'
     'ctrl-x ctrl-s': 'core:save'
+    'ctrl-x ctrl-w': 'core:save-as'
     'alt-x': 'command-palette:toggle'
     'alt-.': 'symbols-view:toggle-file-symbols'
     'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
