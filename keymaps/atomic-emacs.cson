@@ -135,7 +135,7 @@
 'atom-panel.left, atom-panel.right':
   'ctrl-g': 'tool-panel:unfocus'
 
-'.platform-win32':
+'.platform-linux atom-workspace, .platform-win32 atom-workspace':
   'alt-g g': 'go-to-line:toggle'
   'alt-g alt-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
