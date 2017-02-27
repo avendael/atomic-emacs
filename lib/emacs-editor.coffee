@@ -281,20 +281,20 @@ class EmacsEditor
 
   recenterTopBottom: ->
     return unless @editor
-    editorElement = atom.views.getView(@editor)
+    view = atom.views.getView(@editor)
     minRow = Math.min((c.getBufferRow() for c in @editor.getCursors())...)
     maxRow = Math.max((c.getBufferRow() for c in @editor.getCursors())...)
-    minOffset = editorElement.pixelPositionForBufferPosition([minRow, 0])
-    maxOffset = editorElement.pixelPositionForBufferPosition([maxRow, 0])
+    minOffset = view.pixelPositionForBufferPosition([minRow, 0])
+    maxOffset = view.pixelPositionForBufferPosition([maxRow, 0])
 
     switch State.recenters
       when 0
-        @editor.setScrollTop((minOffset.top + maxOffset.top - @editor.getHeight())/2)
+        view.setScrollTop((minOffset.top + maxOffset.top - view.getHeight())/2)
       when 1
         # Atom applies a (hardcoded) 2-line buffer while scrolling -- do that here.
-        @editor.setScrollTop(minOffset.top - 2*@editor.getLineHeightInPixels())
+        view.setScrollTop(minOffset.top - 2*@editor.getLineHeightInPixels())
       when 2
-        @editor.setScrollTop(maxOffset.top + 3*@editor.getLineHeightInPixels() - @editor.getHeight())
+        view.setScrollTop(maxOffset.top + 3*@editor.getLineHeightInPixels() - view.getHeight())
 
     State.recentered()
 
