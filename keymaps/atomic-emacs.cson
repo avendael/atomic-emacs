@@ -109,6 +109,14 @@
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
+'.platform-linux atom-workspace atom-text-editor:not([mini]),
+ .platform-win32 atom-workspace atom-text-editor:not([mini])':
+  'ctrl-j': 'editor:newline'
+
+'.platform-linux atom-workspace atom-text-editor:not(.autocomplete-active):not([mini]),
+ .platform-win32 atom-workspace atom-text-editor:not(.autocomplete-active):not([mini])':
+  'ctrl-/': 'core:undo'
+
 '.platform-win32 atom-workspace.atomic-emacs atom-text-editor':
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
