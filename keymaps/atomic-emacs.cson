@@ -10,6 +10,10 @@
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
+  'ctrl-b': 'unset!'
+  'ctrl-f': 'unset!'
+  'ctrl-p': 'unset!'
+  'ctrl-n': 'unset!'
 
 'body.platform-darwin':
   'cmd-x': 'atomic-emacs:cut'
