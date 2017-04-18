@@ -1,15 +1,29 @@
 'body':
   'ctrl-g': 'core:cancel'
+  'ctrl-x ctrl-c': 'application:quit'
   'alt-x': 'command-palette:toggle'
   'ctrl-x ctrl-c': 'application:quit'
   'ctrl-x k': 'core:close'
-  'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
+  'ctrl-x ctrl-f': 'advanced-open-file:toggle'
+  'ctrl-x ctrl-o': 'application:add-project-folder'
   'ctrl-x b': 'fuzzy-finder:toggle-buffer-finder'
   'ctrl-x 3': 'pane:split-right'
   'ctrl-x 2': 'pane:split-down'
   'ctrl-x 0': 'pane:close'
   'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
+  
+  # git-plus bindings
+  'ctrl-g ctrl-s':'git-plus:status'
+  'ctrl-g ctrl-a':'git-plus:add'
+  'ctrl-g ctrl-shift-a':'git-plus:add-all'
+  'ctrl-g ctrl-c':'git-plus:commit'
+  'ctrl-g ctrl-p':'git-plus:push'
+  'ctrl-g crtl-shift-p':'git-plus:pull'
+  'ctrl-g ctrl-d':'git-plus:diff'
+  'ctrl-g ctrl-r':'git-plus:rm'
+  'ctrl-g ctrl-shift-p':'git-plus:checkout'
+
 
 'body.platform-darwin':
   'cmd-x': 'atomic-emacs:cut'
