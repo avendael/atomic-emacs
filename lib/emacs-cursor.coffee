@@ -399,7 +399,7 @@ class EmacsCursor
             hit.stop()
       result or point
     else
-      @_locateForwardFrom(point, /\W/i)?.start or eob
+      @_locateForwardFrom(point, /[\W\n]/i)?.start or eob
 
   _sexpBackwardFrom: (point) ->
     point = @_locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or BOB
@@ -426,7 +426,7 @@ class EmacsCursor
             hit.stop()
       result or point
     else
-      @_locateBackwardFrom(point, /\W/i)?.end or BOB
+      @_locateBackwardFrom(point, /[\W\n]/i)?.end or BOB
 
   _locateBackwardFrom: (point, regExp) ->
     result = null
