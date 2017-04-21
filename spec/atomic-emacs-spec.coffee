@@ -122,9 +122,9 @@ describe "AtomicEmacs", ->
 
   describe "atomic-emacs:backward-sexp", ->
     it "moves all cursors backward one symbolic expression", ->
-      @testEditor.setState("aa [0]\n(bb cc)[1]\n")
+      @testEditor.setState("(aa bb)\naa [0]\n(bb cc)[1]\n")
       atom.commands.dispatch @editorView, 'atomic-emacs:backward-sexp'
-      expect(@testEditor.getState()).toEqual("[0]aa \n[1](bb cc)\n")
+      expect(@testEditor.getState()).toEqual("(aa bb)\n[0]aa \n[1](bb cc)\n")
 
     it "merges cursors that coincide", ->
       @testEditor.setState("aa[0] [1]")
@@ -133,9 +133,9 @@ describe "AtomicEmacs", ->
 
   describe "atomic-emacs:forward-sexp", ->
     it "moves all cursors forward one symbolic expression", ->
-      @testEditor.setState("[0]  aa\n[1](bb cc)\n")
+      @testEditor.setState("[0]aa\n[1](bb cc)\n")
       atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
-      expect(@testEditor.getState()).toEqual("  aa[0]\n(bb cc)[1]\n")
+      expect(@testEditor.getState()).toEqual("aa[0]\n(bb cc)[1]\n")
 
     it "merges cursors that coincide", ->
       @testEditor.setState("[0] [1]aa")
