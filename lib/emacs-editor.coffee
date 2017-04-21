@@ -114,7 +114,7 @@ class EmacsEditor
     @editor.transact =>
       @moveEmacsCursors (emacsCursor, cursor) =>
         kills.push emacsCursor.backwardKillWord(method)
-    atom.clipboard.write(kills.join("\n"))
+    @_updateGlobalKillRing(kills)
     State.killed()
 
   killWord: ->
@@ -123,7 +123,7 @@ class EmacsEditor
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killWord(method)
-    atom.clipboard.write(kills.join("\n"))
+    @_updateGlobalKillRing(kills, method)
     State.killed()
 
   killLine: ->
@@ -132,7 +132,7 @@ class EmacsEditor
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killLine(method)
-    atom.clipboard.write(kills.join("\n"))
+    @_updateGlobalKillRing(kills, method)
     State.killed()
 
   killRegion: ->
@@ -141,7 +141,7 @@ class EmacsEditor
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
         kills.push emacsCursor.killRegion(method)
-    atom.clipboard.write(kills.join("\n"))
+    @_updateGlobalKillRing(kills, method)
     State.killed()
 
   copyRegionAsKill: ->
@@ -153,7 +153,7 @@ class EmacsEditor
         emacsCursor.killRing()[method](selection.getText())
         kills.push emacsCursor.killRing().getCurrentEntry()
         emacsCursor.mark().deactivate()
-    atom.clipboard.write(kills.join("\n"))
+    @_updateGlobalKillRing(kills, method)
 
   yank: ->
     @editor.transact =>
@@ -174,6 +174,13 @@ class EmacsEditor
       for emacsCursor in @getEmacsCursors()
         emacsCursor.rotateYank(1)
     State.yanked()
+
+  _updateGlobalKillRing: (kills, method) ->
+    if @editor.hasMultipleCursors()
+      if method == "push"
+        KillRing.global.push(kills.join("\n"))
+      else
+        KillRing.global.replace(kills.join("\n"))
 
   ###
   Section: Editing

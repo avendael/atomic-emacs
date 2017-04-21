@@ -340,7 +340,7 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
-        expect(KillRing.global.getEntries()).toEqual([])
+        expect(KillRing.global.getEntries()).toEqual(['b\ne'])
 
       it "puts the kills on the clipboard separated by newlines", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
@@ -428,7 +428,7 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
-        expect(KillRing.global.getEntries()).toEqual([])
+        expect(KillRing.global.getEntries()).toEqual(['b\ne'])
 
       it "puts the kills on the clipboard separated by newlines", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
@@ -555,7 +555,7 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         expect(@getKillRing(0).getEntries()).toEqual(['bc'])
         expect(@getKillRing(1).getEntries()).toEqual(['ef'])
-        expect(KillRing.global.getEntries()).toEqual([])
+        expect(KillRing.global.getEntries()).toEqual(['bc\nef'])
 
       it "puts the kills on the clipboard separated by newlines", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
@@ -612,7 +612,7 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
-        expect(KillRing.global.getEntries()).toEqual([])
+        expect(KillRing.global.getEntries()).toEqual(['b\ne'])
 
       it "puts the kills on the clipboard separated by newlines", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
@@ -687,7 +687,7 @@ describe "AtomicEmacs", ->
         atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
         expect(@getKillRing(0).getEntries()).toEqual(['b'])
         expect(@getKillRing(1).getEntries()).toEqual(['e'])
-        expect(KillRing.global.getEntries()).toEqual([])
+        expect(KillRing.global.getEntries()).toEqual(['b\ne'])
 
       it "puts the kills on the clipboard separated by newlines", ->
         @testEditor.setState("a(0)b[0]c d(1)e[1]f")
