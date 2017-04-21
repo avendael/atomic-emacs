@@ -46,6 +46,10 @@ module.exports =
       type: 'boolean',
       default: true,
       title: 'Send kills to the system clipboard'
+    yankFromClipboard:
+      type: 'boolean',
+      default: false,
+      title: 'Yank changed text from the system clipboard'
     killWholeLine:
       type: 'boolean',
       default: false,
