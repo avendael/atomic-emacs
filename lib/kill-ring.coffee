@@ -30,7 +30,7 @@ class KillRing
     this
 
   _pushSystemClipboard: (text) ->
-    if global
+    if global and atom.config.get("atomic-emacs.killToClipboard")
       atom.clipboard.write(text)
 
   push: (text) ->
