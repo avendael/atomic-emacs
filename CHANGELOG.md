@@ -1,4 +1,10 @@
-## LATEST
+## 0.11.0 (2017-05-15)
+
+* Add option to have clipboard copies appended to kill ring. [Marty Gentillon]
+* Killing with multiple cursors also appends to global kill ring. [Marty
+  Gentillon]
+
+## 0.10.0 (2017-02-27)
 
 * Add transpose-sexps (ctrl-alt-t).
 * Setting to make built-in cut & copy commands use the kill ring.
