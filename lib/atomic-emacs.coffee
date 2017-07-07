@@ -20,7 +20,7 @@ afterCommand = (event) ->
 
 getEditor = (event) ->
   # Get editor from the event if possible so we can target mini-editors.
-  editor = event.target?.getModel?() ? atom.workspace.getActiveTextEditor()
+  editor = event.target?.closest('atom-text-editor')?.getModel?() ? atom.workspace.getActiveTextEditor()
   EmacsEditor.for(editor)
 
 closeOtherPanes = (event) ->
