@@ -67,6 +67,14 @@ class EmacsEditor
     @moveEmacsCursors (emacsCursor) ->
       emacsCursor.skipSexpForward()
 
+  backwardList: ->
+    @moveEmacsCursors (emacsCursor) ->
+      emacsCursor.skipListBackward()
+
+  forwardList: ->
+    @moveEmacsCursors (emacsCursor) ->
+      emacsCursor.skipListForward()
+
   previousLine: ->
     @editor.moveCursors (cursor) ->
       cursor.moveUp()

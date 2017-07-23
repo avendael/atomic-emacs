@@ -11,6 +11,8 @@
       "atomic-emacs:forward-word",
       "atomic-emacs:backward-sexp",
       "atomic-emacs:forward-sexp",
+      "atomic-emacs:backward-list",
+      "atomic-emacs:forward-list",
       "atomic-emacs:previous-line",
       "atomic-emacs:next-line",
       "atomic-emacs:backward-paragraph",

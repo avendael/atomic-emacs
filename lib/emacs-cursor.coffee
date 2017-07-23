@@ -304,6 +304,18 @@ class EmacsCursor
     target = @_sexpBackwardFrom(point)
     @cursor.setBufferPosition(target)
 
+  # Skip to the end of the current or next list.
+  skipListForward: ->
+    point = @cursor.getBufferPosition()
+    target = @_listForwardFrom(point)
+    @cursor.setBufferPosition(target)
+
+  # Skip to the beginning of the current or previous list.
+  skipListBackward: ->
+    point = @cursor.getBufferPosition()
+    target = @_listBackwardFrom(point)
+    @cursor.setBufferPosition(target)
+
   # Add the next sexp to the cursor's selection. Activate if necessary.
   markSexp: ->
     range = @cursor.getMarker().getBufferRange()
@@ -453,6 +465,52 @@ class EmacsCursor
       result or point
     else
       @_locateBackwardFrom(point, /[\W\n]/i)?.end or BOB
+
+  _listForwardFrom: (point) ->
+    eob = @editor.getEofBufferPosition()
+    point = @_locateForwardFrom(point, /[()[\]{}]/i)?.start or eob
+    character = @_nextCharacterFrom(point)
+    if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
+      result = null
+      stack = []
+      eof = @editor.getEofBufferPosition()
+      re = /[^()[\]{}\\]+|\\.|[()[\]{}]/g
+      @editor.scanInBufferRange re, [point, eof], (hit) =>
+        if hit.matchText == stack[stack.length - 1]
+          stack.pop()
+          if stack.length == 0
+            result = hit.range.end
+            hit.stop()
+        else if (closer = OPENERS[hit.matchText])
+          stack.push(closer)
+        else if CLOSERS[hit.matchText]
+          if stack.length == 0
+            hit.stop()
+      result or point
+    else
+      eob
+
+  _listBackwardFrom: (point) ->
+    point = @_locateBackwardFrom(point, /[()[\]{}]/i)?.end or BOB
+    character = @_previousCharacterFrom(point)
+    if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
+      result = null
+      stack = []
+      re = /[^()[\]{}\\]+|\\.|[()[\]{}]/g
+      @editor.backwardsScanInBufferRange re, [BOB, point], (hit) =>
+        if hit.matchText == stack[stack.length - 1]
+          stack.pop()
+          if stack.length == 0
+            result = hit.range.start
+            hit.stop()
+        else if (opener = CLOSERS[hit.matchText])
+            stack.push(opener)
+        else if OPENERS[hit.matchText]
+          if stack.length == 0
+            hit.stop()
+      result or point
+    else
+      BOB
 
   _locateBackwardFrom: (point, regExp) ->
     result = null

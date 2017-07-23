@@ -73,6 +73,8 @@ module.exports =
       "atomic-emacs:forward-word": (event) -> getEditor(event).forwardWord()
       "atomic-emacs:backward-sexp": (event) -> getEditor(event).backwardSexp()
       "atomic-emacs:forward-sexp": (event) -> getEditor(event).forwardSexp()
+      "atomic-emacs:backward-list": (event) -> getEditor(event).backwardList()
+      "atomic-emacs:forward-list": (event) -> getEditor(event).forwardList()
       "atomic-emacs:previous-line": (event) -> getEditor(event).previousLine()
       "atomic-emacs:next-line": (event) -> getEditor(event).nextLine()
       "atomic-emacs:backward-paragraph": (event) -> getEditor(event).backwardParagraph()
