@@ -17,6 +17,8 @@ Emacs keybindings for Atom.
     'alt-right': 'atomic-emacs:forward-word'
     'ctrl-alt-b': 'atomic-emacs:backward-sexp'
     'ctrl-alt-f': 'atomic-emacs:forward-sexp'
+    'ctrl-alt-p': 'atomic-emacs:backward-list'
+    'ctrl-alt-n': 'atomic-emacs:forward-list'
     'alt-{': 'atomic-emacs:backward-paragraph'
     'alt-}': 'atomic-emacs:forward-paragraph'
     'alt-m': 'atomic-emacs:back-to-indentation'
