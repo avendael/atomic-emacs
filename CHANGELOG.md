@@ -1,3 +1,7 @@
+## LATEST
+
+* Ctrl-m inserts a newline.
+
 ## 0.11.0 (2017-05-15)
 
 * Add option to have clipboard copies appended to kill ring. [Marty Gentillon]
