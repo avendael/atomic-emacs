@@ -105,6 +105,7 @@ module.exports =
       "atomic-emacs:delete-indentation": (event) -> getEditor(event).deleteIndentation()
       "atomic-emacs:open-line": (event) -> getEditor(event).openLine()
       "atomic-emacs:just-one-space": (event) -> getEditor(event).justOneSpace()
+      "atomic-emacs:delete-blank-lines": (event) -> getEditor(event).deleteBlankLines()
       "atomic-emacs:transpose-chars": (event) -> getEditor(event).transposeChars()
       "atomic-emacs:transpose-lines": (event) -> getEditor(event).transposeLines()
       "atomic-emacs:transpose-sexps": (event) -> getEditor(event).transposeSexps()

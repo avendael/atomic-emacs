@@ -1,6 +1,7 @@
 ## LATEST
 
 * Ctrl-m inserts a newline.
+* Add delete-blank-lines (ctrl-x ctrl-o).
 
 ## 0.11.0 (2017-05-15)
 

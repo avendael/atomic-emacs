@@ -1099,6 +1099,28 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'core:undo'
       expect(@testEditor.getState()).toEqual("a [0] b\n\t[1]\t")
 
+  describe "atomic-emacs:delete-blank-lines", ->
+    it "deletes all surrounding blank lines (leaving one) if on a nonisolated blank line", ->
+      @testEditor.setState(" \n [0]\n \nx\n [1]\n \nx\n [2]\n \n \nx\n \n \n [3]\nx\n \n [4]\n \n ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-blank-lines'
+      expect(@testEditor.getState()).toEqual("[0]\nx\n[1]\nx\n[2]\nx\n[3]\nx\n[4]\n")
+
+    it "deletes that one (unless it's at eof) if on an isolated blank line", ->
+      @testEditor.setState(" [0]\nx\n [1]\nx\n [2]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-blank-lines'
+      expect(@testEditor.getState()).toEqual("[0]x\n[1]x\n[2]")
+
+    it "deletes any immediately following blank lines if on a nonblank line", ->
+      @testEditor.setState("a[0]b\nx\na[1]b\n \n \nx\na[2]b\n \n ")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-blank-lines'
+      expect(@testEditor.getState()).toEqual("a[0]b\nx\na[1]b\nx\na[2]b\n")
+
+    it "creates a single history entry for multiple changes", ->
+      @testEditor.setState("a\n[0]\n\na\n[1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:delete-blank-lines'
+      atom.commands.dispatch @editorView, 'core:undo'
+      expect(@testEditor.getState()).toEqual("a\n[0]\n\na\n[1]\n")
+
   describe "atomic-emacs:transpose-chars", ->
     it "transposes the current character with the one after it", ->
       @testEditor.setState("ab[0]cd")

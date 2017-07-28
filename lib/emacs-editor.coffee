@@ -209,6 +209,11 @@ class EmacsEditor
         range = emacsCursor.horizontalSpaceRange()
         @editor.setTextInBufferRange(range, ' ')
 
+  deleteBlankLines: ->
+    @editor.transact =>
+      for emacsCursor in @getEmacsCursors()
+        emacsCursor.deleteBlankLines()
+
   transposeChars: ->
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>

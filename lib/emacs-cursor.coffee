@@ -159,6 +159,32 @@ class EmacsCursor
     end = @cursor.getBufferPosition()
     [start, end]
 
+  deleteBlankLines: ->
+    eof = @editor.getEofBufferPosition()
+    blankLineRe = /^[ \t]*$/
+
+    point = @cursor.getBufferPosition()
+    s = e = point.row
+    while blankLineRe.test(@cursor.editor.lineTextForBufferRow(e)) and e <= eof.row
+      e += 1
+    while s > 0 and blankLineRe.test(@cursor.editor.lineTextForBufferRow(s - 1))
+      s -= 1
+
+    if s == e
+      # No blanks: delete blanks ahead.
+      e += 1
+      while blankLineRe.test(@cursor.editor.lineTextForBufferRow(e)) and e <= eof.row
+        e += 1
+      @cursor.editor.setTextInBufferRange([[s + 1, 0], [e, 0]], '')
+    else if e == s + 1
+      # One blank: delete it.
+      @cursor.editor.setTextInBufferRange([[s, 0], [e, 0]], '')
+      @cursor.setBufferPosition([s, 0])
+    else
+      # Multiple blanks: delete all but one.
+      @cursor.editor.setTextInBufferRange([[s, 0], [e, 0]], '\n')
+      @cursor.setBufferPosition([s, 0])
+
   transformWord: (transformer) ->
     @skipNonWordCharactersForward()
     start = @cursor.getBufferPosition()
