@@ -71,6 +71,7 @@
   'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
   'ctrl-x ctrl-l': 'atomic-emacs:downcase-word-or-region'
   'alt-l': 'atomic-emacs:downcase-word-or-region'
+  'ctrl-m': 'editor:newline'
   'ctrl-x ctrl-u': 'atomic-emacs:upcase-word-or-region'
   'alt-u': 'atomic-emacs:upcase-word-or-region'
   'alt-c': 'atomic-emacs:capitalize-word-or-region'
