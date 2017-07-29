@@ -2,6 +2,7 @@
 
 * Ctrl-m inserts a newline.
 * Add delete-blank-lines (ctrl-x ctrl-o).
+* Fix killing & yanking with multiple cursors.
 
 ## 0.11.0 (2017-05-15)
 
