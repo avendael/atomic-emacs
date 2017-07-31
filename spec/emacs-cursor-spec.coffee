@@ -511,6 +511,38 @@ describe "EmacsCursor", ->
       @emacsCursor.skipSexpBackward()
       expect(@testEditor.getState()).toEqual("a ([0] b)")
 
+  describe "skipListForward", ->
+    it "skips over the next list ahead", ->
+      @testEditor.setState("a[0]b (c d) e")
+      @emacsCursor.skipListForward()
+      expect(@testEditor.getState()).toEqual("ab (c d)[0] e")
+
+    it "does not move if there is no complete list ahead", ->
+      @testEditor.setState("a[0] (b")
+      @emacsCursor.skipListForward()
+      expect(@testEditor.getState()).toEqual("a[0] (b")
+
+    it "does not move if at the end of the buffer", ->
+      @testEditor.setState("a[0]")
+      @emacsCursor.skipListForward()
+      expect(@testEditor.getState()).toEqual("a[0]")
+
+  describe "skipListBackward", ->
+    it "skips over the previous list", ->
+      @testEditor.setState("a (b c) d[0]e")
+      @emacsCursor.skipListBackward()
+      expect(@testEditor.getState()).toEqual("a [0](b c) de")
+
+    it "does not move if there is no previous complete list", ->
+      @testEditor.setState("a) [0]b")
+      @emacsCursor.skipListBackward()
+      expect(@testEditor.getState()).toEqual("a) [0]b")
+
+    it "does not move if at the beginning of the buffer", ->
+      @testEditor.setState("[0]a")
+      @emacsCursor.skipListBackward()
+      expect(@testEditor.getState()).toEqual("[0]a")
+
   describe "markSexp", ->
     it "selects the next sexp if the selection is not active", ->
       @testEditor.setState("a[0] (b c) d")
