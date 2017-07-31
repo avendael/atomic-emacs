@@ -1,7 +1,8 @@
 ## LATEST
 
-* Ctrl-m inserts a newline.
 * Add delete-blank-lines (ctrl-x ctrl-o).
+* Add {forward,backward}-list (ctrl-alt-n, ctrl-alt-p). [Philip Larie]
+* Bind editor:newline to ctrl-m.
 * Fix killing & yanking with multiple cursors.
 * Fix editing commands in settings pane under Atom 1.19.
 
