@@ -3,6 +3,16 @@
 Emacs keybindings for Atom.
 ![Build Status](https://travis-ci.org/avendael/atomic-emacs.svg?branch=master)
 
+## Installation
+
+Go to Atom's `Preferences` > `Install screen`.
+
+On the `+ Install Packages` area there's a package search box, type: `atomic-emacs` and press the `Packages` button to start the package search.
+
+The latest `atomic-emacs` package should be the first search result, click the `Install` button. 
+
+There's no need to restart for the keybindings to take effect.
+
 ## Commands
 
 ### Navigation
