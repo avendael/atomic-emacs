@@ -142,6 +142,28 @@ describe "AtomicEmacs", ->
       atom.commands.dispatch @editorView, 'atomic-emacs:forward-sexp'
       expect(@testEditor.getState()).toEqual(" aa[0]")
 
+  describe "atomic-emacs:backward-list", ->
+    it "moves all cursors backward one list expression", ->
+      @testEditor.setState("(aa {bb})\naa [0]\n(bb cc)[1]\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-list'
+      expect(@testEditor.getState()).toEqual("[0](aa {bb})\naa \n[1](bb cc)\n")
+
+    it "merges cursors that coincide", ->
+      @testEditor.setState("{aa}[0] [1]")
+      atom.commands.dispatch @editorView, 'atomic-emacs:backward-list'
+      expect(@testEditor.getState()).toEqual("[0]{aa} ")
+
+  describe "atomic-emacs:forward-list", ->
+    it "moves all cursors forward one list expression", ->
+      @testEditor.setState("[0]a{a}\n[1](bb cc)\n")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-list'
+      expect(@testEditor.getState()).toEqual("a{a}[0]\n(bb cc)[1]\n")
+
+    it "merges cursors that coincide", ->
+      @testEditor.setState("[0] [1]aa")
+      atom.commands.dispatch @editorView, 'atomic-emacs:forward-list'
+      expect(@testEditor.getState()).toEqual(" aa[0]")
+
   describe "atomic-emacs:previous-line", ->
     it "moves the cursor up one line", ->
       @testEditor.setState("ab\na[0]b\n")
