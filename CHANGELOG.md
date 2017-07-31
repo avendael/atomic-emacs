@@ -3,6 +3,7 @@
 * Ctrl-m inserts a newline.
 * Add delete-blank-lines (ctrl-x ctrl-o).
 * Fix killing & yanking with multiple cursors.
+* Fix editing commands in settings pane under Atom 1.19.
 
 ## 0.11.0 (2017-05-15)
 
