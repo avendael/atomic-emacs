@@ -3,6 +3,8 @@
 * Add delete-blank-lines (ctrl-x ctrl-o).
 * Add {forward,backward}-list (ctrl-alt-n, ctrl-alt-p). [Philip Larie]
 * Bind editor:newline to ctrl-m.
+* Use advanced-open-file if installed for ctrl-x ctrl-f (can be disabled in
+  settings).
 * Fix killing & yanking with multiple cursors.
 * Fix editing commands in settings pane under Atom 1.19.
 

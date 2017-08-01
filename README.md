@@ -82,7 +82,7 @@ prefix argument of -1).
     'ctrl-x ctrl-w': 'core:save-as'
     'alt-x': 'command-palette:toggle'
     'alt-.': 'symbols-view:toggle-file-symbols'
-    'ctrl-x ctrl-f': 'fuzzy-finder:toggle-file-finder'
+    'ctrl-x ctrl-f': 'atomic-emacs:find-file'
     'ctrl-x b': 'fuzzy-finder:toggle-buffer-finder'
     'ctrl-x k': 'core:close'
     'ctrl-x 0': 'pane:close'
@@ -90,6 +90,14 @@ prefix argument of -1).
     'ctrl-x 2': 'pane:split-down'
     'ctrl-x 3': 'pane:split-right'
     'ctrl-x o': 'window:focus-next-pane'
+
+### Other Packages
+
+For a more Emacs-like version of `find-file`, install
+[`advanced-open-file`](https://atom.io/packages/advanced-open-file). Atomic
+Emacs will use that package if it exists by default instead of Atom's
+fuzzy-finder. This may be disabled in settings, but note that fuzzy-finder
+cannot create new files.
 
 ### Something missing?
 

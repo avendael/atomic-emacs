@@ -46,6 +46,7 @@
       "atomic-emacs:recenter-top-bottom",
       "atomic-emacs:scroll-down",
       "atomic-emacs:scroll-up",
+      "atomic-emacs:find-file",
       "atomic-emacs:close-other-panes"
     ]
   },

@@ -23,6 +23,14 @@ getEditor = (event) ->
   editor = event.target?.closest('atom-text-editor')?.getModel?() ? atom.workspace.getActiveTextEditor()
   EmacsEditor.for(editor)
 
+findFile = (event) ->
+  haveAOF = atom.packages.isPackageLoaded('advanced-open-file')
+  useAOF = atom.config.get('atomic-emacs.useAdvancedOpenFile')
+  if haveAOF and useAOF
+    atom.commands.dispatch(event.target, 'advanced-open-file:toggle')
+  else
+    atom.commands.dispatch(event.target, 'fuzzy-finder:toggle-file-finder')
+
 closeOtherPanes = (event) ->
   activePane = atom.workspace.getActivePane()
   return if not activePane
@@ -38,10 +46,14 @@ module.exports =
   State: State
 
   config:
+    useAdvancedOpenFile:
+      type: 'boolean',
+      default: true,
+      title: 'Use advanced-open-file for find-file if available'
     alwaysUseKillRing:
       type: 'boolean',
       default: false,
-      title: 'Use kill ring for built-in copy & cut commands.'
+      title: 'Use kill ring for built-in copy & cut commands'
     killToClipboard:
       type: 'boolean',
       default: true,
@@ -128,6 +140,7 @@ module.exports =
       "atomic-emacs:scroll-up": (event) -> getEditor(event).scrollUp()
 
       # UI
+      "atomic-emacs:find-file": (event) -> findFile(event)
       "atomic-emacs:close-other-panes": (event) -> closeOtherPanes(event)
       "core:cancel": (event) -> getEditor(event).keyboardQuit()
 
