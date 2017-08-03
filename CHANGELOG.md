@@ -6,6 +6,7 @@
 * Use advanced-open-file if installed for ctrl-x ctrl-f (can be disabled in
   settings).
 * Fix killing & yanking with multiple cursors.
+* Fix open-line moving the cursor if autoindentation is on.
 * Fix editing commands in settings pane under Atom 1.19.
 
 ## 0.11.0 (2017-05-15)

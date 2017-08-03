@@ -152,6 +152,12 @@ class EmacsCursor
     if not @goToMatchStartForward(regexp)
       @_goTo @editor.getEofBufferPosition()
 
+  # Insert the given text after this cursor.
+  insertAfter: (text) ->
+    position = @cursor.getBufferPosition()
+    @editor.setTextInBufferRange([position, position], "\n")
+    @cursor.setBufferPosition(position)
+
   horizontalSpaceRange: ->
     @skipCharactersBackward(' \t')
     start = @cursor.getBufferPosition()

@@ -220,8 +220,8 @@ class EmacsEditor
 
   openLine: ->
     @editor.transact =>
-      @editor.insertText("\n")
-      @editor.moveLeft()
+      for emacsCursor in @getEmacsCursors()
+        emacsCursor.insertAfter("\n")
 
   justOneSpace: ->
     @editor.transact =>
