@@ -7,7 +7,7 @@
   settings).
 * Fix killing & yanking with multiple cursors.
 * Fix open-line moving the cursor if autoindentation is on.
-* Fix editing commands in settings pane under Atom 1.19.
+* Fix editing commands in settings pane under Atom 1.19 [Adrien Delessert].
 
 ## 0.11.0 (2017-05-15)
 
