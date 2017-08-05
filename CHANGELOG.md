@@ -1,4 +1,4 @@
-## LATEST
+## 0.12.0 (2017-08-15)
 
 * Add delete-blank-lines (ctrl-x ctrl-o).
 * Add {forward,backward}-list (ctrl-alt-n, ctrl-alt-p). [Philip Larie]
