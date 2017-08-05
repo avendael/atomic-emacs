@@ -5,13 +5,17 @@ Emacs keybindings for Atom.
 
 ## Installation
 
-Go to Atom's `Preferences` > `Install screen`.
+On the command line:
 
-On the `+ Install Packages` area there's a package search box, type: `atomic-emacs` and press the `Packages` button to start the package search.
+ * `apm install atomic-emacs`
 
-The latest `atomic-emacs` package should be the first search result, click the `Install` button. 
+Or in Atom:
 
-There's no need to restart for the keybindings to take effect.
+ * In `Preferences`, click the `Install` tab.
+ * Type `atomic-emacs` in the search box, and click the `Packages` button.
+ * Click `Install` on the `atomic-emacs` package.
+
+There's no need to restart Atom.
 
 ## Commands
 
