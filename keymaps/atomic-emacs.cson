@@ -1,4 +1,4 @@
-'body':
+'atom-workspace':
   'ctrl-g': 'core:cancel'
   'alt-x': 'command-palette:toggle'
   'ctrl-x ctrl-c': 'application:quit'

@@ -1,3 +1,7 @@
+## LATEST
+
+* Fix finding a file when no tabs are open.
+
 ## 0.12.0 (2017-08-15)
 
 * Add delete-blank-lines (ctrl-x ctrl-o).

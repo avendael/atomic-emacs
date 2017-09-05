@@ -140,9 +140,11 @@ module.exports =
       "atomic-emacs:scroll-up": (event) -> getEditor(event).scrollUp()
 
       # UI
+      "core:cancel": (event) -> getEditor(event).keyboardQuit()
+
+    @disposable.add atom.commands.add 'atom-workspace',
       "atomic-emacs:find-file": (event) -> findFile(event)
       "atomic-emacs:close-other-panes": (event) -> closeOtherPanes(event)
-      "core:cancel": (event) -> getEditor(event).keyboardQuit()
 
   deactivate: ->
     document.getElementsByTagName('atom-workspace')[0]?.classList?.remove('atomic-emacs')
