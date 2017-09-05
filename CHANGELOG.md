@@ -1,6 +1,7 @@
 ## LATEST
 
 * Fix finding a file when no tabs are open.
+* Don't close docks when calling close-other-panes.
 
 ## 0.12.0 (2017-08-15)
 

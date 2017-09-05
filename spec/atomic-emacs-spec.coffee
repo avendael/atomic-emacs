@@ -1450,11 +1450,24 @@ describe "AtomicEmacs", ->
       pane3 = pane2.splitRight()
       pane2.activate()
 
-      atom.commands.dispatch @editorView, 'atomic-emacs:close-other-panes'
+      # Pane1.close() closes the pane asynchronously, so we can't just assert
+      # pane.isDestroyed().
+      spies = [pane1, pane2, pane3].map (pane) => spyOn(pane, 'close')
 
-      expect(pane1.isDestroyed()).toEqual(true)
-      expect(pane2.isDestroyed()).toEqual(false)
-      expect(pane3.isDestroyed()).toEqual(true)
+      atom.commands.dispatch atom.views.getView(atom.workspace), 'atomic-emacs:close-other-panes'
+
+      expect(spies[0]).toHaveBeenCalled()
+      expect(spies[1]).not.toHaveBeenCalled()
+      expect(spies[2]).toHaveBeenCalled()
+
+    it "does not close panes outside of the center container", ->
+      container = atom.workspace.getPaneContainers().find((c) => c.getLocation() == 'left')
+      pane = container.getPanes()[0]
+      spy = spyOn(pane, 'close')
+
+      atom.commands.dispatch atom.views.getView(atom.workspace), 'atomic-emacs:close-other-panes'
+
+      expect(spy).not.toHaveBeenCalled()
 
   describe "core:cancel", ->
     it "deactivates all marks", ->

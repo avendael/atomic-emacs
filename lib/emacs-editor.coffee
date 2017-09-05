@@ -332,13 +332,19 @@ class EmacsEditor
 
   scrollUp: ->
     if (visibleRowRange = @editor.getVisibleRowRange())
-      [firstRow,lastRow] = visibleRowRange
+      # IF the buffer is empty, we get NaNs here (Atom 1.21).
+      return unless visibleRowRange.every((e) => !Number.isNaN(e))
+
+      [firstRow, lastRow] = visibleRowRange
       currentRow = @editor.cursors[0].getBufferRow()
       rowCount = (lastRow - firstRow) - 2
       @editor.moveDown(rowCount)
 
   scrollDown: ->
     if (visibleRowRange = @editor.getVisibleRowRange())
+      # IF the buffer is empty, we get NaNs here (Atom 1.21).
+      return unless visibleRowRange.every((e) => !Number.isNaN(e))
+
       [firstRow,lastRow] = visibleRowRange
       currentRow = @editor.cursors[0].getBufferRow()
       rowCount = (lastRow - firstRow) - 2

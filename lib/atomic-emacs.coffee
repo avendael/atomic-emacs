@@ -32,9 +32,10 @@ findFile = (event) ->
     atom.commands.dispatch(event.target, 'fuzzy-finder:toggle-file-finder')
 
 closeOtherPanes = (event) ->
-  activePane = atom.workspace.getActivePane()
-  return if not activePane
-  for pane in atom.workspace.getPanes()
+  container = atom.workspace.getPaneContainers().find((c) => c.getLocation() == 'center')
+  activePane = container?.getActivePane()
+  return if not activePane?
+  for pane in container.getPanes()
     unless pane is activePane
       pane.close()
 
