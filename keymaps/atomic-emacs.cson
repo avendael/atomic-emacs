@@ -158,6 +158,10 @@
 
 'atom-text-editor.autocomplete-active':
   'ctrl-g': 'autocomplete-plus:cancel'
+  
+'.platform-linux atom-text-editor.autocomplete-active':
+  'ctrl-p': 'core:move-up'
+  'ctrl-n': 'core:move-down'
 
 'atom-text-editor !important, atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
