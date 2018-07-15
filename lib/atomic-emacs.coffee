@@ -152,3 +152,8 @@ module.exports =
     @disposable?.dispose()
     @disposable = null
     KillRing.global.reset()
+
+  service_0_13: ->
+    getEditor: (event) -> getEditor(event)
+    editor: (atomEditor) -> EmacsEditor.for(atomEditor)
+    cursor: (atomCursor) -> EmacsCursor.for(atomCursor)

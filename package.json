@@ -52,6 +52,14 @@
       "atomic-emacs:close-other-panes"
     ]
   },
+  "providedServices": {
+    "atomic-emacs": {
+      "description": "Atomic Emacs extension interface",
+      "versions": {
+        "0.13.0": "service_0_13"
+      }
+    }
+  },
   "repository": "https://github.com/avendael/atomic-emacs",
   "license": "MIT",
   "engines": {
