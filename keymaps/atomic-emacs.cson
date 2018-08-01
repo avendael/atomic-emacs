@@ -82,7 +82,8 @@
   'ctrl-/': 'core:undo'
   'ctrl-_': 'core:undo'
   'ctrl-x u': 'core:undo'
-  'alt-/': 'autocomplete-plus:activate'
+  'alt-/': 'atomic-emacs:dabbrev-expand'
+  'alt-?': 'atomic-emacs:dabbrev-previous'
   'alt-q': 'autoflow:reflow-selection'
   'alt-;': 'editor:toggle-line-comments'
 

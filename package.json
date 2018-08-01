@@ -39,6 +39,8 @@
       "atomic-emacs:downcase-word-or-region",
       "atomic-emacs:upcase-word-or-region",
       "atomic-emacs:capitalize-word-or-region",
+      "atomic-emacs:dabbrev-expand",
+      "atomic-emacs:dabbrev-previous",
       "atomic-emacs:set-mark",
       "atomic-emacs:mark-sexp",
       "atomic-emacs:mark-whole-buffer",

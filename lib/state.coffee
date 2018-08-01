@@ -7,6 +7,11 @@ module.exports =
     @_recentered = false
 
   beforeCommand: (event) ->
+    # Some plugins like "intentions" bind things to the pressing of a modifier,
+    # which should not be able to cancel a dabbrev.
+    if not @_isModifierKeyEvent(event) and not /dabbrev/.test(event.type) and @dabbrevState?
+      @dabbrevState.emacsEditor.dabbrevDone()
+      @dabbrevState = null
     @isDuringCommand = true
 
   afterCommand: (event) ->
@@ -35,3 +40,7 @@ module.exports =
     @_recentered = true
 
   yankComplete: -> @yanking and not @_yanked
+
+  _isModifierKeyEvent: (event) ->
+    event.originalEvent?.constructor is KeyboardEvent and
+      [0x10, 0x11, 0x12, 0x5b, 0x5d].includes(event.originalEvent.which)

@@ -1,4 +1,5 @@
 {CompositeDisposable} = require 'atom'
+Completer = require './completer'
 EmacsCursor = require './emacs-cursor'
 EmacsEditor = require './emacs-editor'
 KillRing = require './kill-ring'
@@ -128,6 +129,8 @@ module.exports =
       "atomic-emacs:downcase-word-or-region": (event) -> getEditor(event).downcaseWordOrRegion()
       "atomic-emacs:upcase-word-or-region": (event) -> getEditor(event).upcaseWordOrRegion()
       "atomic-emacs:capitalize-word-or-region": (event) -> getEditor(event).capitalizeWordOrRegion()
+      "atomic-emacs:dabbrev-expand": (event) -> getEditor(event).dabbrevExpand()
+      "atomic-emacs:dabbrev-previous": (event) -> getEditor(event).dabbrevPrevious()
 
       # Marking & Selecting
       "atomic-emacs:set-mark": (event) -> getEditor(event).setMark()
@@ -154,6 +157,7 @@ module.exports =
     KillRing.global.reset()
 
   service_0_13: ->
-    getEditor: (event) -> getEditor(event)
+    state: State
     editor: (atomEditor) -> EmacsEditor.for(atomEditor)
     cursor: (atomCursor) -> EmacsCursor.for(atomCursor)
+    getEditor: (event) -> getEditor(event)

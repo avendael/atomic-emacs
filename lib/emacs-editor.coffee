@@ -1,4 +1,5 @@
 {CompositeDisposable} = require 'atom'
+Completer = require './completer'
 EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
 Mark = require './mark'
@@ -282,6 +283,29 @@ class EmacsEditor
           cursor.emitter.__track = true
         @moveEmacsCursors (emacsCursor) =>
           emacsCursor.transformWord(transformWord)
+
+  dabbrevExpand: ->
+    if @completers?
+      @completers.forEach (completer) ->
+        completer.next()
+    else
+      @editor.transact =>
+        @completers = []
+        @moveEmacsCursors (emacsCursor) =>
+          completer = new Completer(@, emacsCursor)
+          @completers.push(completer)
+
+    State.dabbrevState = {emacsEditor: @}
+
+  dabbrevPrevious: ->
+    if @completers?
+      @completers.forEach (completer) ->
+        completer.previous()
+
+  dabbrevDone: ->
+    @completers?.forEach (completer) ->
+      completer.destroy()
+    @completers = null
 
   ###
   Section: Marking & Selecting
