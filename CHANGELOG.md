@@ -1,3 +1,8 @@
+## LATEST
+
+* Add dabbrev-{expand,previous} (alt-/, alt-?).
+* Expose AtomicEmacs object as a service, for writing extensions.
+
 ## 0.12.1 (2017-09-06)
 
 * Fix finding a file when no tabs are open.
