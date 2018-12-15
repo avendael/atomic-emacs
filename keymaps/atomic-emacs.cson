@@ -86,6 +86,7 @@
   'alt-?': 'atomic-emacs:dabbrev-previous'
   'alt-q': 'autoflow:reflow-selection'
   'alt-;': 'editor:toggle-line-comments'
+  'ctrl-alt-\\' : 'editor:auto-indent'
 
   # Marking & Selecting
   'ctrl-space': 'atomic-emacs:set-mark'
