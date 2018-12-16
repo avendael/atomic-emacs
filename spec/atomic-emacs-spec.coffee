@@ -361,7 +361,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -383,7 +383,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill clipboard separated by newlines", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -466,7 +466,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -488,7 +488,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard separated by newlines", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -608,7 +608,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -630,7 +630,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard separated by newlines", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -680,7 +680,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -702,7 +702,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard separated by newlines", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -770,7 +770,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
@@ -792,7 +792,7 @@ describe "AtomicEmacs", ->
         beforeEach ->
           atom.config.set 'atomic-emacs.killToClipboard', false
 
-        it "doesn't put the kill on the clipboard separated by newlines", ->
+        it "doesn't update the clipboard", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
