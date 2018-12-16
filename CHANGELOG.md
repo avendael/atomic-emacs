@@ -2,6 +2,7 @@
 
 * Add dabbrev-{expand,previous} (alt-/, alt-?).
 * Expose AtomicEmacs object as a service, for writing extensions.
+* Fix kill ring entry when all cursors are merged.
 
 ## 0.12.1 (2017-09-06)
 
