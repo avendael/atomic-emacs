@@ -120,49 +120,60 @@ class EmacsEditor
   backwardKillWord: ->
     @_pullFromClipboard()
     method = if State.killing then 'prepend' else 'push'
+    kills = []
     @editor.transact =>
       @moveEmacsCursors (emacsCursor, cursor) =>
-        emacsCursor.backwardKillWord(method)
-    @_updateGlobalKillRing(method)
+        kill = emacsCursor.backwardKillWord(method)
+        kills.push(kill)
+    @_updateGlobalKillRing(method, kills)
     State.killed()
 
   killWord: ->
     @_pullFromClipboard()
     method = if State.killing then 'append' else 'push'
+    kills = []
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killWord(method)
-    @_updateGlobalKillRing(method)
+        kill = emacsCursor.killWord(method)
+        kills.push(kill)
+    @_updateGlobalKillRing(method, kills)
     State.killed()
 
   killLine: ->
     @_pullFromClipboard()
     method = if State.killing then 'append' else 'push'
+    kills = []
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killLine(method)
-    @_updateGlobalKillRing(method)
+        kill = emacsCursor.killLine(method)
+        kills.push(kill)
+    @_updateGlobalKillRing(method, kills)
     State.killed()
 
   killRegion: ->
     @_pullFromClipboard()
     method = if State.killing then 'append' else 'push'
+    kills = []
     @editor.transact =>
       @moveEmacsCursors (emacsCursor) =>
-        emacsCursor.killRegion(method)
-    @_updateGlobalKillRing(method)
+        kill = emacsCursor.killRegion(method)
+        kills.push(kill)
+    @_updateGlobalKillRing(method, kills)
     State.killed()
 
   copyRegionAsKill: ->
     @_pullFromClipboard()
     method = if State.killing then 'append' else 'push'
+    kills = []
     @editor.transact =>
       for selection in @editor.getSelections()
         emacsCursor = EmacsCursor.for(selection.cursor)
-        emacsCursor.killRing()[method](selection.getText())
+        text = selection.getText()
+        emacsCursor.killRing()[method](text)
         emacsCursor.killRing().getCurrentEntry()
         emacsCursor.mark().deactivate()
-    @_updateGlobalKillRing(method)
+        kills.push(text)
+    @_updateGlobalKillRing(method, kills)
 
   yank: ->
     @_pullFromClipboard()
@@ -196,9 +207,8 @@ class EmacsEditor
       killRings = (c.killRing() for c in @getEmacsCursors())
       KillRing.pullFromClipboard(killRings)
 
-  _updateGlobalKillRing: (method) ->
-    if @editor.hasMultipleCursors()
-      kills = (c.killRing().getCurrentEntry() for c in @getEmacsCursors())
+  _updateGlobalKillRing: (method, kills) ->
+    if kills.length > 1
       method = 'replace' if method != 'push'
       KillRing.global[method](kills.join('\n') + '\n')
     @_pushToClipboard()
