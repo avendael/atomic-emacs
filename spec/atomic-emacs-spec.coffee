@@ -387,10 +387,11 @@ describe "AtomicEmacs", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
-      it "merges cursors", ->
+      it "merges cursors & updates the global kill ring correctly", ->
         @testEditor.setState("a[1]b[0]c")
         atom.commands.dispatch @editorView, 'atomic-emacs:backward-kill-word'
         expect(@testEditor.getState()).toEqual("[0]c")
+        expect(KillRing.global.getEntries()).toEqual(['ab\n\n'])
 
     it "prepends to the last kill ring entry if killing", ->
       @testEditor.setState("a[0]b")
@@ -492,10 +493,11 @@ describe "AtomicEmacs", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
-      it "merges cursors", ->
+      it "merges cursors & updates the global kill ring correctly", ->
         @testEditor.setState("a[0]b[1]c")
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-word'
         expect(@testEditor.getState()).toEqual("a[0]")
+        expect(KillRing.global.getEntries()).toEqual(['bc\n\n'])
 
     it "appends to the last kill ring entry if killing", ->
       @testEditor.setState("a[0]b")
@@ -634,11 +636,12 @@ describe "AtomicEmacs", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
-      it "merges cursors", ->
+      it "merges cursors & updates the global kill ring correctly", ->
         @testEditor.setState("a[0]b\n[1]c")
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-line'
         expect(@testEditor.getState()).toEqual("a[0]")
+        expect(KillRing.global.getEntries()).toEqual(['b\n\nc\n'])
 
     it "appends to the last kill ring entry if killing", ->
       @testEditor.setState("a[0]b")
@@ -706,10 +709,11 @@ describe "AtomicEmacs", ->
           atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
           expect(atom.clipboard.read()).toEqual('initial clipboard content')
 
-      it "merges cursors", ->
+      it "merges cursors & updates the global kill ring correctly", ->
         @testEditor.setState("a(0)a[0](1)b[1]b")
         atom.commands.dispatch @editorView, 'atomic-emacs:kill-region'
         expect(@testEditor.getState()).toEqual("a[0]b")
+        expect(KillRing.global.getEntries()).toEqual(['a\nb\n'])
 
     it "pushes blanks if selections are empty", ->
       @testEditor.setState("a(0)[0]b")
