@@ -21,6 +21,11 @@
   'ctrl-x': 'atomic-emacs:cut'
   'ctrl-c': 'atomic-emacs:copy'
 
+# For command palette, buffer switcher, etc. on Linux.
+'body.platform-linux .select-list atom-text-editor.mini':
+  'ctrl-p': 'core:move-up'
+  'ctrl-n': 'core:move-down'
+
 'body.platform-win32':
   'shift-delete': 'atomic-emacs:cut'
   'ctrl-insert': 'atomic-emacs:copy'
