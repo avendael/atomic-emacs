@@ -103,7 +103,7 @@
   'ctrl-g': 'core:cancel'
   'ctrl-x ctrl-s': 'core:save'
   'ctrl-x ctrl-w': 'core:save-as'
-  'alt-.': 'symbols-view:toggle-file-symbols'
+  'alt-.': 'symbols-view:go-to-declaration'
 
 'atom-text-editor:not(.autocomplete-active):not(.mini)':
   # Navigation
