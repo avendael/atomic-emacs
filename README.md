@@ -68,6 +68,7 @@ prefix argument of -1).
     'ctrl-x ctrl-o': 'atomic-emacs:delete-blank-lines'
     'ctrl-t': 'atomic-emacs:transpose-chars'
     'alt-t': 'atomic-emacs:transpose-words'
+    'ctrl-alt-t': 'atomic-emacs:transpose-sexps'
     'ctrl-x ctrl-t': 'atomic-emacs:transpose-lines'
     'ctrl-x ctrl-l': 'atomic-emacs:downcase-word-or-region'
     'alt-l': 'atomic-emacs:downcase-word-or-region'
@@ -78,9 +79,12 @@ prefix argument of -1).
     'ctrl-m': 'editor:newline'
     'ctrl-/': 'core:undo'
     'ctrl-_': 'core:undo'
-    'alt-/': 'autocomplete-plus:activate'
+    'ctrl-x u': 'core:undo'
+    'alt-/': 'atomic-emacs:dabbrev-expand'
+    'alt-?': 'atomic-emacs:dabbrev-previous'
     'alt-q': 'autoflow:reflow-selection'
     'alt-;': 'editor:toggle-line-comments'
+    'ctrl-alt-\\' : 'editor:auto-indent'
 
 ### Marking & Selecting
 
@@ -95,7 +99,8 @@ prefix argument of -1).
     'ctrl-x ctrl-s': 'core:save'
     'ctrl-x ctrl-w': 'core:save-as'
     'alt-x': 'command-palette:toggle'
-    'alt-.': 'symbols-view:toggle-file-symbols'
+    'alt-.': 'symbols-view:go-to-declaration'
+    'ctrl-x ctrl-c': 'application:quit'
     'ctrl-x ctrl-f': 'atomic-emacs:find-file'
     'ctrl-x b': 'fuzzy-finder:toggle-buffer-finder'
     'ctrl-x k': 'core:close'
