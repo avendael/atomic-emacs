@@ -1,4 +1,4 @@
-## LATEST
+## 0.13.0 (2019-01-07)
 
 * Add dabbrev-{expand,previous} (alt-/, alt-?).
 * alt-. now binds to symbols-view:go-to-declaration.
