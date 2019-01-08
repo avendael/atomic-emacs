@@ -1,6 +1,7 @@
 ## LATEST
 
 * Add dabbrev-{expand,previous} (alt-/, alt-?).
+* alt-. now binds to symbols-view:go-to-declaration.
 * Expose AtomicEmacs object as a service, for writing extensions.
 * Fix kill ring entry when all cursors are merged.
 * Bind editor:auto-indent to ctrl-alt-\.
