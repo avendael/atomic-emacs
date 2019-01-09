@@ -37,8 +37,6 @@ There's no need to restart Atom.
     'alt-}': 'atomic-emacs:forward-paragraph'
     'alt-m': 'atomic-emacs:back-to-indentation'
     'ctrl-a': 'editor:move-to-beginning-of-line'
-    'ctrl-s': 'find-and-replace:show'
-    'ctrl-r': 'find-and-replace:show'
     'alt-<': 'core:move-to-top'
     'alt->': 'core:move-to-bottom'
 
@@ -85,6 +83,11 @@ prefix argument of -1).
     'alt-q': 'autoflow:reflow-selection'
     'alt-;': 'editor:toggle-line-comments'
     'ctrl-alt-\\' : 'editor:auto-indent'
+
+### Searching
+
+    'ctrl-s': 'atomic-emacs:isearch-forward'
+    'ctrl-r': 'atomic-emacs:isearch-backward'
 
 ### Marking & Selecting
 

@@ -4,6 +4,7 @@ EmacsCursor = require './emacs-cursor'
 EmacsEditor = require './emacs-editor'
 KillRing = require './kill-ring'
 Mark = require './mark'
+Search = require './search'
 State = require './state'
 
 beforeCommand = (event) ->
@@ -45,6 +46,7 @@ module.exports =
   EmacsEditor: EmacsEditor
   KillRing: KillRing
   Mark: Mark
+  Search: Search
   State: State
 
   config:
@@ -75,6 +77,7 @@ module.exports =
       return
 
     State.initialize()
+    @search = search = new Search
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
     @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)
@@ -131,6 +134,12 @@ module.exports =
       "atomic-emacs:capitalize-word-or-region": (event) -> getEditor(event).capitalizeWordOrRegion()
       "atomic-emacs:dabbrev-expand": (event) -> getEditor(event).dabbrevExpand()
       "atomic-emacs:dabbrev-previous": (event) -> getEditor(event).dabbrevPrevious()
+
+      # Searching
+      "atomic-emacs:isearch-forward": (event) -> search.start(getEditor(event), direction: 'forward')
+      "atomic-emacs:isearch-backward": (event) -> search.start(getEditor(event), direction: 'backward')
+      "atomic-emacs:isearch-exit": (event) -> search.exit()
+      "atomic-emacs:isearch-cancel": (event) -> search.cancel()
 
       # Marking & Selecting
       "atomic-emacs:set-mark": (event) -> getEditor(event).setMark()

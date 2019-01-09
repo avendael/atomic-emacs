@@ -50,8 +50,6 @@
   'alt-}': 'atomic-emacs:forward-paragraph'
   'alt-m': 'atomic-emacs:back-to-indentation'
   'ctrl-a': 'editor:move-to-beginning-of-line'
-  'ctrl-s': 'find-and-replace:show'
-  'ctrl-r': 'find-and-replace:show'
   'alt-<': 'core:move-to-top'
   'alt->': 'core:move-to-bottom'
 
@@ -92,6 +90,10 @@
   'alt-q': 'autoflow:reflow-selection'
   'alt-;': 'editor:toggle-line-comments'
   'ctrl-alt-\\' : 'editor:auto-indent'
+
+  # Searching
+  'ctrl-s': 'atomic-emacs:isearch-forward'
+  'ctrl-r': 'atomic-emacs:isearch-backward'
 
   # Marking & Selecting
   'ctrl-space': 'atomic-emacs:set-mark'
@@ -168,3 +170,7 @@
 
 'atom-text-editor !important, atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
+
+'.atomic-emacs.search atom-text-editor':
+  'enter': 'atomic-emacs:isearch-exit'
+  'escape': 'atomic-emacs:isearch-cancel'
