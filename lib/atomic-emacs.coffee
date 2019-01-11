@@ -156,6 +156,7 @@ module.exports =
     @disposable.add atom.commands.add '.atomic-emacs.search atom-text-editor',
       "atomic-emacs:isearch-exit": (event) -> search.exit()
       "atomic-emacs:isearch-cancel": (event) -> search.cancel()
+      "atomic-emacs:isearch-repeat-forward": (event) -> search.repeatFoward()
 
     @disposable.add atom.commands.add 'atom-workspace',
       "atomic-emacs:find-file": (event) -> findFile(event)

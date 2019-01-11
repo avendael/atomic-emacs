@@ -118,6 +118,12 @@ class Search
     @searchView.cancel()
     @emacsEditor.editor.element.focus()
 
+  repeatFoward: ->
+    if @results?
+      @_advanceCursors()
+    else
+      # TODO: repeat last query
+
   changed: (text) ->
     @results?.clear()
     @searcher?.stop()
@@ -149,6 +155,8 @@ class Search
     @searcher?.start()
 
   _advanceCursors: ->
+    # TODO: Store request and fire it when we can.
+    return if not @results?
     @emacsEditor.moveEmacsCursors (emacsCursor) =>
       marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
         @results.findResultAfter(new Point(0, 0))

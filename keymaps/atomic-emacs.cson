@@ -174,3 +174,4 @@
 'atom-workspace .atomic-emacs.search atom-text-editor':
   'enter': 'atomic-emacs:isearch-exit'
   'escape': 'atomic-emacs:isearch-cancel'
+  'ctrl-s': 'atomic-emacs:isearch-repeat-forward'
