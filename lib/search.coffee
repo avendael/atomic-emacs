@@ -8,7 +8,7 @@ SearchView = require './search-view'
 # happens, proceed() will return false, and will never call the onMatch callback
 # anymore.
 class Searcher
-  constructor: ({@editor, @startPosition, @regex, @onMatch}) ->
+  constructor: ({@editor, @startPosition, @regex, @onMatch, @onWrapped, @onFinished}) ->
     @blockLines = 100
     @wrapped = false
     @finished = false
@@ -48,10 +48,11 @@ class Searcher
     if not found
       if @wrapped and @currentEnd.isEqual(@startPosition)
         @finished = true
+        @onFinished()
         return false
       else if not @wrapped and @currentEnd.isEqual(@eob)
         @wrapped = true
-        @currentPosition =
+        @onWrapped()
         @_startBlock(new Point(0, 0))
       else
         @_startBlock(@currentEnd)
@@ -76,12 +77,21 @@ class SearchResults
     @editor.decorateMarkerLayer @markerLayer,
       type: 'highlight'
       class: 'atomic-emacs-search-result'
+    @isEmpty = true
 
   clear: ->
     @markerLayer.clear()
+    @isEmpty = true
 
   add: (range) ->
+    @isEmpty = false
     @markerLayer.bufferMarkerLayer.markRange(range)
+
+  findResultAfter: (point) ->
+    # TODO: scan in blocks
+    markers = @markerLayer.findMarkers
+      startsInRange: new Range(point, @editor.getBuffer().getEndPosition())
+    markers[0] or null
 
 module.exports =
 class Search
@@ -95,6 +105,10 @@ class Search
   start: (@emacsEditor, @direction) ->
     @searchView ?= new SearchView(this)
     @searchView.start()
+
+    @startPositions = @emacsEditor.editor.getCursorsOrderedByBufferPosition().map (cursor) ->
+      cursor: cursor
+      position: cursor.getBufferPosition()
 
   exit: ->
     @searchView.exit()
@@ -111,21 +125,38 @@ class Search
     @results = SearchResults.for(@emacsEditor.editor)
     @results.clear()
 
-    # TODO: Support multiple cursors.
-    cursor = @emacsEditor.editor.getCursors()[0]
+    wrapped = false
+    moved = false
+    lastCursorPosition = @startPositions[@startPositions.length - 1].position
+
     @searcher = new Searcher
-      editor: @emacsEditor.editor,
-      startPosition: cursor.getBufferPosition()
+      editor: @emacsEditor.editor
+      startPosition: @startPositions[0].position
       # TODO: Escape text, add proper regexp support.
       regex: new RegExp(text)
-      onMatch: (range) => @matchFound(range)
-      # TODO: No matches hook.
+      onMatch: (range) =>
+        @results?.add(range, wrapped)
+        if not moved and (@results.findResultAfter(lastCursorPosition) or wrapped)
+          moved = true
+          @_advanceCursors()
+      onWrapped: ->
+        wrapped = true
+      onFinished: =>
+        if not @results.isEmpty()
+          moved = true
+          @_advanceCursors()
 
     @searcher?.start()
 
+  _advanceCursors: ->
+    @emacsEditor.moveEmacsCursors (emacsCursor) =>
+      marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
+        @results.findResultAfter(new Point(0, 0))
+      emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
+
   matchFound: (range) =>
-    # TODO: Add progress message, jump to first match.
-    @results?.add(range)
+    # TODO: Add progress message.
+
 
   exited: ->
     @_deactivate()
