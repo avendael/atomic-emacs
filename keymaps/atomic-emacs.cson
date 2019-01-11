@@ -171,6 +171,6 @@
 'atom-text-editor !important, atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
 
-'.atomic-emacs.search atom-text-editor':
+'atom-workspace .atomic-emacs.search atom-text-editor':
   'enter': 'atomic-emacs:isearch-exit'
   'escape': 'atomic-emacs:isearch-cancel'

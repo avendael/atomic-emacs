@@ -138,8 +138,6 @@ module.exports =
       # Searching
       "atomic-emacs:isearch-forward": (event) -> search.start(getEditor(event), direction: 'forward')
       "atomic-emacs:isearch-backward": (event) -> search.start(getEditor(event), direction: 'backward')
-      "atomic-emacs:isearch-exit": (event) -> search.exit()
-      "atomic-emacs:isearch-cancel": (event) -> search.cancel()
 
       # Marking & Selecting
       "atomic-emacs:set-mark": (event) -> getEditor(event).setMark()
@@ -154,6 +152,10 @@ module.exports =
 
       # UI
       "core:cancel": (event) -> getEditor(event).keyboardQuit()
+
+    @disposable.add atom.commands.add '.atomic-emacs.search atom-text-editor',
+      "atomic-emacs:isearch-exit": (event) -> search.exit()
+      "atomic-emacs:isearch-cancel": (event) -> search.cancel()
 
     @disposable.add atom.commands.add 'atom-workspace',
       "atomic-emacs:find-file": (event) -> findFile(event)
