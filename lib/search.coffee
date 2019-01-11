@@ -176,5 +176,5 @@ class Search
 
   _deactivate: ->
     @searcher = null
-    @results.clear()
+    @results?.clear()
     @results = null
