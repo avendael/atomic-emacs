@@ -17,10 +17,20 @@ class Searcher
     @_startBlock(@startPosition)
     @buffer = @editor.getBuffer()
     @eob = @buffer.getEndPosition()
+    @_stopRequested = false
+
+  start: ->
+    task = =>
+      if not @_stopRequested and @_proceed()
+        setTimeout(task, 0)
+    setTimeout(task, 0)
+
+  stop: ->
+    @_stopRequested = true
 
   # Proceed with the scan until either a match, or the end of the current range
   # is reached. Return true if the search isn't finished yet, false otherwise.
-  proceed: ->
+  _proceed: ->
     return false if @finished
 
     found = false
@@ -57,6 +67,22 @@ class Searcher
     line = Math.min(point.row + @blockLines, eof.row)
     new Point(line, 0)
 
+class SearchResults
+  @for: (editor) ->
+    editor._atomicEmacsSearchResults ?= new SearchResults(editor)
+
+  constructor: (@editor) ->
+    @markerLayer = @editor.addMarkerLayer()
+    @editor.decorateMarkerLayer @markerLayer,
+      type: 'highlight'
+      class: 'atomic-emacs-search-result'
+
+  clear: ->
+    @markerLayer.clear()
+
+  add: (range) ->
+    @markerLayer.bufferMarkerLayer.markRange(range)
+
 module.exports =
 class Search
   constructor: ->
@@ -64,6 +90,7 @@ class Search
     @searchEditor = null
     @emacsEditor = null
     @searcher = null
+    @results = null
 
   start: (@emacsEditor, @direction) ->
     @searchView ?= new SearchView(this)
@@ -78,8 +105,13 @@ class Search
     @emacsEditor.editor.element.focus()
 
   changed: (text) ->
+    @results?.clear()
+    @searcher?.stop()
+
+    @results = SearchResults.for(@emacsEditor.editor)
+    @results.clear()
+
     # TODO: Support multiple cursors.
-    console.log "TODO: searching for: #{text}"
     cursor = @emacsEditor.editor.getCursors()[0]
     @searcher = new Searcher
       editor: @emacsEditor.editor,
@@ -87,15 +119,23 @@ class Search
       # TODO: Escape text, add proper regexp support.
       regex: new RegExp(text)
       onMatch: (range) => @matchFound(range)
-    searcherTask = =>
-      if @searcher.proceed()
-        setTimeout(searcherTask, 0)
-    setTimeout(searcherTask, 0)
+      # TODO: No matches hook.
+
+    @searcher?.start()
 
   matchFound: (range) =>
-    console.log "TODO: match found: #{range}"
+    # TODO: Add progress message, jump to first match.
+    @results?.add(range)
 
   exited: ->
+    @_deactivate()
 
   canceled: ->
     console.log 'TODO: search canceled'
+    @_deactivate()
+    # TODO: restore original cursors & selections
+
+  _deactivate: ->
+    @searcher = null
+    @results.clear()
+    @results = null

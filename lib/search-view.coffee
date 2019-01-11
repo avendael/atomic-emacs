@@ -24,17 +24,26 @@ class SearchView
     @active = false
 
   start: ->
+    @_activate()
     @searchEditor.selectAll()
-    @panel.show()
     @searchEditor.element.focus()
-    @active = true
 
   exit: ->
-    @active = false
-    @panel.hide()
+    @_deactivate()
     @search.exited()
 
   cancel: ->
+    @_deactivate()
+    @search.canceled()
+
+  _activate: ->
+    @active = true
+    @panel.show()
+    atom.views.getView(atom.workspace).classList.
+      add('atomic-emacs-search-visible')
+
+  _deactivate: ->
     @active = false
     @panel.hide()
-    @search.canceled()
+    atom.views.getView(atom.workspace).classList.
+      remove('atomic-emacs-search-visible')
