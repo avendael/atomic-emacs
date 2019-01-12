@@ -27,7 +27,7 @@ class EmacsEditor
     @disposable.dispose()
 
   getEmacsCursors: () ->
-    EmacsCursor.for(c) for c in @editor.getCursors()
+    EmacsCursor.for(c) for c in @editor.getCursorsOrderedByBufferPosition()
 
   moveEmacsCursors: (callback) ->
     @editor.moveCursors (cursor) ->
@@ -37,6 +37,30 @@ class EmacsEditor
       # yield it in this case.
       return if cursor.destroyed == true
       callback(EmacsCursor.for(cursor), cursor)
+
+  saveCursors: ->
+    @getEmacsCursors().map (emacsCursor) ->
+      head: emacsCursor.cursor.marker.getHeadBufferPosition()
+      tail: emacsCursor.cursor.marker.getTailBufferPosition()
+      # Atom doesn't have a public API to add a selection to a cursor, so assume
+      # that an active selection means an active mark.
+      markActive: emacsCursor.mark().isActive() or
+        (emacsCursor.cursor.selection and not emacsCursor.cursor.selection.isEmpty())
+
+  restoreCursors: (selections) ->
+    cursors = @editor.getCursors()
+    selections.forEach (info, index) ->
+      point = if info.selectionActive then info.tail else info.head
+      if index >= cursors.length
+        cursor = @editor.addCursorAtBufferPosition(point)
+      else
+        cursor = cursors[index]
+        cursor.setBufferPosition(point)
+
+      emacsCursor = EmacsCursor.for(cursor)
+      if info.markActive
+        emacsCursor.mark().set().activate()
+        emacsCursor._goTo(info.head)
 
   ###
   Section: Navigation

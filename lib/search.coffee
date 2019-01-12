@@ -99,16 +99,17 @@ class Search
     @panel = null
     @searchEditor = null
     @emacsEditor = null
+
+    @searchView = null
+    @startCursors = null
+
     @searcher = null
     @results = null
 
   start: (@emacsEditor, @direction) ->
     @searchView ?= new SearchView(this)
     @searchView.start()
-
-    @startPositions = @emacsEditor.editor.getCursorsOrderedByBufferPosition().map (cursor) ->
-      cursor: cursor
-      position: cursor.getBufferPosition()
+    @startCursors = @emacsEditor.saveCursors()
 
   exit: ->
     @searchView.exit()
@@ -133,14 +134,15 @@ class Search
 
     wrapped = false
     moved = false
-    lastCursorPosition = @startPositions[@startPositions.length - 1].position
+    lastCursorPosition = @startCursors[@startCursors.length - 1].head
 
     @searcher = new Searcher
       editor: @emacsEditor.editor
-      startPosition: @startPositions[0].position
+      startPosition: @startCursors[0].head
       # TODO: Escape text, add proper regexp support.
       regex: new RegExp(text)
       onMatch: (range) =>
+        # TODO: Add progress message.
         @results?.add(range, wrapped)
         if not moved and (@results.findResultAfter(lastCursorPosition) or wrapped)
           moved = true
@@ -162,19 +164,15 @@ class Search
         @results.findResultAfter(new Point(0, 0))
       emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
 
-  matchFound: (range) =>
-    # TODO: Add progress message.
-
-
   exited: ->
     @_deactivate()
 
   canceled: ->
-    console.log 'TODO: search canceled'
+    @emacsEditor.restoreCursors(@startCursors)
     @_deactivate()
-    # TODO: restore original cursors & selections
 
   _deactivate: ->
     @searcher = null
     @results?.clear()
     @results = null
+    @startCursors = null
