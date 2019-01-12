@@ -64,9 +64,9 @@ class Searcher
     @currentEnd = @_endOfRangeAfter(@currentPosition)
 
   _endOfRangeAfter: (point) ->
-    eof = @editor.getEofBufferPosition()
-    line = Math.min(point.row + @blockLines, eof.row)
-    new Point(line, 0)
+    guess = new Point(point.row + @blockLines, 0)
+    limit = if @wrapped then @startPosition else @editor.getEofBufferPosition()
+    if guess.isGreaterThan(limit) then limit else guess
 
 class SearchResults
   @for: (editor) ->
@@ -77,15 +77,23 @@ class SearchResults
     @editor.decorateMarkerLayer @markerLayer,
       type: 'highlight'
       class: 'atomic-emacs-search-result'
-    @isEmpty = true
+    @_numMatches = 0
 
   clear: ->
     @markerLayer.clear()
-    @isEmpty = true
+    @_numMatches = 0
 
   add: (range) ->
-    @isEmpty = false
+    @_numMatches += 1
     @markerLayer.bufferMarkerLayer.markRange(range)
+
+  numMatches: ->
+    @_numMatches
+
+  numMatchesBefore: (point) ->
+    markers = @markerLayer.findMarkers
+      startsInRange: new Range(new Point(0, 0), point)
+    markers.length
 
   findResultAfter: (point) ->
     # TODO: scan in blocks
@@ -135,6 +143,7 @@ class Search
 
     @results = SearchResults.for(@emacsEditor.editor)
     @results.clear()
+    @searchView.resetProgress()
 
     wrapped = false
     moved = false
@@ -150,27 +159,34 @@ class Search
       # TODO: Escape text, add proper regexp support.
       regex: new RegExp(text)
       onMatch: (range) =>
-        # TODO: Add progress message.
-        @results?.add(range, wrapped)
+        return if not @results?
+        @results.add(range, wrapped)
+        @searchView.setTotal(@results.numMatches())
         if not moved and (@results.findResultAfter(lastCursorPosition) or wrapped)
           moved = true
           @_advanceCursors()
       onWrapped: ->
         wrapped = true
       onFinished: =>
-        if not @results.isEmpty()
+        return if not @results?
+        if @results.numMatches() != 0
           moved = true
           @_advanceCursors()
+        @searchView.scanningDone()
 
     @searcher?.start()
 
   _advanceCursors: ->
     # TODO: Store request and fire it when we can.
     return if not @results?
+
     @emacsEditor.moveEmacsCursors (emacsCursor) =>
       marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
         @results.findResultAfter(new Point(0, 0))
       emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
+
+    point = @emacsEditor.editor.getCursors()[0].getBufferPosition()
+    @searchView.setIndex(@results.numMatchesBefore(point))
 
   exited: ->
     @_deactivate()
@@ -180,6 +196,7 @@ class Search
     @_deactivate()
 
   _deactivate: ->
+    @searcher?.stop()
     @searcher = null
     @results?.clear()
     @results = null
