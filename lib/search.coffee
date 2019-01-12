@@ -176,14 +176,15 @@ class Search
         @results.add(range, wrapped)
         @searchView.setTotal(@results.numMatches())
         if not moved and (@results.findResultAfter(lastCursorPosition) or wrapped)
-          moved = true
           @_advanceCursors()
+          moved = true
       onWrapped: ->
         wrapped = true
       onFinished: =>
         return if not @results?
-        if @results.numMatches() != 0
-          moved = true
+        if @results.numMatches() == 0
+          @emacsEditor.restoreCursors(@startCursors)
+        else if not moved
           @_advanceCursors()
         @searchView.scanningDone()
 
