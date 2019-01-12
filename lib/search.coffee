@@ -145,6 +145,8 @@ class Search
     @results.clear()
     @searchView.resetProgress()
 
+    return if text == ''
+
     wrapped = false
     moved = false
     lastCursorPosition = @startCursors[@startCursors.length - 1].head
