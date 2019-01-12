@@ -136,6 +136,10 @@ class Search
     moved = false
     lastCursorPosition = @startCursors[@startCursors.length - 1].head
 
+    # If the query used to match, but no longer does, we need to go back to the
+    # original positions.
+    @emacsEditor.restoreCursors(@startCursors)
+
     @searcher = new Searcher
       editor: @emacsEditor.editor
       startPosition: @startCursors[0].head
