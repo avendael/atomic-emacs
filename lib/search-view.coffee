@@ -10,7 +10,11 @@ class SearchView
     @searchEditor = new TextEditor(mini: true)
     @searchEditor.element.addEventListener 'blur', => @exit() if @active
     @searchEditor.element.setAttribute('id', 'atomic-emacs-search-editor')
-    @searchEditor.onDidChange => @search.changed(@searchEditor.getText())
+    @searchEditor.onDidChange =>
+      if @active
+        text = @searchEditor.getText()
+        @lastQuery = text
+        @search.changed(text)
 
     @element = document.createElement('div')
     @element.classList.add('atomic-emacs', 'search')
@@ -22,10 +26,10 @@ class SearchView
       visible: false
 
     @active = false
+    @lastQuery = null
 
   start: ->
     @_activate()
-    @searchEditor.selectAll()
     @searchEditor.element.focus()
 
   exit: ->
@@ -36,6 +40,13 @@ class SearchView
     @_deactivate()
     @search.canceled()
 
+  isEmpty: ->
+    @searchEditor.isEmpty()
+
+  repeatLastQuery: ->
+    if @lastQuery
+      @searchEditor.setText(@lastQuery)
+
   _activate: ->
     @active = true
     @panel.show()
@@ -44,6 +55,7 @@ class SearchView
 
   _deactivate: ->
     @active = false
+    @searchEditor.setText('')
     @panel.hide()
     atom.views.getView(atom.workspace).classList.
       remove('atomic-emacs-search-visible')

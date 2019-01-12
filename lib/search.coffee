@@ -120,6 +120,10 @@ class Search
     @emacsEditor.editor.element.focus()
 
   repeatFoward: ->
+    if @searchView.isEmpty()
+      @searchView.repeatLastQuery()
+      return
+
     if @results?
       @_advanceCursors()
     else
