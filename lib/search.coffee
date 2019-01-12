@@ -78,6 +78,7 @@ class SearchResults
       type: 'highlight'
       class: 'atomic-emacs-search-result'
     @_numMatches = 0
+    @currentDecorations = []
 
   clear: ->
     @markerLayer.clear()
@@ -100,6 +101,16 @@ class SearchResults
     markers = @markerLayer.findMarkers
       startsInRange: new Range(point, @editor.getBuffer().getEndPosition())
     markers[0] or null
+
+  setCurrent: (markers) ->
+    # TODO: don't destroy markers that don't need to be destroyed?
+    @currentDecorations.forEach (decoration) ->
+      decoration.destroy()
+
+    @currentDecorations = markers.map (marker) =>
+      @editor.decorateMarker marker,
+        type: 'highlight'
+        class: 'atomic-emacs-current-result'
 
 module.exports =
 class Search
@@ -182,10 +193,14 @@ class Search
     # TODO: Store request and fire it when we can.
     return if not @results?
 
+    markers = []
     @emacsEditor.moveEmacsCursors (emacsCursor) =>
       marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
         @results.findResultAfter(new Point(0, 0))
       emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
+      markers.push(marker)
+
+    @results.setCurrent(markers)
 
     point = @emacsEditor.editor.getCursors()[0].getBufferPosition()
     @searchView.setIndex(@results.numMatchesBefore(point))
