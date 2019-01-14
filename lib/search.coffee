@@ -148,7 +148,7 @@ class Search
     else
       # TODO: repeat last query
 
-  changed: (text) ->
+  changed: (text, {caseSensitive}) ->
     @results?.clear()
     @searcher?.stop()
 
@@ -158,7 +158,7 @@ class Search
 
     return if text == ''
 
-    caseSensitive = /[A-Z]/.test(text)
+    caseSensitive = caseSensitive or /[A-Z]/.test(text)
 
     wrapped = false
     moved = false

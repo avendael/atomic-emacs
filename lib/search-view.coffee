@@ -8,13 +8,8 @@ class SearchView
     label.setAttribute('for', 'atomic-emacs-search-editor')
 
     @searchEditor = new TextEditor(mini: true)
-    @searchEditor.element.addEventListener 'blur', => @exit() if @active
     @searchEditor.element.setAttribute('id', 'atomic_emacs_search_editor')
-    @searchEditor.onDidChange =>
-      if @active
-        text = @searchEditor.getText()
-        @lastQuery = text
-        @search.changed(text)
+    @searchEditor.onDidChange => @_runQuery() if @active
 
     @element = document.createElement('div')
     @element.classList.add('atomic-emacs', 'search')
@@ -22,6 +17,7 @@ class SearchView
       <div class="row editor">
         <label for="atomic_emacs_search_editor">Search:</label>
         <div class="SEARCH-EDITOR"></div>
+        <button class="case-sensitivity"></button>
       </div>
       <div class="row">
         <p class="progress">
@@ -32,6 +28,7 @@ class SearchView
       </div>
     """
 
+    @caseSensitivityButton = @element.querySelector('.case-sensitivity')
     @scanningIndicator = @element.querySelector('.scanning-indicator')
     @indexElement = @element.querySelector('.index')
     @totalElement = @element.querySelector('.total')
@@ -41,12 +38,23 @@ class SearchView
     placeholder = @element.querySelector('.SEARCH-EDITOR')
     placeholder.parentNode.replaceChild(@searchEditor.element, placeholder)
 
+    @caseSensitive = false
+    @_updateCaseSensitivityButton()
+    @caseSensitivityButton.addEventListener 'click', (event) =>
+      @caseSensitive = not @caseSensitive
+      @_updateCaseSensitivityButton()
+      @_runQuery() if @active
+
     @panel = atom.workspace.addModalPanel
       item: this
       visible: false
 
     @active = false
     @lastQuery = null
+
+    @workspaceFocusInListener = (event) =>
+      if @active and event.target.closest('.atomic-emacs.search') == null
+        @exit()
 
   start: ->
     @_activate()
@@ -93,12 +101,23 @@ class SearchView
     @active = true
     @resetProgress()
     @panel.show()
-    atom.views.getView(atom.workspace).classList.
-      add('atomic-emacs-search-visible')
+
+    workspaceView = atom.views.getView(atom.workspace)
+    workspaceView.classList.add('atomic-emacs-search-visible')
+    workspaceView.addEventListener 'focusin', @workspaceFocusInListener
 
   _deactivate: ->
     @active = false
     @searchEditor.setText('')
     @panel.hide()
-    atom.views.getView(atom.workspace).classList.
-      remove('atomic-emacs-search-visible')
+    workspaceView = atom.views.getView(atom.workspace)
+    workspaceView.classList.remove('atomic-emacs-search-visible')
+    workspaceView.removeEventListener 'focusin', @workspaceFocusInListener
+
+  _runQuery: ->
+    text = @searchEditor.getText()
+    @lastQuery = text
+    @search.changed(text, caseSensitive: @caseSensitive)
+
+  _updateCaseSensitivityButton: ->
+    @caseSensitivityButton.textContent = if @caseSensitive then 'Case: on' else 'Case: off'
