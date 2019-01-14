@@ -158,6 +158,8 @@ class Search
 
     return if text == ''
 
+    caseSensitive = /[A-Z]/.test(text)
+
     wrapped = false
     moved = false
     lastCursorPosition = @startCursors[@startCursors.length - 1].head
@@ -170,7 +172,7 @@ class Search
       editor: @emacsEditor.editor
       startPosition: @startCursors[0].head
       # TODO: Escape text, add proper regexp support.
-      regex: new RegExp(text)
+      regex: new RegExp(text, if caseSensitive then '' else 'i')
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)
