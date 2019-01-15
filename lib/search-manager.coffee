@@ -17,9 +17,9 @@ class SearchManager
     @search = null
     @results = null
 
-  start: (@emacsEditor, {@direction}) ->
+  start: (@emacsEditor, {direction}) ->
     @searchView ?= new SearchView(this)
-    @searchView.start({@direction})
+    @searchView.start({direction})
     @startCursors = @emacsEditor.saveCursors()
 
   exit: ->
