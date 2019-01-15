@@ -40,6 +40,9 @@ class SearchView
     placeholder = @element.querySelector('.SEARCH-EDITOR')
     placeholder.parentNode.replaceChild(@searchEditor.element, placeholder)
 
+    @wrapIcon = document.createElement('div')
+    @wrapIcon.classList.add('atomic-emacs', 'search-wrap-icon')
+
     @caseSensitive = false
     @_updateCaseSensitivityButton()
     @caseSensitivityButton.addEventListener 'click', (event) =>
@@ -105,6 +108,19 @@ class SearchView
     if @total == 0
       @progressElement.style.display = 'none'
       @noMatchesElement.style.display = ''
+
+  showWrapIcon: (icon) ->
+    # Adapted from find-and-replace's FindView#showWrapIcon().
+    activePaneItem = atom.workspace.getCenter().getActivePaneItem()
+    return if not activePaneItem?
+
+    paneItemView = atom.views.getView(activePaneItem)
+    return if not paneItemView?
+
+    paneItemView.parentNode.appendChild(@wrapIcon)
+    @wrapIcon.classList.add(icon, 'visible')
+    clearTimeout(@wrapTimeout)
+    @wrapTimeout = setTimeout((=> @wrapIcon.classList.remove('visible')), 500)
 
   _activate: ->
     @active = true

@@ -94,8 +94,10 @@ class SearchManager
 
     markers = []
     @emacsEditor.moveEmacsCursors (emacsCursor) =>
-      marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
-        @results.findResultAfter(new Point(0, 0))
+      marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition())
+      if marker == null
+        @searchView.showWrapIcon('icon-move-up')
+        marker = @results.findResultAfter(new Point(0, 0))
       emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
       markers.push(marker)
 
