@@ -38,8 +38,6 @@ class SearchManager
 
     if @results?
       @_advanceCursors()
-    else
-      # TODO: repeat last query
 
   changed: (text, {caseSensitive, isRegExp}) ->
     @results?.clear()
