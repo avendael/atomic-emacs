@@ -83,7 +83,7 @@ class SearchView
   isEmpty: ->
     @searchEditor.isEmpty()
 
-  repeatLastQuery: ({@direction}) ->
+  repeatLastQuery: (@direction) ->
     if @lastQuery
       @searchEditor.setText(@lastQuery)
 
