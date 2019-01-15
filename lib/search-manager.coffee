@@ -2,8 +2,7 @@
 Search = require './search'
 SearchResults = require './search-results'
 SearchView = require './search-view'
-
-escapeForRegExp = (string) -> string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+Utils = require './utils'
 
 module.exports =
 class SearchManager
@@ -70,7 +69,7 @@ class SearchManager
       startPosition: @startCursors[0][if direction == 'forward' then 'head' else 'tail']
       direction: direction
       regex: new RegExp(
-        if isRegExp then text else escapeForRegExp(text)
+        if isRegExp then text else Utils.escapeForRegExp(text)
         if caseSensitive then '' else 'i'
       )
       onMatch: (range) =>

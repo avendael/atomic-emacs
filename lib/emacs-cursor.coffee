@@ -105,14 +105,14 @@ class EmacsCursor
   #
   # If the end of the buffer is reached, remain there.
   skipCharactersBackward: (characters) ->
-    regexp = new RegExp("[^#{escapeRegExp(characters)}]")
+    regexp = new RegExp("[^#{Utils.escapeForRegExp(characters)}]")
     @skipBackwardUntil(regexp)
 
   # Skip forwards over the given characters.
   #
   # If the end of the buffer is reached, remain there.
   skipCharactersForward: (characters) ->
-    regexp = new RegExp("[^#{escapeRegExp(characters)}]")
+    regexp = new RegExp("[^#{Utils.escapeForRegExp(characters)}]")
     @skipForwardUntil(regexp)
 
   # Skip backwards over any word characters.
@@ -495,11 +495,11 @@ class EmacsCursor
 
   _getWordCharacterRegExp: ->
     nonWordCharacters = atom.config.get('editor.nonWordCharacters')
-    new RegExp('[^\\s' + escapeRegExp(nonWordCharacters) + ']')
+    new RegExp('[^\\s' + Utils.escapeForRegExp(nonWordCharacters) + ']')
 
   _getNonWordCharacterRegExp: ->
     nonWordCharacters = atom.config.get('editor.nonWordCharacters')
-    new RegExp('[\\s' + escapeRegExp(nonWordCharacters) + ']')
+    new RegExp('[\\s' + Utils.escapeForRegExp(nonWordCharacters) + ']')
 
   _goTo: (point) ->
     if point
@@ -507,11 +507,3 @@ class EmacsCursor
       true
     else
       false
-
-# Stolen from underscore-plus, which we can't seem to require() from a package
-# without depending on a separate copy of the whole library.
-escapeRegExp = (string) ->
-  if string
-    string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-  else
-    ''

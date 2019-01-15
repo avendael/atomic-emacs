@@ -3,6 +3,13 @@
 module.exports =
   BOB: new Point(0, 0)
 
+  # Stolen from underscore-plus.
+  escapeForRegExp: (string) ->
+    if string
+      string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
+    else
+      ''
+
   positionAfter: (editor, point) ->
     lineLength = editor.lineTextForBufferRow(point.row).length
     if point.column == lineLength
