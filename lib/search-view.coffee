@@ -68,7 +68,7 @@ class SearchView
       if @active and event.target.closest('.atomic-emacs.search') == null
         @exit()
 
-  start: ->
+  start: ({@direction}) ->
     @_activate()
     @searchEditor.element.focus()
 
@@ -83,7 +83,7 @@ class SearchView
   isEmpty: ->
     @searchEditor.isEmpty()
 
-  repeatLastQuery: ->
+  repeatLastQuery: ({@direction}) ->
     if @lastQuery
       @searchEditor.setText(@lastQuery)
 
@@ -142,7 +142,7 @@ class SearchView
   _runQuery: ->
     text = @searchEditor.getText()
     @lastQuery = text
-    @searchManager.changed(text, caseSensitive: @caseSensitive, isRegExp: @isRegExp)
+    @searchManager.changed(text, {@caseSensitive, @isRegExp, @direction})
 
   _updateCaseSensitivityButton: ->
     @caseSensitivityButton.textContent = if @caseSensitive then 'Case: on' else 'Case: off'

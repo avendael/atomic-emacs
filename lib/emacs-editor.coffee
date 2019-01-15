@@ -41,7 +41,8 @@ class EmacsEditor
   saveCursors: ->
     @getEmacsCursors().map (emacsCursor) ->
       head: emacsCursor.cursor.marker.getHeadBufferPosition()
-      tail: emacsCursor.cursor.marker.getTailBufferPosition()
+      tail: emacsCursor.cursor.marker.getTailBufferPosition() or
+        emacsCursor.cursor.marker.getHeadBufferPosition()
       # Atom doesn't have a public API to add a selection to a cursor, so assume
       # that an active selection means an active mark.
       markActive: emacsCursor.mark().isActive() or

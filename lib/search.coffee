@@ -8,15 +8,20 @@
 # anymore.
 module.exports =
 class Search
-  constructor: ({@editor, @startPosition, @regex, @onMatch, @onWrapped, @onFinished}) ->
+  constructor: ({@editor, @startPosition, @direction, @regex, @onMatch, @onWrapped, @onFinished}) ->
     @blockLines = 100
-    @wrapped = false
-    @finished = false
+
+    @buffer = @editor.getBuffer()
+    bob = new Point(0, 0)
+    eob = @buffer.getEndPosition()
+    [@bufferLimit, @bufferReverseLimit] =
+      if @direction == 'forward' then [eob, bob] else [bob, eob]
 
     # TODO: Don't assume regex can't span lines. need a configurable overlap?
     @_startBlock(@startPosition)
-    @buffer = @editor.getBuffer()
-    @eob = @buffer.getEndPosition()
+
+    @wrapped = false
+    @finished = false
     @_stopRequested = false
 
   start: ->
@@ -35,35 +40,51 @@ class Search
 
     found = false
 
-    @editor.scanInBufferRange @regex, new Range(@currentPosition, @currentEnd), ({range}) =>
-      found = true
-      @onMatch(range)
-      # If range is empty, advance one char to ensure finite progress.
-      if range.isEmpty()
-        @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.end) + 1)
-      else
-        @currentPosition = range.end
-      stop()
+    if @direction == 'forward'
+      @editor.scanInBufferRange @regex, new Range(@currentPosition, @currentLimit), ({range}) =>
+        found = true
+        @onMatch(range)
+        # If range is empty, advance one char to ensure finite progress.
+        if range.isEmpty()
+          @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.end) + 1)
+        else
+          @currentPosition = range.end
+        stop()
+    else
+      @editor.backwardsScanInBufferRange @regex, new Range(@currentLimit, @currentPosition), ({range}) =>
+        found = true
+        @onMatch(range)
+        # If range is empty, advance one char to ensure finite progress.
+        if range.isEmpty()
+          @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.start) - 1)
+        else
+          @currentPosition = range.start
+        stop()
 
     if not found
-      if @wrapped and @currentEnd.isEqual(@startPosition)
+      if @wrapped and @currentLimit.isEqual(@startPosition)
         @finished = true
         @onFinished()
         return false
-      else if not @wrapped and @currentEnd.isEqual(@eob)
+      else if not @wrapped and @currentLimit.isEqual(@bufferLimit)
         @wrapped = true
         @onWrapped()
-        @_startBlock(new Point(0, 0))
+        @_startBlock(@bufferReverseLimit)
       else
-        @_startBlock(@currentEnd)
+        @_startBlock(@currentLimit)
 
     true
 
   _startBlock: (blockStart) ->
     @currentPosition = blockStart
-    @currentEnd = @_endOfRangeAfter(@currentPosition)
+    @currentLimit = @_nextLimit(blockStart)
 
-  _endOfRangeAfter: (point) ->
-    guess = new Point(point.row + @blockLines, 0)
-    limit = if @wrapped then @startPosition else @editor.getEofBufferPosition()
-    if guess.isGreaterThan(limit) then limit else guess
+  _nextLimit: (point) ->
+    if @direction == 'forward'
+      guess = new Point(point.row + @blockLines, 0)
+      limit = if @wrapped then @startPosition else @bufferLimit
+      if guess.isGreaterThan(limit) then limit else guess
+    else
+      guess = new Point(point.row - @blockLines, 0)
+      limit = if @wrapped then @startPosition else @bufferLimit
+      if guess.isLessThan(limit) then limit else guess

@@ -45,6 +45,8 @@
       "atomic-emacs:isearch-backward",
       "atomic-emacs:isearch-exit",
       "atomic-emacs:isearch-cancel",
+      "atomic-emacs:isearch-repeat-forward",
+      "atomic-emacs:isearch-repeat-backward",
       "atomic-emacs:set-mark",
       "atomic-emacs:mark-sexp",
       "atomic-emacs:mark-whole-buffer",

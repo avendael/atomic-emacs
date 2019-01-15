@@ -1,5 +1,6 @@
 KillRing = require './kill-ring'
 Mark = require './mark'
+Utils = require './utils'
 {CompositeDisposable} = require 'atom'
 
 OPENERS = {'(': ')', '[': ']', '{': '}', '\'': '\'', '"': '"', '`': '`'}
@@ -273,24 +274,18 @@ class EmacsCursor
     @_yankMarker = null
 
   _nextCharacterFrom: (position) ->
-    lineLength = @editor.lineTextForBufferRow(position.row).length
-    if position.column == lineLength
-      if position.row == @editor.getLastBufferRow()
-        null
-      else
-        @editor.getTextInBufferRange([position, [position.row + 1, 0]])
+    nextPosition = Utils.positionAfter(@editor, position)
+    if nextPosition
+      @editor.getTextInBufferRange([position, nextPosition])
     else
-      @editor.getTextInBufferRange([position, position.translate([0, 1])])
+      null
 
   _previousCharacterFrom: (position) ->
-    if position.column == 0
-      if position.row == 0
-        null
-      else
-        column = @editor.lineTextForBufferRow(position.row - 1).length
-        @editor.getTextInBufferRange([[position.row - 1, column], position])
+    prevPosition = Utils.positionBefore(@editor, position)
+    if prevPosition
+      @editor.getTextInBufferRange([prevPosition, position])
     else
-      @editor.getTextInBufferRange([position.translate([0, -1]), position])
+      null
 
   nextCharacter: ->
     @_nextCharacterFrom(@cursor.getBufferPosition())

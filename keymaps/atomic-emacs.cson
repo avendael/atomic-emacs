@@ -177,3 +177,4 @@
   'escape': 'atomic-emacs:isearch-cancel'
   'ctrl-g': 'atomic-emacs:isearch-cancel'
   'ctrl-s': 'atomic-emacs:isearch-repeat-forward'
+  'ctrl-r': 'atomic-emacs:isearch-repeat-backward'

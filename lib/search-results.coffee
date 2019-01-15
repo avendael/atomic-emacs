@@ -1,4 +1,5 @@
 {Point, Range} = require 'atom'
+Utils = require './utils'
 
 module.exports =
 class SearchResults
@@ -34,6 +35,12 @@ class SearchResults
     markers = @markerLayer.findMarkers
       startsInRange: new Range(point, @editor.getBuffer().getEndPosition())
     markers[0] or null
+
+  findResultBefore: (point) ->
+    # TODO: scan in blocks
+    markers = @markerLayer.findMarkers
+      startsInRange: new Range(new Point(0, 0), Utils.positionBefore(@editor, point))
+    markers[markers.length - 1] or null
 
   setCurrent: (markers) ->
     # TODO: don't destroy markers that don't need to be destroyed?
