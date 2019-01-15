@@ -109,7 +109,7 @@ class SearchView
       @progressElement.style.display = 'none'
       @noMatchesElement.style.display = ''
 
-  showWrapIcon: (icon) ->
+  showWrapIcon: (direction) ->
     # Adapted from find-and-replace's FindView#showWrapIcon().
     activePaneItem = atom.workspace.getCenter().getActivePaneItem()
     return if not activePaneItem?
@@ -118,6 +118,12 @@ class SearchView
     return if not paneItemView?
 
     paneItemView.parentNode.appendChild(@wrapIcon)
+    [icon, otherIcon] =
+      if direction == 'forward'
+        ['icon-move-up', 'icon-move-down']
+      else
+        ['icon-move-down', 'icon-move-up']
+    @wrapIcon.classList.remove(otherIcon)
     @wrapIcon.classList.add(icon, 'visible')
     clearTimeout(@wrapTimeout)
     @wrapTimeout = setTimeout((=> @wrapIcon.classList.remove('visible')), 500)

@@ -101,7 +101,7 @@ class SearchManager
       @emacsEditor.moveEmacsCursors (emacsCursor) =>
         marker = @results.findResultAfter(emacsCursor.cursor.getMarker().getEndBufferPosition())
         if marker == null
-          @searchView.showWrapIcon("icon-move-up")
+          @searchView.showWrapIcon(direction)
           marker = @results.findResultAfter(new Point(0, 0))
         emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
         markers.push(marker)
@@ -109,7 +109,7 @@ class SearchManager
       @emacsEditor.moveEmacsCursors (emacsCursor) =>
         marker = @results.findResultBefore(emacsCursor.cursor.getMarker().getStartBufferPosition())
         if marker == null
-          @searchView.showWrapIcon("icon-move-down")
+          @searchView.showWrapIcon(direction)
           marker = @results.findResultBefore(@emacsEditor.editor.getBuffer().getEndPosition())
         emacsCursor.cursor.setBufferPosition(marker.getStartBufferPosition())
         markers.push(marker)
