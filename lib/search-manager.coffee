@@ -90,6 +90,7 @@ class SearchManager
   _advanceCursors: ->
     # TODO: Store request and fire it when we can.
     return if not @results?
+    return if @results.numMatches() == 0
 
     markers = []
     @emacsEditor.moveEmacsCursors (emacsCursor) =>
