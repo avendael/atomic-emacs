@@ -1,6 +1,8 @@
 {Point} = require 'atom'
 
 module.exports =
+  BOB: new Point(0, 0)
+
   positionAfter: (editor, point) ->
     lineLength = editor.lineTextForBufferRow(point.row).length
     if point.column == lineLength

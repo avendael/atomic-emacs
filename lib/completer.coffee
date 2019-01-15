@@ -1,7 +1,6 @@
 {Point, Range} = require 'atom'
 State = require './state'
-
-BOB = new Point(0, 0)
+Utils = require './utils'
 
 # Taken from the built-in find-and-replace package (escapeRegExp).
 escapeForRegExp = (string) ->
@@ -54,7 +53,7 @@ module.exports =
 class Completer
   constructor: (@emacsEditor, @emacsCursor) ->
     eob = @emacsEditor.editor.getBuffer().getEndPosition()
-    prefixStart = @emacsCursor.locateBackward(getNonSymbolCharacterRegExp())?.end ? BOB
+    prefixStart = @emacsCursor.locateBackward(getNonSymbolCharacterRegExp())?.end ? Utils.BOB
     prefixEnd = @emacsCursor.locateForward(getNonSymbolCharacterRegExp())?.start ? eob
     point = @emacsCursor.cursor.getBufferPosition()
 
@@ -68,7 +67,7 @@ class Completer
     @_marker = @emacsEditor.editor.markBufferRange([prefixStart, point])
     @prefix = @emacsEditor.editor.getTextInBufferRange([prefixStart, point])
 
-    backwardRange = new Range(BOB, prefixStart)
+    backwardRange = new Range(Utils.BOB, prefixStart)
     forwardRange = new Range(prefixEnd, eob)
 
     regExp = new RegExp("\\b#{escapeForRegExp(@prefix)}")
@@ -84,7 +83,7 @@ class Completer
       nextEditorStage = (index) =>
         if index < otherEditors.length - 1
           editor = otherEditors[index]
-          range = new Range(BOB, editor.getBuffer().getEndPosition())
+          range = new Range(Utils.BOB, editor.getBuffer().getEndPosition())
           => new Stage(regExp, editor, range, false, nextEditorStage(index + 1))
         else
           null

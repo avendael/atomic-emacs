@@ -1,4 +1,5 @@
 {Point, Range} = require 'atom'
+Utils = require './utils'
 
 # Handles the search through the buffer from a given starting point, in a given
 # direction, wrapping back around to the starting point. Each call to proceed()
@@ -12,10 +13,9 @@ class Search
     @blockLines = 100
 
     @buffer = @editor.getBuffer()
-    bob = new Point(0, 0)
     eob = @buffer.getEndPosition()
     [@bufferLimit, @bufferReverseLimit] =
-      if @direction == 'forward' then [eob, bob] else [bob, eob]
+      if @direction == 'forward' then [eob, Utils.BOB] else [Utils.BOB, eob]
 
     # TODO: Don't assume regex can't span lines. need a configurable overlap?
     @_startBlock(@startPosition)

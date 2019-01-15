@@ -144,7 +144,7 @@ class EmacsCursor
   # If the beginning of the buffer is reached, remain there.
   skipBackwardUntil: (regexp) ->
     if not @goToMatchEndBackward(regexp)
-      @_goTo BOB
+      @_goTo Utils.BOB
 
   # Skip over characters until the next occurrence of the given regexp.
   #
@@ -441,14 +441,14 @@ class EmacsCursor
       @_locateForwardFrom(point, /[\W\n]/i)?.start or eob
 
   _sexpBackwardFrom: (point) ->
-    point = @_locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or BOB
+    point = @_locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or Utils.BOB
     character = @_previousCharacterFrom(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       result = null
       stack = []
       quotes = 0
       re = /[^()[\]{}"'`\\]+|\\.|[()[\]{}"'`]/g
-      @editor.backwardsScanInBufferRange re, [BOB, point], (hit) =>
+      @editor.backwardsScanInBufferRange re, [Utils.BOB, point], (hit) =>
         if hit.matchText == stack[stack.length - 1]
           stack.pop()
           if stack.length == 0
@@ -465,7 +465,7 @@ class EmacsCursor
             hit.stop()
       result or point
     else
-      @_locateBackwardFrom(point, /[\W\n]/i)?.end or BOB
+      @_locateBackwardFrom(point, /[\W\n]/i)?.end or Utils.BOB
 
   _listForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
@@ -482,7 +482,7 @@ class EmacsCursor
 
   _locateBackwardFrom: (point, regExp) ->
     result = null
-    @editor.backwardsScanInBufferRange regExp, [BOB, point], (hit) ->
+    @editor.backwardsScanInBufferRange regExp, [Utils.BOB, point], (hit) ->
       result = hit.range
     result
 
@@ -515,5 +515,3 @@ escapeRegExp = (string) ->
     string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
   else
     ''
-
-BOB = {row: 0, column: 0}
