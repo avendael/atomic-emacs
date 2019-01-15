@@ -18,6 +18,7 @@ class SearchView
         <label for="atomic_emacs_search_editor">Search:</label>
         <div class="SEARCH-EDITOR"></div>
         <button class="case-sensitivity"></button>
+        <button class="is-reg-exp"></button>
       </div>
       <div class="row">
         <p class="progress">
@@ -29,6 +30,7 @@ class SearchView
     """
 
     @caseSensitivityButton = @element.querySelector('.case-sensitivity')
+    @isRegExpButton = @element.querySelector('.is-reg-exp')
     @scanningIndicator = @element.querySelector('.scanning-indicator')
     @indexElement = @element.querySelector('.index')
     @totalElement = @element.querySelector('.total')
@@ -43,6 +45,13 @@ class SearchView
     @caseSensitivityButton.addEventListener 'click', (event) =>
       @caseSensitive = not @caseSensitive
       @_updateCaseSensitivityButton()
+      @_runQuery() if @active
+
+    @isRegExp = false
+    @_updateIsRegExpButton()
+    @isRegExpButton.addEventListener 'click', (event) =>
+      @isRegExp = not @isRegExp
+      @_updateIsRegExpButton()
       @_runQuery() if @active
 
     @panel = atom.workspace.addModalPanel
@@ -117,7 +126,10 @@ class SearchView
   _runQuery: ->
     text = @searchEditor.getText()
     @lastQuery = text
-    @search.changed(text, caseSensitive: @caseSensitive)
+    @search.changed(text, caseSensitive: @caseSensitive, isRegExp: @isRegExp)
 
   _updateCaseSensitivityButton: ->
     @caseSensitivityButton.textContent = if @caseSensitive then 'Case: on' else 'Case: off'
+
+  _updateIsRegExpButton: ->
+    @isRegExpButton.textContent = if @isRegExp then 'Reg Exp: on' else 'Reg Exp: off'

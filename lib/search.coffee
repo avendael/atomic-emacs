@@ -1,6 +1,8 @@
 {Point, Range} = require 'atom'
 SearchView = require './search-view'
 
+escapeForRegExp = (string) -> string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 # Handles the search through the buffer from a given starting point, in a given
 # direction, wrapping back around to the starting point. Each call to proceed()
 # advances up to a limited distance, calling the onMatch callback at most once,
@@ -148,7 +150,7 @@ class Search
     else
       # TODO: repeat last query
 
-  changed: (text, {caseSensitive}) ->
+  changed: (text, {caseSensitive, isRegExp}) ->
     @results?.clear()
     @searcher?.stop()
 
@@ -158,7 +160,7 @@ class Search
 
     return if text == ''
 
-    caseSensitive = caseSensitive or /[A-Z]/.test(text)
+    caseSensitive = caseSensitive or (not isRegExp and /[A-Z]/.test(text))
 
     wrapped = false
     moved = false
@@ -171,8 +173,10 @@ class Search
     @searcher = new Searcher
       editor: @emacsEditor.editor
       startPosition: @startCursors[0].head
-      # TODO: Escape text, add proper regexp support.
-      regex: new RegExp(text, if caseSensitive then '' else 'i')
+      regex: new RegExp(
+        if isRegExp then text else escapeForRegExp(text)
+        if caseSensitive then '' else 'i'
+      )
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)
