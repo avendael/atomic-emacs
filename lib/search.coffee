@@ -1,7 +1,4 @@
 {Point, Range} = require 'atom'
-SearchView = require './search-view'
-
-escapeForRegExp = (string) -> string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
 # Handles the search through the buffer from a given starting point, in a given
 # direction, wrapping back around to the starting point. Each call to proceed()
@@ -9,7 +6,8 @@ escapeForRegExp = (string) -> string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 # and return true until the starting point has been reached again. Once that
 # happens, proceed() will return false, and will never call the onMatch callback
 # anymore.
-class Searcher
+module.exports =
+class Search
   constructor: ({@editor, @startPosition, @regex, @onMatch, @onWrapped, @onFinished}) ->
     @blockLines = 100
     @wrapped = false
@@ -69,159 +67,3 @@ class Searcher
     guess = new Point(point.row + @blockLines, 0)
     limit = if @wrapped then @startPosition else @editor.getEofBufferPosition()
     if guess.isGreaterThan(limit) then limit else guess
-
-class SearchResults
-  @for: (editor) ->
-    editor._atomicEmacsSearchResults ?= new SearchResults(editor)
-
-  constructor: (@editor) ->
-    @markerLayer = @editor.addMarkerLayer()
-    @editor.decorateMarkerLayer @markerLayer,
-      type: 'highlight'
-      class: 'atomic-emacs-search-result'
-    @_numMatches = 0
-    @currentDecorations = []
-
-  clear: ->
-    @markerLayer.clear()
-    @_numMatches = 0
-
-  add: (range) ->
-    @_numMatches += 1
-    @markerLayer.bufferMarkerLayer.markRange(range)
-
-  numMatches: ->
-    @_numMatches
-
-  numMatchesBefore: (point) ->
-    markers = @markerLayer.findMarkers
-      startsInRange: new Range(new Point(0, 0), point)
-    markers.length
-
-  findResultAfter: (point) ->
-    # TODO: scan in blocks
-    markers = @markerLayer.findMarkers
-      startsInRange: new Range(point, @editor.getBuffer().getEndPosition())
-    markers[0] or null
-
-  setCurrent: (markers) ->
-    # TODO: don't destroy markers that don't need to be destroyed?
-    @currentDecorations.forEach (decoration) ->
-      decoration.destroy()
-
-    @currentDecorations = markers.map (marker) =>
-      @editor.decorateMarker marker,
-        type: 'highlight'
-        class: 'atomic-emacs-current-result'
-
-module.exports =
-class Search
-  constructor: ->
-    @panel = null
-    @searchEditor = null
-    @emacsEditor = null
-
-    @searchView = null
-    @startCursors = null
-
-    @searcher = null
-    @results = null
-
-  start: (@emacsEditor, @direction) ->
-    @searchView ?= new SearchView(this)
-    @searchView.start()
-    @startCursors = @emacsEditor.saveCursors()
-
-  exit: ->
-    @searchView.exit()
-    @emacsEditor.editor.element.focus()
-
-  cancel: ->
-    @searchView.cancel()
-    @emacsEditor.editor.element.focus()
-
-  repeatFoward: ->
-    if @searchView.isEmpty()
-      @searchView.repeatLastQuery()
-      return
-
-    if @results?
-      @_advanceCursors()
-    else
-      # TODO: repeat last query
-
-  changed: (text, {caseSensitive, isRegExp}) ->
-    @results?.clear()
-    @searcher?.stop()
-
-    @results = SearchResults.for(@emacsEditor.editor)
-    @results.clear()
-    @searchView.resetProgress()
-
-    return if text == ''
-
-    caseSensitive = caseSensitive or (not isRegExp and /[A-Z]/.test(text))
-
-    wrapped = false
-    moved = false
-    lastCursorPosition = @startCursors[@startCursors.length - 1].head
-
-    # If the query used to match, but no longer does, we need to go back to the
-    # original positions.
-    @emacsEditor.restoreCursors(@startCursors)
-
-    @searcher = new Searcher
-      editor: @emacsEditor.editor
-      startPosition: @startCursors[0].head
-      regex: new RegExp(
-        if isRegExp then text else escapeForRegExp(text)
-        if caseSensitive then '' else 'i'
-      )
-      onMatch: (range) =>
-        return if not @results?
-        @results.add(range, wrapped)
-        @searchView.setTotal(@results.numMatches())
-        if not moved and (@results.findResultAfter(lastCursorPosition) or wrapped)
-          @_advanceCursors()
-          moved = true
-      onWrapped: ->
-        wrapped = true
-      onFinished: =>
-        return if not @results?
-        if @results.numMatches() == 0
-          @emacsEditor.restoreCursors(@startCursors)
-        else if not moved
-          @_advanceCursors()
-        @searchView.scanningDone()
-
-    @searcher?.start()
-
-  _advanceCursors: ->
-    # TODO: Store request and fire it when we can.
-    return if not @results?
-
-    markers = []
-    @emacsEditor.moveEmacsCursors (emacsCursor) =>
-      marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition()) or
-        @results.findResultAfter(new Point(0, 0))
-      emacsCursor.cursor.setBufferPosition(marker.getEndBufferPosition())
-      markers.push(marker)
-
-    @results.setCurrent(markers)
-
-    point = @emacsEditor.editor.getCursors()[0].getBufferPosition()
-    @searchView.setIndex(@results.numMatchesBefore(point))
-
-  exited: ->
-    @_deactivate()
-
-  canceled: ->
-    @emacsEditor.restoreCursors(@startCursors)
-    @_deactivate()
-
-  _deactivate: ->
-    @searcher?.stop()
-    @searcher = null
-    @results?.clear()
-    @results = null
-    @startCursors = null

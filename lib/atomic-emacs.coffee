@@ -4,7 +4,7 @@ EmacsCursor = require './emacs-cursor'
 EmacsEditor = require './emacs-editor'
 KillRing = require './kill-ring'
 Mark = require './mark'
-Search = require './search'
+SearchManager = require './search-manager'
 State = require './state'
 
 beforeCommand = (event) ->
@@ -46,7 +46,7 @@ module.exports =
   EmacsEditor: EmacsEditor
   KillRing: KillRing
   Mark: Mark
-  Search: Search
+  SearchManager: SearchManager
   State: State
 
   config:
@@ -77,7 +77,7 @@ module.exports =
       return
 
     State.initialize()
-    @search = search = new Search
+    @search = search = new SearchManager
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
     @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)

@@ -2,7 +2,7 @@
 
 module.exports =
 class SearchView
-  constructor: (@search) ->
+  constructor: (@searchManager) ->
     label = document.createElement('label')
     label.textContent = 'Search: '
     label.setAttribute('for', 'atomic-emacs-search-editor')
@@ -71,11 +71,11 @@ class SearchView
 
   exit: ->
     @_deactivate()
-    @search.exited()
+    @searchManager.exited()
 
   cancel: ->
     @_deactivate()
-    @search.canceled()
+    @searchManager.canceled()
 
   isEmpty: ->
     @searchEditor.isEmpty()
@@ -126,7 +126,7 @@ class SearchView
   _runQuery: ->
     text = @searchEditor.getText()
     @lastQuery = text
-    @search.changed(text, caseSensitive: @caseSensitive, isRegExp: @isRegExp)
+    @searchManager.changed(text, caseSensitive: @caseSensitive, isRegExp: @isRegExp)
 
   _updateCaseSensitivityButton: ->
     @caseSensitivityButton.textContent = if @caseSensitive then 'Case: on' else 'Case: off'
