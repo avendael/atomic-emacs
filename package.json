@@ -47,6 +47,8 @@
       "atomic-emacs:isearch-cancel",
       "atomic-emacs:isearch-repeat-forward",
       "atomic-emacs:isearch-repeat-backward",
+      "atomic-emacs:isearch-toggle-case-fold",
+      "atomic-emacs:isearch-toggle-regexp",
       "atomic-emacs:set-mark",
       "atomic-emacs:mark-sexp",
       "atomic-emacs:mark-whole-buffer",

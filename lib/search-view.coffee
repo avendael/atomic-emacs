@@ -46,16 +46,12 @@ class SearchView
     @caseSensitive = false
     @_updateCaseSensitivityButton()
     @caseSensitivityButton.addEventListener 'click', (event) =>
-      @caseSensitive = not @caseSensitive
-      @_updateCaseSensitivityButton()
-      @_runQuery() if @active
+      @toggleCaseSensitivity()
 
     @isRegExp = false
     @_updateIsRegExpButton()
     @isRegExpButton.addEventListener 'click', (event) =>
-      @isRegExp = not @isRegExp
-      @_updateIsRegExpButton()
-      @_runQuery() if @active
+      @toggleIsRegExp()
 
     @panel = atom.workspace.addModalPanel
       item: this
@@ -86,6 +82,16 @@ class SearchView
   repeatLastQuery: (@direction) ->
     if @lastQuery
       @searchEditor.setText(@lastQuery)
+
+  toggleCaseSensitivity: ->
+    @caseSensitive = not @caseSensitive
+    @_updateCaseSensitivityButton()
+    @_runQuery() if @active
+
+  toggleIsRegExp: ->
+    @isRegExp = not @isRegExp
+    @_updateIsRegExpButton()
+    @_runQuery() if @active
 
   resetProgress: ->
     @total = 0

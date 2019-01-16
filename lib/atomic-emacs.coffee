@@ -158,6 +158,8 @@ module.exports =
       "atomic-emacs:isearch-cancel": (event) -> search.cancel()
       "atomic-emacs:isearch-repeat-forward": (event) -> search.repeat('forward')
       "atomic-emacs:isearch-repeat-backward": (event) -> search.repeat('backward')
+      "atomic-emacs:isearch-toggle-case-fold": (event) -> search.toggleCaseSensitivity()
+      "atomic-emacs:isearch-toggle-regexp": (event) -> search.toggleIsRegExp()
 
     @disposable.add atom.commands.add 'atom-workspace',
       "atomic-emacs:find-file": (event) -> findFile(event)

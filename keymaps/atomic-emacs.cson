@@ -178,3 +178,7 @@
   'ctrl-g': 'atomic-emacs:isearch-cancel'
   'ctrl-s': 'atomic-emacs:isearch-repeat-forward'
   'ctrl-r': 'atomic-emacs:isearch-repeat-backward'
+  'alt-s c': 'atomic-emacs:isearch-toggle-case-fold'
+  'alt-c': 'atomic-emacs:isearch-toggle-case-fold'
+  'alt-s r': 'atomic-emacs:isearch-toggle-regexp'
+  'alt-r': 'atomic-emacs:isearch-toggle-regexp'

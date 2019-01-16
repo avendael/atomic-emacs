@@ -38,6 +38,12 @@ class SearchManager
     if @results?
       @_advanceCursors(direction)
 
+  toggleCaseSensitivity: ->
+    @searchView.toggleCaseSensitivity()
+
+  toggleIsRegExp: ->
+    @searchView.toggleIsRegExp()
+
   changed: (text, {caseSensitive, isRegExp, direction}) ->
     @results?.clear()
     @search?.stop()
