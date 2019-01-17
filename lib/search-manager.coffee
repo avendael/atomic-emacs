@@ -55,8 +55,7 @@ class SearchManager
     @searchView.append(text)
 
   _wordOrCharacterRangeFrom: (emacsCursor) ->
-    editor = @emacsEditor.editor
-    eob = editor.getBuffer().getEndPosition()
+    eob = @emacsEditor.editor.getBuffer().getEndPosition()
     point = emacsCursor.cursor.getBufferPosition()
     alphanumPattern = /[a-z0-9]/i
 
@@ -74,15 +73,14 @@ class SearchManager
           range = emacsCursor.locateForward(/[^ \t]/)
           if range then range.start else eob
         else
-          Utils.positionAfter(editor, point) or eob
+          @emacsEditor.positionAfter(point) or eob
     new Range(point, target)
 
   _charAhead: (point, zeroOrOne) ->
-    editor = @emacsEditor.editor
     if zeroOrOne == 1
-      point = Utils.positionAfter(editor, point)
-    pointPlus1 = Utils.positionAfter(editor, point)
-    editor.getTextInBufferRange([point, pointPlus1])
+      point = @emacsEditor.positionAfter(point)
+    pointPlus1 = @emacsEditor.positionAfter(point)
+    @emacsEditor.editor.getTextInBufferRange([point, pointPlus1])
 
   changed: (text, {caseSensitive, isRegExp, direction}) ->
     @results?.clear()

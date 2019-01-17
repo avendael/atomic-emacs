@@ -39,7 +39,7 @@ class SearchResults
   findResultBefore: (point) ->
     # TODO: scan in blocks
     markers = @markerLayer.findMarkers
-      startsInRange: new Range(new Point(0, 0), Utils.positionBefore(@editor, point))
+      startsInRange: new Range(new Point(0, 0), @emacsEditor.positionBefore(point))
     markers[markers.length - 1] or null
 
   setCurrent: (markers) ->

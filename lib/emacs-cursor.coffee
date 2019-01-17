@@ -274,14 +274,14 @@ class EmacsCursor
     @_yankMarker = null
 
   _nextCharacterFrom: (position) ->
-    nextPosition = Utils.positionAfter(@editor, position)
+    nextPosition = @emacsEditor.positionAfter(position)
     if nextPosition
       @editor.getTextInBufferRange([position, nextPosition])
     else
       null
 
   _previousCharacterFrom: (position) ->
-    prevPosition = Utils.positionBefore(@editor, position)
+    prevPosition = @emacsEditor.positionBefore(position)
     if prevPosition
       @editor.getTextInBufferRange([prevPosition, position])
     else

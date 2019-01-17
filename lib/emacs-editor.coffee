@@ -1,4 +1,4 @@
-{CompositeDisposable} = require 'atom'
+{CompositeDisposable, Point} = require 'atom'
 Completer = require './completer'
 EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
@@ -66,6 +66,26 @@ class EmacsEditor
       if info.markActive
         emacsCursor.mark().set().activate()
         emacsCursor._goTo(info.head)
+
+  positionAfter: (point) ->
+    lineLength = @editor.lineTextForBufferRow(point.row).length
+    if point.column == lineLength
+      if point.row == @editor.getLastBufferRow()
+        null
+      else
+        new Point(point.row + 1, 0)
+    else
+      point.translate([0, 1])
+
+  positionBefore: (point) ->
+    if point.column == 0
+      if point.row == 0
+        null
+      else
+        column = @editor.lineTextForBufferRow(point.row - 1).length
+        new Point(point.row - 1, column)
+    else
+      point.translate([0, -1])
 
   locateBackwardFrom: (point, regExp) ->
     result = null
