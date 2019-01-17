@@ -27,7 +27,7 @@ class EmacsEditor
     @disposable.dispose()
 
   getEmacsCursors: () ->
-    EmacsCursor.for(c) for c in @editor.getCursorsOrderedByBufferPosition()
+    EmacsCursor.for(c) for c in @editor.getCursors()
 
   moveEmacsCursors: (callback) ->
     @editor.moveCursors (cursor) ->

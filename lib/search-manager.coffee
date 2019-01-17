@@ -96,19 +96,22 @@ class SearchManager
 
     caseSensitive = caseSensitive or (not isRegExp and /[A-Z]/.test(text))
 
+    sortedCursors = @startCursors.sort (a, b) ->
+      headComparison = a.head.compare(b.head)
+
     wrapped = false
     moved = false
     canMove = =>
       if direction == 'forward'
-        lastCursorPosition = @startCursors[@startCursors.length - 1].head
+        lastCursorPosition = sortedCursors[sortedCursors.length - 1].head
         @results.findResultAfter(lastCursorPosition)
       else
-        firstCursorPosition = @startCursors[0].tail
+        firstCursorPosition = sortedCursors[0].tail
         @results.findResultBefore(firstCursorPosition)
 
     @search = new Search
       editor: @emacsEditor.editor
-      startPosition: @startCursors[0][if direction == 'forward' then 'head' else 'tail']
+      startPosition: sortedCursors[0][if direction == 'forward' then 'head' else 'tail']
       direction: direction
       regex: new RegExp(
         if isRegExp then text else Utils.escapeForRegExp(text)
