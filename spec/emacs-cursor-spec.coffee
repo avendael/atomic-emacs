@@ -348,19 +348,6 @@ describe "EmacsCursor", ->
       @testEditor.setState("a[0]b\ncd")
       expect(@emacsCursor.nextCharacter()).toEqual('b')
 
-  describe "previousCharacter", ->
-    it "returns the line separator if at the end of a line", ->
-      @testEditor.setState("ab[0]\ncd")
-      expect(@emacsCursor.nextCharacter()).toEqual('\n')
-
-    it "return null if at the end of the buffer", ->
-      @testEditor.setState("ab[0]")
-      expect(@emacsCursor.nextCharacter()).toBe(null)
-
-    it "returns the character to the right of the cursor otherwise", ->
-      @testEditor.setState("a[0]b\ncd")
-      expect(@emacsCursor.nextCharacter()).toEqual('b')
-
   describe "skipSexpForward", ->
     it "skips over the current symbol when inside one", ->
       @testEditor.setState("a[0]bc de")

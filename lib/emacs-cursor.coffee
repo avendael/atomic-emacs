@@ -290,9 +290,6 @@ class EmacsCursor
   nextCharacter: ->
     @_nextCharacterFrom(@cursor.getBufferPosition())
 
-  previousCharacter: ->
-    @_nextCharacterFrom(@cursor.getBufferPosition())
-
   # Skip to the end of the current or next symbolic expression.
   skipSexpForward: ->
     point = @cursor.getBufferPosition()
