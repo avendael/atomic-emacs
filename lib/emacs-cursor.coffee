@@ -8,10 +8,10 @@ CLOSERS = {')': '(', ']': '[', '}': '{', '\'': '\'', '"': '"', '`': '`'}
 
 module.exports =
 class EmacsCursor
-  @for: (cursor) ->
-    cursor._atomicEmacs ?= new EmacsCursor(cursor)
+  @for: (emacsEditor, cursor) ->
+    cursor._atomicEmacs ?= new EmacsCursor(emacsEditor, cursor)
 
-  constructor: (@cursor) ->
+  constructor: (@emacsEditor, @cursor) ->
     @editor = @cursor.editor
     @_mark = null
     @_localKillRing = null

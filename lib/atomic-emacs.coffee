@@ -175,5 +175,5 @@ module.exports =
   service_0_13: ->
     state: State
     editor: (atomEditor) -> EmacsEditor.for(atomEditor)
-    cursor: (atomCursor) -> EmacsCursor.for(atomCursor)
+    cursor: (atomCursor) -> @editor(atomCursor.editor).getEmacsCursorFor(atomCursor)
     getEditor: (event) -> getEditor(event)

@@ -14,7 +14,7 @@ describe "AtomicEmacs", ->
         @emacsEditor = EmacsEditor.for(@editor)
         @testEditor = new TestEditor(@editor)
         @editorView = atom.views.getView(@editor)
-        @getKillRing = (i) => EmacsCursor.for(@editor.getCursors()[i]).getLocalKillRing()
+        @getKillRing = (i) => @emacsEditor.getEmacsCursors()[i].getLocalKillRing()
 
   describe "atomic-emacs:backward-char", ->
     it "moves the cursor backward one character", ->
@@ -748,14 +748,14 @@ describe "AtomicEmacs", ->
       @testEditor.setState("a(0)b[0]c d[1]e(1)f")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
       expect(@testEditor.getState()).toEqual("ab[0]c d[1]ef")
-      entries = (EmacsCursor.for(c).killRing().getEntries() for c in @editor.getCursors())
+      entries = (c.killRing().getEntries() for c in @emacsEditor.getEmacsCursors())
       expect(entries).toEqual([['b'], ['e']])
 
     it "pushes blanks if selections are empty", ->
       @testEditor.setState("a(0)[0]b")
       atom.commands.dispatch @editorView, 'atomic-emacs:copy-region-as-kill'
-      cursor = @editor.getCursors()[0]
-      expect(EmacsCursor.for(cursor).killRing().getEntries()).toEqual([''])
+      emacsCursor = @emacsEditor.getEmacsCursors()[0]
+      expect(emacsCursor.killRing().getEntries()).toEqual([''])
       expect(@testEditor.getState()).toEqual("a[0]b")
 
     describe "when there is a single cursor", ->
@@ -1359,15 +1359,15 @@ describe "AtomicEmacs", ->
   describe "atomic_emacs:set-mark", ->
     it "sets and activates the mark of all cursors", ->
       @testEditor.setState("[0].[1]")
-      [cursor0, cursor1] = @editor.getCursors()
+      [emacsCursor0, emacsCursor1] = @emacsEditor.getEmacsCursors()
       atom.commands.dispatch @editorView, 'atomic-emacs:set-mark'
 
-      mark0 = EmacsCursor.for(cursor0).mark()
+      mark0 = emacsCursor0.mark()
       expect(mark0.isActive()).toBe(true)
       point = mark0.getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 0])
 
-      mark1 = EmacsCursor.for(cursor1).mark()
+      mark1 = emacsCursor1.mark()
       expect(mark1.isActive()).toBe(true)
       point = mark1.getBufferPosition()
       expect([point.row, point.column]).toEqual([0, 1])
@@ -1382,7 +1382,7 @@ describe "AtomicEmacs", ->
 
       atom.commands.dispatch @editorView, 'core:backspace'
       expect(@testEditor.getState()).toEqual("a[0]d e[1]h")
-      result = (EmacsCursor.for(c).mark().isActive() for c in @editor.getCursors())
+      result = (c.mark().isActive() for c in @emacsEditor.getEmacsCursors())
       expect(result).toEqual([false, false])
 
     it "properly cleans up if the editor is closed while the mark is active", ->
@@ -1476,7 +1476,7 @@ describe "AtomicEmacs", ->
   describe "core:cancel", ->
     it "deactivates all marks", ->
       @testEditor.setState("[0].[1]")
-      [mark0, mark1] = (EmacsCursor.for(c).mark() for c in @editor.getCursors())
+      [mark0, mark1] = (c.mark() for c in @emacsEditor.getEmacsCursors())
       m.activate() for m in [mark0, mark1]
       atom.commands.dispatch @editorView, 'core:cancel'
       expect(mark0.isActive()).toBe(false)

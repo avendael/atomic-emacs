@@ -15,7 +15,7 @@ class EmacsEditor
     @disposable.add @editor.onDidRemoveCursor =>
       cursors = @editor.getCursors()
       if cursors.length == 1
-        EmacsCursor.for(cursors[0]).clearLocalKillRing()
+        @getEmacsCursorFor(cursors[0]).clearLocalKillRing()
     @disposable.add @editor.onDidDestroy =>
       @destroy()
 
@@ -26,17 +26,20 @@ class EmacsEditor
       cursor.destroy()
     @disposable.dispose()
 
+  getEmacsCursorFor: (cursor) ->
+    EmacsCursor.for(this, cursor)
+
   getEmacsCursors: () ->
-    EmacsCursor.for(c) for c in @editor.getCursors()
+    @getEmacsCursorFor(c) for c in @editor.getCursors()
 
   moveEmacsCursors: (callback) ->
-    @editor.moveCursors (cursor) ->
+    @editor.moveCursors (cursor) =>
       # Atom bug: if moving one cursor destroys another, the destroyed one's
       # emitter is disposed, but cursor.isDestroyed() is still false. However
       # cursor.destroyed == true. TextEditor.moveCursors probably shouldn't even
       # yield it in this case.
       return if cursor.destroyed == true
-      callback(EmacsCursor.for(cursor), cursor)
+      callback(@getEmacsCursorFor(cursor), cursor)
 
   saveCursors: ->
     @getEmacsCursors().map (emacsCursor) ->
@@ -50,7 +53,7 @@ class EmacsEditor
 
   restoreCursors: (selections) ->
     cursors = @editor.getCursors()
-    selections.forEach (info, index) ->
+    selections.forEach (info, index) =>
       point = if info.selectionActive then info.tail else info.head
       if index >= cursors.length
         cursor = @editor.addCursorAtBufferPosition(point)
@@ -58,7 +61,7 @@ class EmacsEditor
         cursor = cursors[index]
         cursor.setBufferPosition(point)
 
-      emacsCursor = EmacsCursor.for(cursor)
+      emacsCursor = @getEmacsCursorFor(cursor)
       if info.markActive
         emacsCursor.mark().set().activate()
         emacsCursor._goTo(info.head)
@@ -192,7 +195,7 @@ class EmacsEditor
     kills = []
     @editor.transact =>
       for selection in @editor.getSelections()
-        emacsCursor = EmacsCursor.for(selection.cursor)
+        emacsCursor = @getEmacsCursorFor(selection.cursor)
         text = selection.getText()
         emacsCursor.killRing()[method](text)
         emacsCursor.killRing().getCurrentEntry()
@@ -357,7 +360,7 @@ class EmacsEditor
   markWholeBuffer: ->
     [first, rest...] = @editor.getCursors()
     c.destroy() for c in rest
-    emacsCursor = EmacsCursor.for(first)
+    emacsCursor = @getEmacsCursorFor(first)
     first.moveToBottom()
     emacsCursor.mark().set().activate()
     first.moveToTop()

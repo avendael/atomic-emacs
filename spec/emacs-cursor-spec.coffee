@@ -1,3 +1,4 @@
+EmacsEditor = require '../lib/emacs-editor'
 EmacsCursor = require '../lib/emacs-cursor'
 KillRing = require '../lib/kill-ring'
 TestEditor = require './test-editor'
@@ -14,12 +15,13 @@ describe "EmacsCursor", ->
       atom.workspace.open().then (editor) =>
         @editor = editor
         @testEditor = new TestEditor(editor)
-        @emacsCursor = EmacsCursor.for(editor.getLastCursor())
+        @emacsEditor = EmacsEditor.for(editor)
+        @emacsCursor = @emacsEditor.getEmacsCursorFor(editor.getLastCursor())
 
   describe "destroy", ->
     beforeEach ->
       @testEditor.setState("[0].")
-      @emacsCursor = EmacsCursor.for(@editor.getCursors()[0])
+      @emacsCursor = @emacsEditor.getEmacsCursorFor(@editor.getCursors()[0])
       @startingMarkerCount = @editor.getMarkers().length
 
     it "cleans up markers set by the mark", ->
@@ -40,7 +42,7 @@ describe "EmacsCursor", ->
   describe "mark", ->
     it "returns a mark for the cursor", ->
       @testEditor.setState("a[0]b[1]c")
-      [emacsCursor0, emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
+      [emacsCursor0, emacsCursor1] = @emacsEditor.getEmacsCursors()
       expect(emacsCursor0.mark().cursor).toBe(emacsCursor0.cursor)
       expect(emacsCursor1.mark().cursor).toBe(emacsCursor1.cursor)
 
@@ -52,7 +54,7 @@ describe "EmacsCursor", ->
   describe "killRing", ->
     beforeEach ->
       @testEditor.setState("[0].")
-      @emacsCursor = EmacsCursor.for(@editor.getCursors()[0])
+      @emacsCursor = @emacsEditor.getEmacsCursors()[0]
 
     describe "when the editor has a single cursor", ->
       it "returns the global kill ring", ->
@@ -61,7 +63,7 @@ describe "EmacsCursor", ->
     describe "when the editor has multiple cursors", ->
       beforeEach ->
         @testEditor.setState("[0].[1]")
-        [@emacsCursor0, @emacsCursor1] = (EmacsCursor.for(c) for c in @editor.getCursors())
+        [@emacsCursor0, @emacsCursor1] = @emacsEditor.getEmacsCursors()
 
       it "returns a kill ring for the cursor", ->
         killRing0 = @emacsCursor0.killRing()
