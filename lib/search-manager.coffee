@@ -67,7 +67,7 @@ class SearchManager
       if doWord
         range = emacsCursor.locateForward(alphanumPattern)
         if range
-          range = emacsCursor._locateForwardFrom(range.start, /[^a-z0-9]/i)
+          range = @emacsEditor.locateForwardFrom(range.start, /[^a-z0-9]/i)
         if range then range.start else eob
       else
         if /[ \t]/.test(nextChar)

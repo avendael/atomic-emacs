@@ -45,13 +45,13 @@ class EmacsCursor
   #
   # Return a Range if found, null otherwise. This does not move the cursor.
   locateBackward: (regExp) ->
-    @_locateBackwardFrom(@cursor.getBufferPosition(), regExp)
+    @emacsEditor.locateBackwardFrom(@cursor.getBufferPosition(), regExp)
 
   # Look for the next occurrence of the given regexp.
   #
   # Return a Range if found, null otherwise. This does not move the cursor.
   locateForward: (regExp) ->
-    @_locateForwardFrom(@cursor.getBufferPosition(), regExp)
+    @emacsEditor.locateForwardFrom(@cursor.getBufferPosition(), regExp)
 
   # Look for the previous word character.
   #
@@ -413,7 +413,7 @@ class EmacsCursor
 
   _sexpForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
-    point = @_locateForwardFrom(point, /[\w()[\]{}'"]/i)?.start or eob
+    point = @emacsEditor.locateForwardFrom(point, /[\w()[\]{}'"]/i)?.start or eob
     character = @_nextCharacterFrom(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       result = null
@@ -438,10 +438,10 @@ class EmacsCursor
             hit.stop()
       result or point
     else
-      @_locateForwardFrom(point, /[\W\n]/i)?.start or eob
+      @emacsEditor.locateForwardFrom(point, /[\W\n]/i)?.start or eob
 
   _sexpBackwardFrom: (point) ->
-    point = @_locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or Utils.BOB
+    point = @emacsEditor.locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or Utils.BOB
     character = @_previousCharacterFrom(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       result = null
@@ -465,33 +465,20 @@ class EmacsCursor
             hit.stop()
       result or point
     else
-      @_locateBackwardFrom(point, /[\W\n]/i)?.end or Utils.BOB
+      @emacsEditor.locateBackwardFrom(point, /[\W\n]/i)?.end or Utils.BOB
 
   _listForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
-    if !(match = @_locateForwardFrom(point, /[()[\]{}]/i))
+    if !(match = @emacsEditor.locateForwardFrom(point, /[()[\]{}]/i))
       return null
     end = this._sexpForwardFrom(match.start)
     if end.isEqual(match.start) then null else end
 
   _listBackwardFrom: (point) ->
-    if !(match = @_locateBackwardFrom(point, /[()[\]{}]/i))
+    if !(match = @emacsEditor.locateBackwardFrom(point, /[()[\]{}]/i))
       return null
     start = this._sexpBackwardFrom(match.end)
     if start.isEqual(match.end) then null else start
-
-  _locateBackwardFrom: (point, regExp) ->
-    result = null
-    @editor.backwardsScanInBufferRange regExp, [Utils.BOB, point], (hit) ->
-      result = hit.range
-    result
-
-  _locateForwardFrom: (point, regExp) ->
-    result = null
-    eof = @editor.getEofBufferPosition()
-    @editor.scanInBufferRange regExp, [point, eof], (hit) ->
-      result = hit.range
-    result
 
   _getWordCharacterRegExp: ->
     nonWordCharacters = atom.config.get('editor.nonWordCharacters')

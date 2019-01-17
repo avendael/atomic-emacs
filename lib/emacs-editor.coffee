@@ -4,6 +4,7 @@ EmacsCursor = require './emacs-cursor'
 KillRing = require './kill-ring'
 Mark = require './mark'
 State = require './state'
+Utils = require './utils'
 
 module.exports =
 class EmacsEditor
@@ -65,6 +66,19 @@ class EmacsEditor
       if info.markActive
         emacsCursor.mark().set().activate()
         emacsCursor._goTo(info.head)
+
+  locateBackwardFrom: (point, regExp) ->
+    result = null
+    @editor.backwardsScanInBufferRange regExp, [Utils.BOB, point], (hit) ->
+      result = hit.range
+    result
+
+  locateForwardFrom: (point, regExp) ->
+    result = null
+    eof = @editor.getEofBufferPosition()
+    @editor.scanInBufferRange regExp, [point, eof], (hit) ->
+      result = hit.range
+    result
 
   ###
   Section: Navigation
