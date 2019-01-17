@@ -66,10 +66,6 @@ class SearchManager
         firstCursorPosition = @startCursors[0].tail
         @results.findResultBefore(firstCursorPosition)
 
-    # If the query used to match, but no longer does, we need to go back to the
-    # original positions.
-    @emacsEditor.restoreCursors(@startCursors)
-
     @search = new Search
       editor: @emacsEditor.editor
       startPosition: @startCursors[0][if direction == 'forward' then 'head' else 'tail']
