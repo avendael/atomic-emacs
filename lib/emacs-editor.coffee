@@ -55,7 +55,7 @@ class EmacsEditor
   restoreCursors: (selections) ->
     cursors = @editor.getCursors()
     selections.forEach (info, index) =>
-      point = if info.selectionActive then info.tail else info.head
+      point = if info.markActive then info.tail else info.head
       if index >= cursors.length
         cursor = @editor.addCursorAtBufferPosition(point)
       else
