@@ -273,22 +273,8 @@ class EmacsCursor
     @_yankMarker?.destroy()
     @_yankMarker = null
 
-  _nextCharacterFrom: (position) ->
-    nextPosition = @emacsEditor.positionAfter(position)
-    if nextPosition
-      @editor.getTextInBufferRange([position, nextPosition])
-    else
-      null
-
-  _previousCharacterFrom: (position) ->
-    prevPosition = @emacsEditor.positionBefore(position)
-    if prevPosition
-      @editor.getTextInBufferRange([prevPosition, position])
-    else
-      null
-
   nextCharacter: ->
-    @_nextCharacterFrom(@cursor.getBufferPosition())
+    @emacsEditor.characterAfter(@cursor.getBufferPosition())
 
   # Skip to the end of the current or next symbolic expression.
   skipSexpForward: ->
@@ -411,7 +397,7 @@ class EmacsCursor
   _sexpForwardFrom: (point) ->
     eob = @editor.getEofBufferPosition()
     point = @emacsEditor.locateForwardFrom(point, /[\w()[\]{}'"]/i)?.start or eob
-    character = @_nextCharacterFrom(point)
+    character = @emacsEditor.characterAfter(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       result = null
       stack = []
@@ -439,7 +425,7 @@ class EmacsCursor
 
   _sexpBackwardFrom: (point) ->
     point = @emacsEditor.locateBackwardFrom(point, /[\w()[\]{}'"]/i)?.end or Utils.BOB
-    character = @_previousCharacterFrom(point)
+    character = @emacsEditor.characterBefore(point)
     if OPENERS.hasOwnProperty(character) or CLOSERS.hasOwnProperty(character)
       result = null
       stack = []

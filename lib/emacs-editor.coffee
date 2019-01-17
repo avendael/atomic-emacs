@@ -87,6 +87,14 @@ class EmacsEditor
     else
       point.translate([0, -1])
 
+  characterAfter: (point) ->
+    p = @positionAfter(point)
+    if p then @editor.getTextInBufferRange([point, p]) else null
+
+  characterBefore: (point) ->
+    p = @positionBefore(point)
+    if p then @editor.getTextInBufferRange([p, point]) else null
+
   locateBackwardFrom: (point, regExp) ->
     result = null
     @editor.backwardsScanInBufferRange regExp, [Utils.BOB, point], (hit) ->

@@ -59,9 +59,10 @@ class SearchManager
     point = emacsCursor.cursor.getBufferPosition()
     alphanumPattern = /[a-z0-9]/i
 
-    nextChar = @_charAhead(point, 0)
+    nextChar = @emacsEditor.characterAfter(point)
+    doWord = alphanumPattern.test(nextChar) or
+      alphanumPattern.test(@emacsEditor.characterAfter(@emacsEditor.positionAfter(point)))
 
-    doWord = alphanumPattern.test(nextChar) or alphanumPattern.test(@_charAhead(point, 1))
     target =
       if doWord
         range = emacsCursor.locateForward(alphanumPattern)
@@ -75,12 +76,6 @@ class SearchManager
         else
           @emacsEditor.positionAfter(point) or eob
     new Range(point, target)
-
-  _charAhead: (point, zeroOrOne) ->
-    if zeroOrOne == 1
-      point = @emacsEditor.positionAfter(point)
-    pointPlus1 = @emacsEditor.positionAfter(point)
-    @emacsEditor.editor.getTextInBufferRange([point, pointPlus1])
 
   changed: (text, {caseSensitive, isRegExp, direction}) ->
     @results?.clear()
