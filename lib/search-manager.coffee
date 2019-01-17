@@ -106,12 +106,12 @@ class SearchManager
         lastCursorPosition = sortedCursors[sortedCursors.length - 1].head
         @results.findResultAfter(lastCursorPosition)
       else
-        firstCursorPosition = sortedCursors[0].tail
+        firstCursorPosition = sortedCursors[0].head
         @results.findResultBefore(firstCursorPosition)
 
     @search = new Search
       editor: @emacsEditor.editor
-      startPosition: sortedCursors[0][if direction == 'forward' then 'head' else 'tail']
+      startPosition: sortedCursors[0].head
       direction: direction
       regex: new RegExp(
         if isRegExp then text else Utils.escapeForRegExp(text)
@@ -144,7 +144,7 @@ class SearchManager
     markers = []
     if direction == 'forward'
       @emacsEditor.moveEmacsCursors (emacsCursor) =>
-        marker = @results.findResultAfter(emacsCursor.cursor.getMarker().getEndBufferPosition())
+        marker = @results.findResultAfter(emacsCursor.cursor.getBufferPosition())
         if marker == null
           @searchView.showWrapIcon(direction)
           marker = @results.findResultAfter(new Point(0, 0))
@@ -152,7 +152,7 @@ class SearchManager
         markers.push(marker)
     else
       @emacsEditor.moveEmacsCursors (emacsCursor) =>
-        marker = @results.findResultBefore(emacsCursor.cursor.getMarker().getStartBufferPosition())
+        marker = @results.findResultBefore(emacsCursor.cursor.getBufferPosition())
         if marker == null
           @searchView.showWrapIcon(direction)
           marker = @results.findResultBefore(@emacsEditor.editor.getBuffer().getEndPosition())
