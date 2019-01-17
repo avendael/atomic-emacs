@@ -11,7 +11,7 @@ describe "AtomicEmacs", ->
     waitsForPromise =>
       atom.workspace.open().then (@editor) =>
         atom.config.set 'atomic-emacs.killToClipboard', true
-        @emacsEditor = new EmacsEditor(@editor)
+        @emacsEditor = EmacsEditor.for(@editor)
         @testEditor = new TestEditor(@editor)
         @editorView = atom.views.getView(@editor)
         @getKillRing = (i) => EmacsCursor.for(@editor.getCursors()[i]).getLocalKillRing()
