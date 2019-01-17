@@ -81,7 +81,7 @@ class SearchManager
     @results?.clear()
     @search?.stop()
 
-    @results = SearchResults.for(@emacsEditor.editor)
+    @results = SearchResults.for(@emacsEditor)
     @results.clear()
     @searchView.resetProgress()
 

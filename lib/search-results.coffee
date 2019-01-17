@@ -3,10 +3,11 @@ Utils = require './utils'
 
 module.exports =
 class SearchResults
-  @for: (editor) ->
-    editor._atomicEmacsSearchResults ?= new SearchResults(editor)
+  @for: (emacsEditor) ->
+    emacsEditor._atomicEmacsSearchResults ?= new SearchResults(emacsEditor)
 
-  constructor: (@editor) ->
+  constructor: (@emacsEditor) ->
+    @editor = @emacsEditor.editor
     @markerLayer = @editor.addMarkerLayer()
     @editor.decorateMarkerLayer @markerLayer,
       type: 'highlight'
