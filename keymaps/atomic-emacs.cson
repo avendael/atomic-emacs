@@ -182,3 +182,4 @@
   'alt-c': 'atomic-emacs:isearch-toggle-case-fold'
   'alt-s r': 'atomic-emacs:isearch-toggle-regexp'
   'alt-r': 'atomic-emacs:isearch-toggle-regexp'
+  'ctrl-w': 'atomic-emacs:isearch-yank-word-or-character'

@@ -49,6 +49,7 @@
       "atomic-emacs:isearch-repeat-backward",
       "atomic-emacs:isearch-toggle-case-fold",
       "atomic-emacs:isearch-toggle-regexp",
+      "atomic-emacs:isearch-yank-word-or-character",
       "atomic-emacs:set-mark",
       "atomic-emacs:mark-sexp",
       "atomic-emacs:mark-whole-buffer",

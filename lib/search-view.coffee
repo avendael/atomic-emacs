@@ -93,6 +93,9 @@ class SearchView
     @_updateIsRegExpButton()
     @_runQuery() if @active
 
+  append: (text) ->
+    @searchEditor.setText(@searchEditor.getText() + text)
+
   resetProgress: ->
     @total = 0
     @indexElement.textContent = '?'
