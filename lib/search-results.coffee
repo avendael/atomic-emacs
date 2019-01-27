@@ -16,6 +16,7 @@ class SearchResults
     @currentDecorations = []
 
   clear: ->
+    @_clearDecorations()
     @markerLayer.clear()
     @_numMatches = 0
 
@@ -45,10 +46,13 @@ class SearchResults
 
   setCurrent: (markers) ->
     # TODO: don't destroy markers that don't need to be destroyed?
-    @currentDecorations.forEach (decoration) ->
-      decoration.destroy()
+    @_clearDecorations()
 
     @currentDecorations = markers.map (marker) =>
       @editor.decorateMarker marker,
         type: 'highlight'
         class: 'atomic-emacs-current-result'
+
+  _clearDecorations: ->
+    @currentDecorations.forEach (decoration) ->
+      decoration.destroy()
