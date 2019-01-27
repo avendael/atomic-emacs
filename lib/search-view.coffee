@@ -3,10 +3,6 @@
 module.exports =
 class SearchView
   constructor: (@searchManager) ->
-    label = document.createElement('label')
-    label.textContent = 'Search: '
-    label.setAttribute('for', 'atomic-emacs-search-editor')
-
     @searchEditor = new TextEditor(mini: true)
     @searchEditor.element.setAttribute('id', 'atomic_emacs_search_editor')
     @searchEditor.onDidChange => @_runQuery() if @active

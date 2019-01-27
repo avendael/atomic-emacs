@@ -7,8 +7,6 @@ Utils = require './utils'
 module.exports =
 class SearchManager
   constructor: ->
-    @panel = null
-    @searchEditor = null
     @emacsEditor = null
 
     @searchView = null
