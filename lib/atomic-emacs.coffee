@@ -77,7 +77,7 @@ module.exports =
       return
 
     State.initialize()
-    @search = search = new SearchManager
+    search = SearchManager.initialize()
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
     @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)
@@ -171,9 +171,11 @@ module.exports =
     @disposable?.dispose()
     @disposable = null
     KillRing.global.reset()
+    SearchManager.destroy()
 
   service_0_13: ->
     state: State
+    search: SearchManager.instance
     editor: (atomEditor) -> EmacsEditor.for(atomEditor)
     cursor: (atomCursor) -> @editor(atomCursor.editor).getEmacsCursorFor(atomCursor)
     getEditor: (event) -> getEditor(event)

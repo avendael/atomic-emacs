@@ -15,14 +15,21 @@ class SearchManager
     @search = null
     @results = null
 
+  destroy: ->
+    @exit()
+    @results?.clear()
+    @search?.stop()
+    @searchView?.destroy()
+
   start: (@emacsEditor, {direction}) ->
     @searchView ?= new SearchView(this)
     @searchView.start({direction})
     @startCursors = @emacsEditor.saveCursors()
 
   exit: ->
-    @searchView.exit()
-    @emacsEditor.editor.element.focus()
+    if @searchView?
+      @searchView.exit()
+      @emacsEditor.editor.element.focus()
 
   cancel: ->
     @searchView.cancel()
@@ -51,6 +58,9 @@ class SearchManager
     range = @_wordOrCharacterRangeFrom(emacsCursor)
     text = @emacsEditor.editor.getTextInBufferRange(range)
     @searchView.append(text)
+
+  isSearching: ->
+    @search? and not @search.isFinished()
 
   _wordOrCharacterRangeFrom: (emacsCursor) ->
     eob = @emacsEditor.editor.getBuffer().getEndPosition()
@@ -168,3 +178,11 @@ class SearchManager
     @results?.clear()
     @results = null
     @startCursors = null
+
+  @initialize: ->
+    @instance = new SearchManager
+    @instance
+
+  @destroy: ->
+    @instance?.destroy()
+    delete @instance

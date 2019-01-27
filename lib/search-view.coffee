@@ -60,6 +60,10 @@ class SearchView
       if @active and event.target.closest('.atomic-emacs.search') == null
         @exit()
 
+  destroy: ->
+    @searchEditor.destroy()
+    @panel.destroy()
+
   start: ({@direction}) ->
     @_activate()
     @searchEditor.element.focus()
@@ -131,7 +135,10 @@ class SearchView
     @wrapIcon.classList.remove(otherIcon)
     @wrapIcon.classList.add(icon, 'visible')
     clearTimeout(@wrapTimeout)
-    @wrapTimeout = setTimeout((=> @wrapIcon.classList.remove('visible')), 500)
+    @wrapTimeout = setTimeout((=>
+      @wrapIcon.classList.remove('visible')
+      paneItemView.parentNode.removeChild(@wrapIcon)
+    ), 500)
 
   _activate: ->
     @active = true
