@@ -9,8 +9,9 @@ Utils = require './utils'
 # anymore.
 module.exports =
 class Search
-  constructor: ({@editor, @startPosition, @direction, @regex, @onMatch, @onWrapped, @onFinished}) ->
-    @blockLines = 100
+  constructor: ({@emacsEditor, @startPosition, @direction, @regex, @onMatch, @onWrapped, @onFinished, @blockLines}) ->
+    @editor = @emacsEditor.editor
+    @blockLines ?= 100
 
     @buffer = @editor.getBuffer()
     eob = @buffer.getEndPosition()

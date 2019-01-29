@@ -111,7 +111,7 @@ class SearchManager
         @results.findResultBefore(firstCursorPosition)
 
     @search = new Search
-      editor: @emacsEditor.editor
+      emacsEditor: @emacsEditor
       startPosition: sortedCursors[0].head
       direction: direction
       regex: new RegExp(
