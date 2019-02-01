@@ -25,6 +25,9 @@ class Search
     @finished = false
     @_stopRequested = false
 
+  isRunning: ->
+    not @finished
+
   start: ->
     task = =>
       if not @_stopRequested and @_proceed()

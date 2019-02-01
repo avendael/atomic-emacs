@@ -56,6 +56,9 @@ class SearchResults
         type: 'highlight'
         class: 'atomic-emacs-current-result'
 
+  getCurrent: ->
+    @currentDecorations.map (d) -> d.getMarker()
+
   _clearDecorations: ->
     @currentDecorations.forEach (decoration) ->
       decoration.destroy()

@@ -59,8 +59,8 @@ class SearchManager
     text = @emacsEditor.editor.getTextInBufferRange(range)
     @searchView.append(text)
 
-  isSearching: ->
-    @search? and not @search.isFinished()
+  isRunning: ->
+    @search?.isRunning()
 
   _wordOrCharacterRangeFrom: (emacsCursor) ->
     eob = @emacsEditor.editor.getBuffer().getEndPosition()
@@ -112,7 +112,11 @@ class SearchManager
 
     @search = new Search
       emacsEditor: @emacsEditor
-      startPosition: sortedCursors[0].head
+      startPosition:
+        if direction == 'forward'
+          sortedCursors[0].head
+        else
+          sortedCursors[sortedCursors.length - 1].head
       direction: direction
       regex: new RegExp(
         if isRegExp then text else Utils.escapeForRegExp(text)
