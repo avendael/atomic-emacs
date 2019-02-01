@@ -39,6 +39,9 @@ class SearchResults
     markers[0] or null
 
   findResultBefore: (point) ->
+    if point.isEqual(Utils.BOB)
+      return null
+
     # TODO: scan in blocks
     markers = @markerLayer.findMarkers
       startsInRange: new Range(new Point(0, 0), @emacsEditor.positionBefore(point))

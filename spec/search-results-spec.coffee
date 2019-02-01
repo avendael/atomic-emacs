@@ -69,6 +69,11 @@ describe "SearchResults", ->
       expect(markerCoordinates(@searchResults.findResultAfter(new Point(0, 4)))).toEqual([0, 4, 0, 5])
       expect(markerCoordinates(@searchResults.findResultAfter(new Point(0, 5)))).toEqual(null)
 
+    it "returns null if the given point is at the end of the buffer", ->
+      @testEditor.setState("[0]x")
+      @searchResults.add(makeRange(0, 0, 0, 1))
+      expect(markerCoordinates(@searchResults.findResultAfter(@editor.getEofBufferPosition()))).toEqual(null)
+
   describe "findResultBefore", ->
     it "returns the result before the given point", ->
       @testEditor.setState("[0]abcdefgh")
@@ -81,6 +86,11 @@ describe "SearchResults", ->
       expect(markerCoordinates(@searchResults.findResultBefore(new Point(0, 3)))).toEqual([0, 1, 0, 2])
       expect(markerCoordinates(@searchResults.findResultBefore(new Point(0, 4)))).toEqual([0, 3, 0, 4])
       expect(markerCoordinates(@searchResults.findResultBefore(new Point(0, 5)))).toEqual([0, 4, 0, 5])
+
+    it "returns null if the given point is the beginning of the buffer", ->
+      @testEditor.setState("[0]x")
+      @searchResults.add(makeRange(0, 0, 0, 1))
+      expect(markerCoordinates(@searchResults.findResultBefore(new Point(0, 0)))).toEqual(null)
 
   describe "setCurrent", ->
     it "clears existing current markers and decorates the given markers as current", ->
