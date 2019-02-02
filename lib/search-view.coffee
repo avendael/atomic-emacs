@@ -16,7 +16,7 @@ class SearchView
         <button class="case-sensitivity"></button>
         <button class="is-reg-exp"></button>
       </div>
-      <div class="row">
+      <div class="row status">
         <p class="progress">
           Hit <span class="index">0</span> of <span class="total">0</span>
           <span class="scanning-indicator">[...]</span>
@@ -49,7 +49,7 @@ class SearchView
     @isRegExpButton.addEventListener 'click', (event) =>
       @toggleIsRegExp()
 
-    @panel = atom.workspace.addModalPanel
+    @panel = atom.workspace.addBottomPanel
       item: this
       visible: false
 
