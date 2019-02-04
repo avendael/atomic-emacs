@@ -182,11 +182,3 @@ class SearchManager
     @results?.clear()
     @results = null
     @startCursors = null
-
-  @initialize: ->
-    @instance = new SearchManager
-    @instance
-
-  @destroy: ->
-    @instance?.destroy()
-    delete @instance

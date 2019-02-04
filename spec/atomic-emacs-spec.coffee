@@ -1,12 +1,12 @@
 {Point} = require 'atom'
-{EmacsCursor, EmacsEditor, KillRing, SearchManager, State, activate, deactivate} =
+AtomicEmacs = {EmacsCursor, EmacsEditor, KillRing, State, activate, deactivate} =
   require '../lib/atomic-emacs'
 
 TestEditor = require './test-editor'
 
 describe "AtomicEmacs", ->
-  beforeEach activate
-  afterEach deactivate
+  beforeEach -> AtomicEmacs.activate()
+  afterEach -> AtomicEmacs.deactivate()
 
   beforeEach ->
     waitsForPromise =>
@@ -1366,15 +1366,12 @@ describe "AtomicEmacs", ->
         marker
 
     beforeEach ->
-      @searchManager = SearchManager.instance
+      @searchManager = AtomicEmacs.search
       @getCursorPosition = (i) =>
         @editor.getCursors()[i].getBufferPosition()
       @waitForSearch = ->
         while @searchManager.isRunning()
           advanceClock(1)
-
-    beforeEach ->
-      @searchManager = SearchManager.instance
 
     describe "atomic-emacs:isearch-forward", ->
       it "performs a forward incremental repeatable search", ->
