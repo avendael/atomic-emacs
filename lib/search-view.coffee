@@ -16,22 +16,11 @@ class SearchView
         <button class="case-sensitivity"></button>
         <button class="is-reg-exp"></button>
       </div>
-      <div class="row status">
-        <p class="progress">
-          Hit <span class="index">0</span> of <span class="total">0</span>
-          <span class="scanning-indicator">[...]</span>
-        </p>
-        <p class="no-matches">No matches.</p>
-      </div>
     """
 
+    @label = @element.querySelector('label')
     @caseSensitivityButton = @element.querySelector('.case-sensitivity')
     @isRegExpButton = @element.querySelector('.is-reg-exp')
-    @scanningIndicator = @element.querySelector('.scanning-indicator')
-    @indexElement = @element.querySelector('.index')
-    @totalElement = @element.querySelector('.total')
-    @progressElement = @element.querySelector('.progress')
-    @noMatchesElement = @element.querySelector('.no-matches')
 
     placeholder = @element.querySelector('.SEARCH-EDITOR')
     placeholder.parentNode.replaceChild(@searchEditor.element, placeholder)
@@ -98,25 +87,18 @@ class SearchView
 
   resetProgress: ->
     @total = 0
-    @indexElement.textContent = '?'
-    @totalElement.textContent = '?'
-    @scanningIndicator.style.display = ''
-    @progressElement.style.display = 'none'
-    @noMatchesElement.style.display = 'none'
+    @isScanning = true
+    @currentIndex = null
+    @label.innerText = "Search:"
 
-  setIndex: (value) ->
-    @progressElement.style.display = ''
-    @indexElement.textContent = value
-
-  setTotal: (value) ->
-    @total = value
-    @totalElement.textContent = value
+  setProgress: (currentIndex, total) ->
+    @currentIndex = currentIndex
+    @total = total
+    @_updateLabel()
 
   scanningDone: ->
-    @scanningIndicator.style.display = 'none'
-    if @total == 0
-      @progressElement.style.display = 'none'
-      @noMatchesElement.style.display = ''
+    @isScanning = false
+    @_updateLabel()
 
   showWrapIcon: (direction) ->
     # Adapted from find-and-replace's FindView#showWrapIcon().
@@ -161,6 +143,15 @@ class SearchView
     text = @searchEditor.getText()
     @lastQuery = text
     @searchManager.changed(text, {@caseSensitive, @isRegExp, @direction})
+
+  _updateLabel: ->
+    if @total == 0 and not @isScanning
+      @label.innerHTML = 'No&nbsp;matches'
+    else
+      currentIndex = @currentIndex ? '?'
+      total = @total ? '?'
+      ellipsis = if @isScanning then '...' else ''
+      @label.innerHTML = "#{currentIndex}&nbsp;of&nbsp;#{total}#{ellipsis}"
 
   _updateCaseSensitivityButton: ->
     @caseSensitivityButton.textContent = if @caseSensitive then 'Case: on' else 'Case: off'

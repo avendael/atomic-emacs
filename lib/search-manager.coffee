@@ -125,7 +125,7 @@ class SearchManager
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)
-        @searchView.setTotal(@results.numMatches())
+        @_updateSearchView()
         if not moved and (canMove() or wrapped)
           @_advanceCursors(direction)
           moved = true
@@ -140,6 +140,10 @@ class SearchManager
         @searchView.scanningDone()
 
     @search?.start()
+
+  _updateSearchView: ->
+    point = @emacsEditor.editor.getCursors()[0].getBufferPosition()
+    @searchView.setProgress(@results.numMatchesBefore(point), @results.numMatches())
 
   _advanceCursors: (direction) ->
     # TODO: Store request and fire it when we can.
@@ -165,9 +169,7 @@ class SearchManager
         markers.push(marker)
 
     @results.setCurrent(markers)
-
-    point = @emacsEditor.editor.getCursors()[0].getBufferPosition()
-    @searchView.setIndex(@results.numMatchesBefore(point))
+    @_updateSearchView()
 
   exited: ->
     @_deactivate()
