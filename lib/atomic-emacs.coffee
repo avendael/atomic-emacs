@@ -77,7 +77,7 @@ module.exports =
       return
 
     State.initialize()
-    @search = new SearchManager
+    @search = new SearchManager(plugin: @)
     document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
     @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)
@@ -172,6 +172,8 @@ module.exports =
     @disposable = null
     KillRing.global.reset()
     @search.destroy()
+
+  consumeElementIcons: (@addIconToElement) ->
 
   service_0_13: ->
     state: State

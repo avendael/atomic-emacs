@@ -63,6 +63,13 @@
       "atomic-emacs:close-other-panes"
     ]
   },
+  "consumedServices": {
+    "file-icons.element-icons": {
+      "versions": {
+        "1.0.0": "consumeElementIcons"
+      }
+    }
+  },
   "providedServices": {
     "atomic-emacs": {
       "description": "Atomic Emacs extension interface",

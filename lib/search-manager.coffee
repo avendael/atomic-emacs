@@ -6,7 +6,7 @@ Utils = require './utils'
 
 module.exports =
 class SearchManager
-  constructor: ->
+  constructor: (@atomicEmacs) ->
     @emacsEditor = null
 
     @searchView = null
