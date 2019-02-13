@@ -118,10 +118,14 @@ class SearchView
         ['icon-move-down', 'icon-move-up']
     @wrapIcon.classList.remove(otherIcon)
     @wrapIcon.classList.add(icon, 'visible')
-    clearTimeout(@wrapTimeout)
-    @wrapTimeout = setTimeout((=>
+    clearTimeout(@showWrapTimeout)
+    clearTimeout(@hideWrapTimeout)
+    @showWrapTimeout = setTimeout((=>
       @wrapIcon.classList.remove('visible')
-      paneItemView.parentNode.removeChild(@wrapIcon)
+      @hideWrapTimeout = setTimeout((=>
+        if paneItemView.parentNode == @wrapIcon.parentNode
+          paneItemView.parentNode.removeChild(@wrapIcon)
+      ), 500)
     ), 500)
 
   _activate: ->
