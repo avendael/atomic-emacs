@@ -160,7 +160,7 @@ class SearchView
     @caseSensitivityButton.classList[method]('selected')
 
   _updateIsRegExpButton: ->
-    method = if @caseSensitive then 'add' else 'remove'
+    method = if @isRegExp then 'add' else 'remove'
     @isRegExpButton.classList[method]('selected')
 
   _caseSensitivitySVG: ->
