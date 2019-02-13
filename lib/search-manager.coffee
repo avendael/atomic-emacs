@@ -51,7 +51,6 @@ class SearchManager
 
   yankWordOrCharacter: ->
     if @emacsEditor.editor.hasMultipleCursors()
-      # TODO: display this in the SearchView
       atom.notifications.addInfo "Can't yank into search when using multiple cursors"
 
     emacsCursor = @emacsEditor.getEmacsCursors()[0]
@@ -147,7 +146,6 @@ class SearchManager
     @searchView.setProgress(@results.numMatchesBefore(point), @results.numMatches())
 
   _advanceCursors: (direction) ->
-    # TODO: Store request and fire it when we can.
     return if not @results?
     return if @results.numMatches() == 0
 

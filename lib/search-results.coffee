@@ -33,7 +33,6 @@ class SearchResults
     markers.length
 
   findResultAfter: (point) ->
-    # TODO: scan in blocks
     markers = @markerLayer.findMarkers
       startsInRange: new Range(point, @editor.getBuffer().getEndPosition())
     markers[0] or null
@@ -42,13 +41,11 @@ class SearchResults
     if point.isEqual(Utils.BOB)
       return null
 
-    # TODO: scan in blocks
     markers = @markerLayer.findMarkers
       startsInRange: new Range(new Point(0, 0), @emacsEditor.positionBefore(point))
     markers[markers.length - 1] or null
 
   setCurrent: (markers) ->
-    # TODO: don't destroy markers that don't need to be destroyed?
     @_clearDecorations()
 
     @currentDecorations = markers.map (marker) =>
