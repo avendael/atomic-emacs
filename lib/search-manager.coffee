@@ -120,17 +120,18 @@ class SearchManager
       direction: direction
       regex: new RegExp(
         if isRegExp then text else Utils.escapeForRegExp(text)
-        if caseSensitive then '' else 'i'
+        if caseSensitive then 'g' else 'ig'
       )
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)
-        @_updateSearchView()
         if not moved and (canMove() or wrapped)
           @_advanceCursors(direction)
           moved = true
       onWrapped: ->
         wrapped = true
+      onBlockFinished: =>
+        @_updateSearchView()
       onFinished: =>
         return if not @results?
         if @results.numMatches() == 0

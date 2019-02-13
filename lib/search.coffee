@@ -9,9 +9,9 @@ Utils = require './utils'
 # anymore.
 module.exports =
 class Search
-  constructor: ({@emacsEditor, @startPosition, @direction, @regex, @onMatch, @onWrapped, @onFinished, @blockLines}) ->
+  constructor: ({@emacsEditor, @startPosition, @direction, @regex, @onMatch, @onBlockFinished, @onWrapped, @onFinished, @blockLines}) ->
     @editor = @emacsEditor.editor
-    @blockLines ?= 100
+    @blockLines ?= 200
 
     @buffer = @editor.getBuffer()
     eob = @buffer.getEndPosition()
@@ -53,7 +53,6 @@ class Search
           @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.end) + 1)
         else
           @currentPosition = range.end
-        stop()
     else
       @editor.backwardsScanInBufferRange @regex, new Range(@currentLimit, @currentPosition), ({range}) =>
         found = true
@@ -63,19 +62,18 @@ class Search
           @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.start) - 1)
         else
           @currentPosition = range.start
-        stop()
+    @onBlockFinished()
 
-    if not found
-      if @wrapped and @currentLimit.isEqual(@startPosition)
-        @finished = true
-        @onFinished()
-        return false
-      else if not @wrapped and @currentLimit.isEqual(@bufferLimit)
-        @wrapped = true
-        @onWrapped()
-        @_startBlock(@bufferReverseLimit)
-      else
-        @_startBlock(@currentLimit)
+    if @wrapped and @currentLimit.isEqual(@startPosition)
+      @finished = true
+      @onFinished()
+      return false
+    else if not @wrapped and @currentLimit.isEqual(@bufferLimit)
+      @wrapped = true
+      @onWrapped()
+      @_startBlock(@bufferReverseLimit)
+    else
+      @_startBlock(@currentLimit)
 
     true
 

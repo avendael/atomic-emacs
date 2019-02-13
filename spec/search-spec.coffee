@@ -27,22 +27,26 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(0, 6)
         direction: 'forward'
-        regex: 'abc'
+        regex: /abc/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
+        onBlockFinished: -> callbacks.push(['block finished'])
         blockLines: 2
       search.start()
       until isFinished(callbacks)
         advanceClock(1)
       expect(callbacks[0]).toEqual(['match', Range.fromObject([[0, 6], [0, 9]])])
       expect(callbacks[1]).toEqual(['match', Range.fromObject([[1, 0], [1, 3]])])
-      expect(callbacks[2]).toEqual(['match', Range.fromObject([[2, 0], [2, 3]])])
-      expect(callbacks[3]).toEqual(['match', Range.fromObject([[3, 1], [3, 4]])])
-      expect(callbacks[4]).toEqual(['match', Range.fromObject([[3, 4], [3, 7]])])
-      expect(callbacks[5]).toEqual(['wrapped'])
-      expect(callbacks[6]).toEqual(['match', Range.fromObject([[0, 0], [0, 3]])])
-      expect(callbacks[7]).toEqual(['finished'])
+      expect(callbacks[2]).toEqual(['block finished'])
+      expect(callbacks[3]).toEqual(['match', Range.fromObject([[2, 0], [2, 3]])])
+      expect(callbacks[4]).toEqual(['match', Range.fromObject([[3, 1], [3, 4]])])
+      expect(callbacks[5]).toEqual(['match', Range.fromObject([[3, 4], [3, 7]])])
+      expect(callbacks[6]).toEqual(['block finished'])
+      expect(callbacks[7]).toEqual(['wrapped'])
+      expect(callbacks[8]).toEqual(['match', Range.fromObject([[0, 0], [0, 3]])])
+      expect(callbacks[9]).toEqual(['block finished'])
+      expect(callbacks[10]).toEqual(['finished'])
 
     it "searches backward from the start position for a backward search", ->
       @testEditor.setState("abc x abc\nabcx\nabc[0] \n abcabc")
@@ -51,10 +55,11 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(2, 3)
         direction: 'backward'
-        regex: 'abc'
+        regex: /abc/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
+        onBlockFinished: -> callbacks.push(['block finished'])
         blockLines: 2
       search.start()
       until isFinished(callbacks)
@@ -63,10 +68,12 @@ describe 'Search', ->
       expect(callbacks[1]).toEqual(['match', Range.fromObject([[1, 0], [1, 3]])])
       expect(callbacks[2]).toEqual(['match', Range.fromObject([[0, 6], [0, 9]])])
       expect(callbacks[3]).toEqual(['match', Range.fromObject([[0, 0], [0, 3]])])
-      expect(callbacks[4]).toEqual(['wrapped'])
-      expect(callbacks[5]).toEqual(['match', Range.fromObject([[3, 4], [3, 7]])])
-      expect(callbacks[6]).toEqual(['match', Range.fromObject([[3, 1], [3, 4]])])
-      expect(callbacks[7]).toEqual(['finished'])
+      expect(callbacks[4]).toEqual(['block finished'])
+      expect(callbacks[5]).toEqual(['wrapped'])
+      expect(callbacks[6]).toEqual(['match', Range.fromObject([[3, 4], [3, 7]])])
+      expect(callbacks[7]).toEqual(['match', Range.fromObject([[3, 1], [3, 4]])])
+      expect(callbacks[8]).toEqual(['block finished'])
+      expect(callbacks[9]).toEqual(['finished'])
 
     it "does not return overlapping matches", ->
       @testEditor.setState("[0]bananana")
@@ -75,14 +82,42 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(0, 0)
         direction: 'forward'
-        regex: 'ana'
+        regex: /ana/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
+        onBlockFinished: -> callbacks.push(['block finished'])
       search.start()
       until isFinished(callbacks)
         advanceClock(1)
       expect(callbacks[0]).toEqual(['match', Range.fromObject([[0, 1], [0, 4]])])
       expect(callbacks[1]).toEqual(['match', Range.fromObject([[0, 5], [0, 8]])])
-      expect(callbacks[2]).toEqual(['wrapped'])
-      expect(callbacks[3]).toEqual(['finished'])
+      expect(callbacks[2]).toEqual(['block finished'])
+      expect(callbacks[3]).toEqual(['wrapped'])
+      expect(callbacks[4]).toEqual(['block finished'])
+      expect(callbacks[5]).toEqual(['finished'])
+
+    it "passes through blocks without matches ok", ->
+      @testEditor.setState("[0]abc\n\n\n\nabc")
+      callbacks = []
+      search = new Search
+        emacsEditor: @emacsEditor
+        startPosition: new Point(0, 0)
+        direction: 'forward'
+        regex: /abc/g
+        onMatch: (range) -> callbacks.push(['match', range])
+        onWrapped: -> callbacks.push(['wrapped'])
+        onFinished: -> callbacks.push(['finished'])
+        onBlockFinished: -> callbacks.push(['block finished'])
+        blockLines: 2
+      search.start()
+      until isFinished(callbacks)
+        advanceClock(1)
+      expect(callbacks[0]).toEqual(['match', Range.fromObject([[0, 0], [0, 3]])])
+      expect(callbacks[1]).toEqual(['block finished'])
+      expect(callbacks[2]).toEqual(['block finished'])
+      expect(callbacks[3]).toEqual(['match', Range.fromObject([[4, 0], [4, 3]])])
+      expect(callbacks[4]).toEqual(['block finished'])
+      expect(callbacks[5]).toEqual(['wrapped'])
+      expect(callbacks[6]).toEqual(['block finished'])
+      expect(callbacks[7]).toEqual(['finished'])
