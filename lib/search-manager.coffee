@@ -10,7 +10,8 @@ class SearchManager
     @emacsEditor = null
 
     @searchView = null
-    @startCursors = null
+    @originCursors = null
+    @checkpointCursors = null
 
     @search = null
     @results = null
@@ -24,7 +25,8 @@ class SearchManager
   start: (@emacsEditor, {direction}) ->
     @searchView ?= new SearchView(this)
     @searchView.start({direction})
-    @startCursors = @emacsEditor.saveCursors()
+    @originCursors = @emacsEditor.saveCursors()
+    @checkpointCursors = @originCursors
 
   exit: ->
     if @searchView?
@@ -41,6 +43,7 @@ class SearchManager
       return
 
     if @results?
+      @checkpointCursors = @emacsEditor.saveCursors()
       @_advanceCursors(direction)
 
   toggleCaseSensitivity: ->
@@ -92,11 +95,13 @@ class SearchManager
     @results.clear()
     @searchView.resetProgress()
 
+    @emacsEditor.restoreCursors(@checkpointCursors)
+
     return if text == ''
 
     caseSensitive = caseSensitive or (not isRegExp and /[A-Z]/.test(text))
 
-    sortedCursors = @startCursors.sort (a, b) ->
+    sortedCursors = @checkpointCursors.sort (a, b) ->
       headComparison = a.head.compare(b.head)
 
     wrapped = false
@@ -133,10 +138,9 @@ class SearchManager
         @_updateSearchView()
       onFinished: =>
         return if not @results?
-        if @results.numMatches() == 0
-          @emacsEditor.restoreCursors(@startCursors)
-        else if not moved
+        if not moved
           @_advanceCursors(direction)
+          moved = true
         @searchView.scanningDone()
 
     @search?.start()
@@ -174,7 +178,7 @@ class SearchManager
     @_deactivate()
 
   canceled: ->
-    @emacsEditor.restoreCursors(@startCursors)
+    @emacsEditor.restoreCursors(@originCursors)
     @_deactivate()
 
   _deactivate: ->
@@ -182,4 +186,4 @@ class SearchManager
     @search = null
     @results?.clear()
     @results = null
-    @startCursors = null
+    @originCursors = null

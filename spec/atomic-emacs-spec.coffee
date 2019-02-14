@@ -1416,6 +1416,35 @@ describe "AtomicEmacs", ->
         expect(@getCursorPosition(0)).toEqual(new Point(0, 3))
         expect(@getCursorPosition(1)).toEqual(new Point(0, 7))
 
+      it "searches from where a search was repeated from when the text is changed", ->
+        @testEditor.setState("[0]aa bb aa bb aa")
+        atom.commands.dispatch @editorView, 'atomic-emacs:isearch-forward'
+        searchEditorView = atom.views.getView(@searchManager.searchView.searchEditor)
+
+        @searchManager.searchView.searchEditor.insertText('bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 5))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'aa')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 2))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 5))
+
+        atom.commands.dispatch searchEditorView, 'atomic-emacs:isearch-repeat-forward'
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 11))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'aa')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 8))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 11))
+
     describe "atomic-emacs:isearch-backward", ->
       it "performs a backward incremental repeatable search", ->
         @testEditor.setState("hit [0]hit [1]hit")
@@ -1459,6 +1488,35 @@ describe "AtomicEmacs", ->
         expect(markerCoordinates(currentMarkers[1])).toEqual([0, 4, 0, 7])
         expect(@getCursorPosition(0)).toEqual(new Point(0, 0))
         expect(@getCursorPosition(1)).toEqual(new Point(0, 4))
+
+      it "searches from where a search was repeated from when the text is changed", ->
+        @testEditor.setState("aa bb aa bb aa[0]")
+        atom.commands.dispatch @editorView, 'atomic-emacs:isearch-backward'
+        searchEditorView = atom.views.getView(@searchManager.searchView.searchEditor)
+
+        @searchManager.searchView.searchEditor.insertText('bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 9))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'aa')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 12))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 9))
+
+        atom.commands.dispatch searchEditorView, 'atomic-emacs:isearch-repeat-backward'
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 3))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'aa')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 6))
+
+        @searchManager.searchView.searchEditor.setTextInBufferRange([[0, 0], [0, 2]], 'bb')
+        @waitForSearch()
+        expect(@getCursorPosition(0)).toEqual(new Point(0, 3))
 
     it "can switch between searching forward and backward", ->
       @testEditor.setState("[0]hit hit")
