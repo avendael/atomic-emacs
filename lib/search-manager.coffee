@@ -95,8 +95,6 @@ class SearchManager
     @results.clear()
     @searchView.resetProgress()
 
-    @emacsEditor.restoreCursors(@checkpointCursors)
-
     return if text == ''
 
     caseSensitive = caseSensitive or (not isRegExp and /[A-Z]/.test(text))
@@ -138,7 +136,9 @@ class SearchManager
         @_updateSearchView()
       onFinished: =>
         return if not @results?
-        if not moved
+        if @results.numMatches() == 0
+          @emacsEditor.restoreCursors(@checkpointCursors)
+        else if not moved
           @_advanceCursors(direction)
           moved = true
         @searchView.scanningDone()
