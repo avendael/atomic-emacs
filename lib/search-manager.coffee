@@ -171,6 +171,8 @@ class SearchManager
         emacsCursor.cursor.setBufferPosition(marker.getStartBufferPosition())
         markers.push(marker)
 
+    pos = @emacsEditor.editor.getCursors()[0].getBufferPosition()
+    @emacsEditor.editor.scrollToBufferPosition(pos, center: true)
     @results.setCurrent(markers)
     @_updateSearchView()
 
