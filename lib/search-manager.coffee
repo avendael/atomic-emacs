@@ -112,6 +112,15 @@ class SearchManager
         firstCursorPosition = sortedCursors[0].head
         @results.findResultBefore(firstCursorPosition)
 
+    try
+      regExp = new RegExp(
+        if isRegExp then text else Utils.escapeForRegExp(text)
+        if caseSensitive then 'g' else 'ig'
+      )
+    catch e
+      @searchView.setError(e)
+      return
+
     @search = new Search
       emacsEditor: @emacsEditor
       startPosition:
@@ -120,10 +129,7 @@ class SearchManager
         else
           sortedCursors[sortedCursors.length - 1].head
       direction: direction
-      regex: new RegExp(
-        if isRegExp then text else Utils.escapeForRegExp(text)
-        if caseSensitive then 'g' else 'ig'
-      )
+      regex: regExp
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)

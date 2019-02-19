@@ -18,11 +18,14 @@ class SearchView
           <button class="btn is-reg-exp">#{@_isRegExpSVG()}</button>
         </span>
       </div>
+      <div class="row error hidden">
+      </div>
     """
 
     @label = @element.querySelector('label')
     @caseSensitivityButton = @element.querySelector('.case-sensitivity')
     @isRegExpButton = @element.querySelector('.is-reg-exp')
+    @errorView = @element.querySelector('.error')
 
     placeholder = @element.querySelector('.SEARCH-EDITOR')
     placeholder.parentNode.replaceChild(@searchEditor.element, placeholder)
@@ -92,11 +95,17 @@ class SearchView
     @isScanning = true
     @currentIndex = null
     @label.innerText = "Search:"
+    @errorView.classList.add('hidden')
 
   setProgress: (currentIndex, total) ->
     @currentIndex = currentIndex
     @total = total
     @_updateLabel()
+
+  setError: (error) ->
+    @error = error
+    @errorView.innerText = error.message
+    @errorView.classList.remove('hidden')
 
   scanningDone: ->
     @isScanning = false
