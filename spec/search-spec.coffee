@@ -27,7 +27,7 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(0, 6)
         direction: 'forward'
-        regex: /abc/g
+        regExp: /abc/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
@@ -55,7 +55,7 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(2, 3)
         direction: 'backward'
-        regex: /abc/g
+        regExp: /abc/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
@@ -82,7 +82,7 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(0, 0)
         direction: 'forward'
-        regex: /ana/g
+        regExp: /ana/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])
@@ -104,7 +104,7 @@ describe 'Search', ->
         emacsEditor: @emacsEditor
         startPosition: new Point(0, 0)
         direction: 'forward'
-        regex: /abc/g
+        regExp: /abc/g
         onMatch: (range) -> callbacks.push(['match', range])
         onWrapped: -> callbacks.push(['wrapped'])
         onFinished: -> callbacks.push(['finished'])

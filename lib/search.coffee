@@ -9,7 +9,7 @@ Utils = require './utils'
 # anymore.
 module.exports =
 class Search
-  constructor: ({@emacsEditor, @startPosition, @direction, @regex, @onMatch, @onBlockFinished, @onWrapped, @onFinished, @blockLines}) ->
+  constructor: ({@emacsEditor, @startPosition, @direction, @regExp, @onMatch, @onBlockFinished, @onWrapped, @onFinished, @blockLines}) ->
     @editor = @emacsEditor.editor
     @blockLines ?= 200
 
@@ -18,7 +18,7 @@ class Search
     [@bufferLimit, @bufferReverseLimit] =
       if @direction == 'forward' then [eob, Utils.BOB] else [Utils.BOB, eob]
 
-    # TODO: Don't assume regex can't span lines. need a configurable overlap?
+    # TODO: Don't assume regExp can't span lines. need a configurable overlap?
     @_startBlock(@startPosition)
 
     @wrapped = false
@@ -45,7 +45,7 @@ class Search
     found = false
 
     if @direction == 'forward'
-      @editor.scanInBufferRange @regex, new Range(@currentPosition, @currentLimit), ({range}) =>
+      @editor.scanInBufferRange @regExp, new Range(@currentPosition, @currentLimit), ({range}) =>
         found = true
         @onMatch(range)
         # If range is empty, advance one char to ensure finite progress.
@@ -54,7 +54,7 @@ class Search
         else
           @currentPosition = range.end
     else
-      @editor.backwardsScanInBufferRange @regex, new Range(@currentLimit, @currentPosition), ({range}) =>
+      @editor.backwardsScanInBufferRange @regExp, new Range(@currentLimit, @currentPosition), ({range}) =>
         found = true
         @onMatch(range)
         # If range is empty, advance one char to ensure finite progress.

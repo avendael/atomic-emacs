@@ -129,7 +129,7 @@ class SearchManager
         else
           sortedCursors[sortedCursors.length - 1].head
       direction: direction
-      regex: regExp
+      regExp: regExp
       onMatch: (range) =>
         return if not @results?
         @results.add(range, wrapped)
