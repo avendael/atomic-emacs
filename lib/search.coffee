@@ -13,20 +13,20 @@ class Search
     @editor = @emacsEditor.editor
     @blockLines ?= 200
 
-    @buffer = @editor.getBuffer()
-    eob = @buffer.getEndPosition()
+    @_buffer = @editor.getBuffer()
+    eob = @_buffer.getEndPosition()
     [@bufferLimit, @bufferReverseLimit] =
       if @direction == 'forward' then [eob, Utils.BOB] else [Utils.BOB, eob]
 
     # TODO: Don't assume regExp can't span lines. need a configurable overlap?
     @_startBlock(@startPosition)
 
-    @wrapped = false
-    @finished = false
+    @_wrapped = false
+    @_finished = false
     @_stopRequested = false
 
   isRunning: ->
-    not @finished
+    not @_finished
 
   start: ->
     task = =>
@@ -40,7 +40,7 @@ class Search
   # Proceed with the scan until either a match, or the end of the current range
   # is reached. Return true if the search isn't finished yet, false otherwise.
   _proceed: ->
-    return false if @finished
+    return false if @_finished
 
     found = false
 
@@ -50,7 +50,7 @@ class Search
         @onMatch(range)
         # If range is empty, advance one char to ensure finite progress.
         if range.isEmpty()
-          @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.end) + 1)
+          @currentPosition = @_buffer.positionForCharacterIndex(@_buffer.characterIndexForPosition(range.end) + 1)
         else
           @currentPosition = range.end
     else
@@ -59,17 +59,17 @@ class Search
         @onMatch(range)
         # If range is empty, advance one char to ensure finite progress.
         if range.isEmpty()
-          @currentPosition = @buffer.positionForCharacterIndex(@buffer.characterIndexForPosition(range.start) - 1)
+          @currentPosition = @_buffer.positionForCharacterIndex(@_buffer.characterIndexForPosition(range.start) - 1)
         else
           @currentPosition = range.start
     @onBlockFinished()
 
-    if @wrapped and @currentLimit.isEqual(@startPosition)
-      @finished = true
+    if @_wrapped and @currentLimit.isEqual(@startPosition)
+      @_finished = true
       @onFinished()
       return false
-    else if not @wrapped and @currentLimit.isEqual(@bufferLimit)
-      @wrapped = true
+    else if not @_wrapped and @currentLimit.isEqual(@bufferLimit)
+      @_wrapped = true
       @onWrapped()
       @_startBlock(@bufferReverseLimit)
     else
@@ -84,9 +84,9 @@ class Search
   _nextLimit: (point) ->
     if @direction == 'forward'
       guess = new Point(point.row + @blockLines, 0)
-      limit = if @wrapped then @startPosition else @bufferLimit
+      limit = if @_wrapped then @startPosition else @bufferLimit
       if guess.isGreaterThan(limit) then limit else guess
     else
       guess = new Point(point.row - @blockLines, 0)
-      limit = if @wrapped then @startPosition else @bufferLimit
+      limit = if @_wrapped then @startPosition else @bufferLimit
       if guess.isLessThan(limit) then limit else guess
