@@ -165,6 +165,8 @@
 
 'atom-text-editor.autocomplete-active':
   'ctrl-g': 'autocomplete-plus:cancel'
+  'ctrl-n': 'core:move-down'
+  'ctrl-p': 'core:move-up'
 
 'atom-text-editor !important, atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
