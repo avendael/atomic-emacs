@@ -134,6 +134,7 @@ class SearchManager
         return if not @results?
         @results.add(range, wrapped)
         if not moved and (canMove() or wrapped)
+          @emacsEditor.restoreCursors(@checkpointCursors)
           @_advanceCursors(direction)
           moved = true
       onWrapped: ->
@@ -142,11 +143,11 @@ class SearchManager
         @_updateSearchView()
       onFinished: =>
         return if not @results?
-        if @results.numMatches() == 0
+        if not moved
           @emacsEditor.restoreCursors(@checkpointCursors)
-        else if not moved
-          @_advanceCursors(direction)
-          moved = true
+          if @results.numMatches() > 0
+            @_advanceCursors(direction)
+            moved = true
         @searchView.scanningDone()
 
     @search?.start()
