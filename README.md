@@ -89,6 +89,20 @@ prefix argument of -1).
     'ctrl-s': 'atomic-emacs:isearch-forward'
     'ctrl-r': 'atomic-emacs:isearch-backward'
 
+While searching:
+
+    'enter': 'atomic-emacs:isearch-exit'
+    'ctrl-m': 'atomic-emacs:isearch-exit'
+    'escape': 'atomic-emacs:isearch-cancel'
+    'ctrl-g': 'atomic-emacs:isearch-cancel'
+    'ctrl-s': 'atomic-emacs:isearch-repeat-forward'
+    'ctrl-r': 'atomic-emacs:isearch-repeat-backward'
+    'alt-s c': 'atomic-emacs:isearch-toggle-case-fold'
+    'alt-c': 'atomic-emacs:isearch-toggle-case-fold'
+    'alt-s r': 'atomic-emacs:isearch-toggle-regexp'
+    'alt-r': 'atomic-emacs:isearch-toggle-regexp'
+    'ctrl-w': 'atomic-emacs:isearch-yank-word-or-character'
+
 ### Marking & Selecting
 
     'ctrl-space': 'atomic-emacs:set-mark'

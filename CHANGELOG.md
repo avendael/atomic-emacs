@@ -1,3 +1,7 @@
+## 0.14.0 (2019-05-12)
+
+* Incremental search (ctrl-s, ctrl-r), see README for more information.
+
 ## 0.13.0 (2019-01-07)
 
 * Add dabbrev-{expand,previous} (alt-/, alt-?).
