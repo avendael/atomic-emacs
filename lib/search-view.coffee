@@ -10,7 +10,7 @@ class SearchView
     @element = document.createElement('div')
     @element.classList.add('atomic-emacs', 'search')
     @element.innerHTML = """
-      <div class="row editor">
+      <div class="row inputs">
         <label for="atomic_emacs_search_editor">Search:</label>
         <div class="SEARCH-EDITOR"></div>
         <span class="btn-group btn-group-options">
