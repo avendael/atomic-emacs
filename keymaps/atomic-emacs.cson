@@ -119,6 +119,9 @@
   'ctrl-v': 'atomic-emacs:scroll-up'
   'alt-v': 'atomic-emacs:scroll-down'
 
+  # Editing
+  'tab': 'editor:auto-indent'
+
 '.platform-linux atom-workspace.atomic-emacs atom-text-editor':
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
