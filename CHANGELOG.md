@@ -1,4 +1,4 @@
-## 0.15.0
+## 0.15.0 (2019-08-19)
 
 * Bind tab to editor:auto-indent.
 * Document how to extend Atomic Emacs in README.
