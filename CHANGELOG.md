@@ -1,3 +1,9 @@
+## 0.15.0
+
+* Bind tab to editor:auto-indent.
+* Document how to extend Atomic Emacs in README.
+* Fix error when using find-and-replace:select-next from isearch input.
+
 ## 0.14.0 (2019-05-12)
 
 * Incremental search (ctrl-s, ctrl-r), see README for more information.
