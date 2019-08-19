@@ -135,6 +135,48 @@ Emacs will use that package if it exists by default instead of Atom's
 fuzzy-finder. This may be disabled in settings, but note that fuzzy-finder
 cannot create new files.
 
+### Extending Atomic Emacs
+
+Atomic Emacs exposes its core classes via a consumable service. For example,
+here's how you could extend it to add subword navigation:
+
+`~/.atom/init.coffee`:
+```coffeescript
+atom.workspace.packageManager.serviceHub.consume "atomic-emacs", "^0.13.0", (service) ->
+  window.emacs = service
+
+forwardSubword = (event) ->
+  emacsEditor = emacs.getEditor(event)
+  emacsEditor.moveEmacsCursors (emacsCursor) ->
+    emacsCursor.skipNonWordCharactersForward()
+    emacsCursor.cursor.moveToNextSubwordBoundary()
+
+backwardSubword = (event) ->
+  emacsEditor = emacs.getEditor(event)
+  emacsEditor.moveEmacsCursors (emacsCursor) ->
+    emacsCursor.skipNonWordCharactersBackward()
+    emacsCursor.cursor.moveToPreviousSubwordBoundary()
+
+atom.commands.add 'atom-text-editor', 'me:forward-subword', (event) -> forwardSubword(event)
+atom.commands.add 'atom-text-editor', 'me:backward-subword', (event) -> backwardSubword(event)
+```
+
+`~/.atom/keymap.cson`:
+```coffeescript
+'atom-text-editor':
+  'ctrl-left': 'me:backward-subword'
+  'ctrl-right': 'me:forward-subword'
+```
+
+If you're writing an extension package, consume the service as described in the
+[Atom Flight Manual][atom-flight-manual].
+
+[atom-flight-manual]: https://flight-manual.atom.io/behind-atom/sections/interacting-with-other-packages-via-services/
+
+Documentation for the Atomic Emacs core classes is sparse, but a common starting
+point is to get the EmacsEditor for the event as above. The EmacsEditor and
+EmacsCursor classes in the Atomic Emacs source should be fairly easy to follow.
+
 ### Something missing?
 
 Feel free to suggest features on the Github issue tracker, or better yet, send a
