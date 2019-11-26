@@ -174,7 +174,7 @@
 '.atomic-emacs atom-text-editor.autocomplete-active':
   'ctrl-g': 'autocomplete-plus:cancel'
 
-'.atomic-emacs atom-text-editor !important, atom-text-editor[mini] !important':
+'.atomic-emacs atom-text-editor !important, .atomic-emacs atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
 
 'atom-workspace.atomic-emacs .atomic-emacs.search atom-text-editor':
