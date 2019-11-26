@@ -1,4 +1,7 @@
 'atom-workspace':
+  'shift-ctrl-space': 'atomic-emacs:toggle'
+
+'atom-workspace.atomic-emacs':
   'ctrl-g': 'core:cancel'
   'alt-x': 'command-palette:toggle'
   'ctrl-x ctrl-c': 'application:quit'
@@ -11,28 +14,28 @@
   'ctrl-x 1': 'atomic-emacs:close-other-panes'
   'ctrl-x o': 'window:focus-next-pane'
 
-'body.platform-darwin':
+'body.platform-darwin .atomic-emacs':
   'cmd-x': 'atomic-emacs:cut'
   'cmd-c': 'atomic-emacs:copy'
 
-'body.platform-linux':
+'body.platform-linux .atomic-emacs':
   'shift-delete': 'atomic-emacs:cut'
   'ctrl-insert': 'atomic-emacs:copy'
   'ctrl-x': 'atomic-emacs:cut'
   'ctrl-c': 'atomic-emacs:copy'
 
 # For command palette, buffer switcher, etc. on Linux.
-'body.platform-linux .select-list atom-text-editor.mini':
+'body.platform-linux .atomic-emacs .select-list atom-text-editor.mini':
   'ctrl-p': 'core:move-up'
   'ctrl-n': 'core:move-down'
 
-'body.platform-win32':
+'body.platform-win32 .atomic-emacs':
   'shift-delete': 'atomic-emacs:cut'
   'ctrl-insert': 'atomic-emacs:copy'
   'ctrl-x': 'atomic-emacs:cut'
   'ctrl-c': 'atomic-emacs:copy'
 
-'atom-workspace atom-text-editor':
+'atom-workspace.atomic-emacs atom-text-editor':
   # Navigation
   'ctrl-b': 'atomic-emacs:backward-char'
   'left': 'atomic-emacs:backward-char'
@@ -107,7 +110,7 @@
   'ctrl-x ctrl-w': 'core:save-as'
   'alt-.': 'symbols-view:go-to-declaration'
 
-'atom-text-editor:not(.autocomplete-active):not(.mini)':
+'.atomic-emacs atom-text-editor:not(.autocomplete-active):not(.mini)':
   # Navigation
   'ctrl-p': 'atomic-emacs:previous-line'
   'up': 'atomic-emacs:previous-line'
@@ -126,12 +129,12 @@
   'ctrl-d': 'core:delete'
   'ctrl-e': 'editor:move-to-end-of-screen-line'
 
-'.platform-linux atom-workspace atom-text-editor:not([mini]),
- .platform-win32 atom-workspace atom-text-editor:not([mini])':
+'.platform-linux atom-workspace.atomic-emacs atom-text-editor:not([mini]),
+ .platform-win32 atom-workspace.atomic-emacs atom-text-editor:not([mini])':
   'ctrl-j': 'editor:newline'
 
-'.platform-linux atom-workspace atom-text-editor:not(.autocomplete-active):not([mini]),
- .platform-win32 atom-workspace atom-text-editor:not(.autocomplete-active):not([mini])':
+'.platform-linux atom-workspace.atomic-emacs atom-text-editor:not(.autocomplete-active):not([mini]),
+ .platform-win32 atom-workspace.atomic-emacs atom-text-editor:not(.autocomplete-active):not([mini])':
   'ctrl-/': 'core:undo'
 
 '.platform-win32 atom-workspace.atomic-emacs atom-text-editor':
@@ -139,42 +142,42 @@
   'ctrl-e': 'editor:move-to-end-of-screen-line'
   'ctrl-k ctrl-k': 'editor:cut-to-end-of-line'
 
-'atom-workspace .find-and-replace atom-text-editor':
+'atom-workspace.atomic-emacs .find-and-replace atom-text-editor':
   'ctrl-s': 'find-and-replace:confirm'
   'ctrl-r': 'find-and-replace:show-previous'
 
-'.go-to-line atom-text-editor[mini] input':
+'.atomic-emacs .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
 
-'.tree-view-dialog atom-text-editor[mini]':
+'.atomic-emacs .tree-view-dialog atom-text-editor[mini]':
   'ctrl-g': 'core:cancel'
 
-'atom-panel.left, atom-panel.right':
+'.atomic-emacs atom-panel.left, atom-panel.right':
   'ctrl-g': 'tool-panel:unfocus'
 
-'.platform-linux atom-workspace, .platform-win32 atom-workspace':
+'.platform-linux atom-workspace.atomic-emacs, .platform-win32 atom-workspace.atomic-emacs':
   'alt-g g': 'go-to-line:toggle'
   'alt-g alt-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
 
-'.platform-win32 .go-to-line atom-text-editor[mini] input':
+'.platform-win32 .atomic-emacs .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
 
-'.platform-darwin':
+'.platform-darwin .atomic-emacs':
   'alt-g g': 'go-to-line:toggle'
   'alt-g alt-g': 'go-to-line:toggle'
   'ctrl-g': 'core:cancel'
 
-'.platform-darwin .go-to-line atom-text-editor[mini] input':
+'.platform-darwin .atomic-emacs .go-to-line atom-text-editor[mini] input':
   'ctrl-g': 'core:cancel'
 
-'atom-text-editor.autocomplete-active':
+'.atomic-emacs atom-text-editor.autocomplete-active':
   'ctrl-g': 'autocomplete-plus:cancel'
 
-'atom-text-editor !important, atom-text-editor[mini] !important':
+'.atomic-emacs atom-text-editor !important, atom-text-editor[mini] !important':
   'ctrl-g': 'editor:consolidate-selections'
 
-'atom-workspace .atomic-emacs.search atom-text-editor':
+'atom-workspace.atomic-emacs .atomic-emacs.search atom-text-editor':
   'enter': 'atomic-emacs:isearch-exit'
   'ctrl-m': 'atomic-emacs:isearch-exit'
   'escape': 'atomic-emacs:isearch-cancel'
