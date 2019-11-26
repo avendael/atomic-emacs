@@ -50,6 +50,10 @@ module.exports =
   State: State
 
   config:
+    aastartWithEmacsBindings:
+      type: 'boolean',
+      default: true,
+      title: 'Turn on emacs bindings when Atom starts'
     useAdvancedOpenFile:
       type: 'boolean',
       default: true,
@@ -78,11 +82,14 @@ module.exports =
 
     State.initialize()
     @search = new SearchManager(plugin: @)
-    document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
+    if atom.config.get('atomic-emacs.aastartWithEmacsBindings')
+      document.getElementsByTagName('atom-workspace')[0]?.classList?.add('atomic-emacs')
     @disposable = new CompositeDisposable
     @disposable.add atom.commands.onWillDispatch (event) -> beforeCommand(event)
     @disposable.add atom.commands.onDidDispatch (event) -> afterCommand(event)
     @disposable.add atom.commands.add 'atom-text-editor',
+      # Activation
+      "atomic-emacs:toggle": (event) -> atom.workspace.element.classList.toggle('atomic-emacs')
       # Navigation
       "atomic-emacs:backward-char": (event) -> getEditor(event).backwardChar()
       "atomic-emacs:forward-char": (event) -> getEditor(event).forwardChar()

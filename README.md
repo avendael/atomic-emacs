@@ -17,7 +17,14 @@ Or in Atom:
 
 There's no need to restart Atom.
 
+Use shift-ctrl-space to activate/deactivate emacs key bindings.
+
+There is a setting to control whether emacs bindings are active when Atom starts.
+
 ## Commands
+
+### Activation
+    'shift-ctrl-space': 'atomic-emacs:toggle'
 
 ### Navigation
 
