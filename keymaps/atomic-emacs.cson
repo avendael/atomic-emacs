@@ -92,8 +92,8 @@
   'ctrl-alt-\\' : 'editor:auto-indent'
 
   # Searching
-  'ctrl-s': 'atomic-emacs:isearch-forward'
-  'ctrl-r': 'atomic-emacs:isearch-backward'
+  'ctrl-s': 'find-and-replace:show'
+  'ctrl-r': 'find-and-replace:show'
 
   # Marking & Selecting
   'ctrl-space': 'atomic-emacs:set-mark'
